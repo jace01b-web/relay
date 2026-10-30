@@ -1,0 +1,3844 @@
+<!doctype html>
+<html lang="en" data-theme="opium">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relay</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,500;1,600&family=Poppins:wght@600;700;800&display=swap">
+<style>
+/* css/core.css */
+/* ===========================================================
+   Relay — core tokens, base elements, shared components
+   =========================================================== */
+
+:root {
+  /* theme: relay (default) */
+  --base:    #11182b;
+  --base-2:  #0d1324;
+  --panel:   #1a2240;
+  --rail:    #242d52;
+  --line:    #30396b;
+  --text:    #e8ebf7;
+  --muted:   #8e97c4;
+  --accent:  #f7a93b;
+  --accent-ink: #231703;
+  --live:    #4fe0ae;
+  --down:    #ff8080;
+  --warn:    #ffd166;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --shell-w: 1180px;
+  --speed: 180ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1100px 520px at 12% -8%, color-mix(in srgb, var(--accent) 11%, transparent), transparent 70%),
+    radial-gradient(800px 420px at 92% 4%, color-mix(in srgb, var(--live) 8%, transparent), transparent 72%),
+    var(--base);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.015em; margin: 0; }
+h1 { font-size: 1.85rem; line-height: 1.15; }
+h2 { font-size: 1.15rem; }
+h3 { font-size: 0.98rem; font-weight: 500; }
+p { margin: 0 0 0.8em; max-width: 68ch; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ---------- shell ---------- */
+
+.shell { width: 100%; max-width: var(--shell-w); margin: 0 auto; padding: 0 24px; }
+
+/* one document, four views */
+.view { position: relative; z-index: 1; }
+.view[hidden] { display: none; }
+
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--base-2) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-in {
+  display: flex; align-items: center; gap: 28px;
+  height: 62px;
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; letter-spacing: -0.02em; }
+.brand:hover { text-decoration: none; }
+.brand .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--live) 18%, transparent);
+}
+.brand small { color: var(--muted); font-weight: 400; font-family: var(--mono); font-size: 0.72rem; }
+
+.nav { display: flex; gap: 4px; margin-left: auto; }
+.nav a {
+  color: var(--muted); padding: 7px 13px; border-radius: var(--r-md);
+  font-size: 0.92rem; transition: color var(--speed), background var(--speed);
+}
+.nav a:hover { color: var(--text); background: var(--rail); text-decoration: none; }
+.nav a[aria-current="page"] { color: var(--text); background: var(--rail); }
+
+@media (max-width: 620px) {
+  .shell { padding: 0 16px; }
+  .topbar-in { height: auto; padding: 10px 0; flex-wrap: wrap; gap: 8px 14px; }
+  .brand { font-size: 0.95rem; }
+  .nav { margin-left: 0; width: 100%; gap: 2px; }
+  .nav a { padding: 6px 10px; font-size: 0.86rem; }
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  font: inherit; font-weight: 500;
+  padding: 10px 18px; border-radius: var(--r-md);
+  border: 1px solid var(--line); background: var(--rail); color: var(--text);
+  cursor: pointer; transition: border-color var(--speed), background var(--speed), transform var(--speed);
+}
+.btn:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--accent); color: var(--accent-ink);
+  border-color: transparent; font-weight: 600;
+}
+.btn-primary:hover { background: color-mix(in srgb, var(--accent) 86%, white); }
+.btn-ghost { background: transparent; }
+.btn-danger { color: var(--down); border-color: color-mix(in srgb, var(--down) 40%, var(--line)); background: transparent; }
+.btn-sm { padding: 6px 11px; font-size: 0.86rem; }
+.btn-icon { padding: 8px 10px; line-height: 1; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------- fields ---------- */
+
+.field {
+  font: inherit; width: 100%;
+  background: var(--base-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 10px 13px;
+  transition: border-color var(--speed);
+}
+.field:focus { border-color: var(--accent); outline: none; }
+.field::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
+.field-mono { font-family: var(--mono); font-size: 0.88rem; }
+select.field { appearance: none; background-image: none; cursor: pointer; }
+
+.label { display: block; font-size: 0.88rem; color: var(--text); margin-bottom: 5px; }
+.hint { font-size: 0.82rem; color: var(--muted); margin: 5px 0 0; max-width: 60ch; }
+
+.switch { display: inline-flex; align-items: center; gap: 11px; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch .track {
+  width: 40px; height: 22px; flex: none;
+  background: var(--base-2); border: 1px solid var(--line); border-radius: 999px;
+  position: relative; transition: background var(--speed), border-color var(--speed);
+}
+.switch .track::after {
+  content: ""; position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--muted); transition: transform var(--speed), background var(--speed);
+}
+.switch input:checked + .track { background: color-mix(in srgb, var(--accent) 28%, var(--base-2)); border-color: var(--accent); }
+.switch input:checked + .track::after { transform: translateX(18px); background: var(--accent); }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- surfaces ---------- */
+
+.panel {
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.panel-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-bottom: 1px solid var(--line);
+}
+.panel-head h2 { flex: 1; }
+.panel-body { padding: 18px; }
+
+.meta { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+
+.tag {
+  font-family: var(--mono); font-size: 0.7rem;
+  padding: 2px 7px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted);
+}
+.tag-live { color: var(--live); border-color: color-mix(in srgb, var(--live) 45%, transparent); }
+.tag-down { color: var(--down); border-color: color-mix(in srgb, var(--down) 45%, transparent); }
+.tag-accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* ---------- signal bars (latency) ---------- */
+
+.bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.bars i {
+  display: block; width: 3px; border-radius: 1px;
+  background: var(--line);
+}
+.bars i:nth-child(1) { height: 4px; }
+.bars i:nth-child(2) { height: 7px; }
+.bars i:nth-child(3) { height: 10px; }
+.bars i:nth-child(4) { height: 14px; }
+.bars[data-level="1"] i:nth-child(-n+1),
+.bars[data-level="2"] i:nth-child(-n+2),
+.bars[data-level="3"] i:nth-child(-n+3),
+.bars[data-level="4"] i:nth-child(-n+4) { background: var(--live); }
+.bars[data-level="1"] i:nth-child(-n+1) { background: var(--warn); }
+.bars[data-level="0"] i { background: var(--line); }
+
+/* ---------- toast ---------- */
+
+#toasts {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  z-index: 90; display: flex; flex-direction: column; gap: 8px; align-items: center;
+  pointer-events: none;
+}
+.toast {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  padding: 10px 16px; border-radius: var(--r-md);
+  font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  animation: toast-in 160ms ease-out;
+}
+.toast[data-kind="bad"] { border-left-color: var(--down); }
+.toast[data-kind="good"] { border-left-color: var(--live); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- misc ---------- */
+
+.row { display: flex; align-items: center; gap: 10px; }
+.spread { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.stack { display: grid; gap: 14px; }
+.spin {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty {
+  padding: 34px 18px; text-align: center; color: var(--muted);
+  border: 1px dashed var(--line); border-radius: var(--r-lg);
+}
+.empty strong { display: block; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+<style>
+/* css/skins.css */
+/* ===========================================================
+   Relay — skins
+   Each skin is a palette, a wordmark face, and a backdrop.
+   Add one by copying a block and giving it a new data-theme name.
+   =========================================================== */
+
+/* ---------------- opium: purple night ---------------- */
+
+html[data-theme="opium"] {
+  --base:    #140a20;
+  --base-2:  #0c0614;
+  --panel:   #1d1226;
+  --rail:    #271737;
+  --line:    #342045;
+  --text:    #f3e9dc;
+  --muted:   #9b86a8;
+  --accent:  #ff9a4d;
+  --accent-ink: #2a1403;
+  --live:    #7ee0b8;
+  --down:    #ff7b8a;
+  --warn:    #ffc46b;
+
+  --wordmark-font: "Playfair Display", Georgia, serif;
+  --wordmark-style: italic;
+  --wordmark-weight: 600;
+  --wordmark-size: clamp(3.4rem, 13vw, 6.4rem);
+  --wordmark-spacing: -0.01em;
+  --wordmark-case: lowercase;
+  --wordmark-fill: linear-gradient(104deg, #fbf1e2 8%, #ffcf9a 44%, #ff8a3c 86%);
+  --tagline-font: "Playfair Display", Georgia, serif;
+  --tagline-style: italic;
+  --tagline-weight: 500;
+
+  --sky-top: #1d1030;
+  --sky-mid: #150b22;
+  --sky-low: #2a1420;
+  --horizon: #ff8a3c;
+  --tile-radius: 10px;
+}
+
+html[data-theme="opium"] body {
+  background: var(--base-2);
+}
+
+/* ---------------- strawberri: black cherry ---------------- */
+
+html[data-theme="strawberri"] {
+  --base:    #0b0404;
+  --base-2:  #070202;
+  --panel:   #1a0b0b;
+  --rail:    #230e0e;
+  --line:    #351515;
+  --text:    #ffffff;
+  --muted:   #bb9090;
+  --accent:  #ff2b52;
+  --accent-ink: #2a0209;
+  --live:    #d8ff2b;
+  --down:    #ff7b6b;
+  --warn:    #ffd166;
+
+  --wordmark-font: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --wordmark-style: normal;
+  --wordmark-weight: 800;
+  --wordmark-size: clamp(2.9rem, 10vw, 5rem);
+  --wordmark-spacing: -0.03em;
+  --wordmark-case: none;
+  --wordmark-fill: none;
+  --tagline-font: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --tagline-style: normal;
+  --tagline-weight: 700;
+
+  --sky-top: #2b0808;
+  --sky-mid: #140404;
+  --sky-low: #070202;
+  --horizon: #ff2b52;
+  --tile-radius: 16px;
+}
+
+html[data-theme="strawberri"] body { background: var(--base-2); }
+html[data-theme="strawberri"] .wordmark { color: var(--accent); }
+
+/* ---------------- console: the original ---------------- */
+
+html[data-theme="console"] {
+  --base:    #11182b;
+  --base-2:  #0d1324;
+  --panel:   #1a2240;
+  --rail:    #242d52;
+  --line:    #30396b;
+  --text:    #e8ebf7;
+  --muted:   #8e97c4;
+  --accent:  #f7a93b;
+  --accent-ink: #231703;
+  --live:    #4fe0ae;
+  --down:    #ff8080;
+
+  --wordmark-font: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --wordmark-style: normal;
+  --wordmark-weight: 600;
+  --wordmark-size: clamp(2.6rem, 8vw, 4rem);
+  --wordmark-spacing: -0.03em;
+  --wordmark-case: none;
+  --wordmark-fill: none;
+  --tagline-font: "IBM Plex Mono", monospace;
+  --tagline-style: normal;
+  --tagline-weight: 400;
+
+  --sky-top: #16203c;
+  --sky-mid: #0f1628;
+  --sky-low: #0d1324;
+  --horizon: #f7a93b;
+  --tile-radius: 12px;
+}
+
+/* ===========================================================
+   backdrop — sky, stars, and the per-skin decorations
+   =========================================================== */
+
+.decor {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+  background:
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 48%, var(--sky-low) 100%);
+}
+
+/* the scenery fades out near the dock so labels stay readable */
+.decor::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 200px;
+  background: linear-gradient(180deg, transparent,
+    color-mix(in srgb, var(--base-2) 58%, transparent) 60%,
+    color-mix(in srgb, var(--base-2) 94%, transparent));
+}
+
+/* starfield: three drifting layers of dots */
+.stars {
+  position: absolute; inset: -40px;
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 22%, #fff9 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 62% 12%, #fff7 50%, transparent 52%),
+    radial-gradient(1.8px 1.8px at 84% 34%, #ffe9c080 50%, transparent 52%),
+    radial-gradient(1.1px 1.1px at 33% 58%, #fff6 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 72% 66%, #fff5 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 46% 38%, #ffd9a060 50%, transparent 52%),
+    radial-gradient(1.3px 1.3px at 8% 76%, #fff5 50%, transparent 52%),
+    radial-gradient(1.6px 1.6px at 92% 82%, #fff4 50%, transparent 52%);
+  background-size: 420px 420px, 300px 300px, 520px 520px, 360px 360px,
+                   480px 480px, 280px 280px, 440px 440px, 560px 560px;
+  animation: drift 160s linear infinite;
+  opacity: 0.9;
+}
+@keyframes drift { to { transform: translate3d(-120px, 60px, 0); } }
+
+html[data-theme="strawberri"] .stars { opacity: 0.25; }
+
+/* the moon */
+.moon {
+  position: absolute; top: 9%; right: 16%;
+  width: 86px; height: 86px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #fdf6d8, #ece0ab 62%, #d9c88c);
+  box-shadow: 0 0 60px 18px #f5e9b83d, 0 0 140px 50px #f5e9b81a;
+}
+.moon::before, .moon::after {
+  content: ""; position: absolute; border-radius: 50%;
+  background: #0000000e;
+}
+.moon::before { width: 20px; height: 20px; top: 22%; left: 24%; }
+.moon::after  { width: 13px; height: 13px; top: 54%; left: 56%; }
+
+/* a shooting star, now and then */
+.shoot {
+  position: absolute; top: 24%; right: 6%;
+  width: 150px; height: 1.5px;
+  background: linear-gradient(270deg, #fff0, #ffe9c0cc);
+  transform: rotate(18deg);
+  opacity: 0;
+  animation: shoot 14s ease-in infinite;
+}
+@keyframes shoot {
+  0%, 86% { opacity: 0; transform: translate(0, 0) rotate(18deg); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-280px, 90px) rotate(18deg); }
+}
+
+/* the ground: a town silhouette with a warm glow behind it (opium only) */
+.horizon { display: none; }
+html[data-theme="opium"] .horizon {
+  display: block;
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26vh; min-height: 150px;
+}
+.horizon .glow {
+  position: absolute; inset: auto 0 0 0; height: 100%;
+  background: radial-gradient(90% 150% at 70% 108%,
+    color-mix(in srgb, var(--horizon) 34%, transparent), transparent 72%);
+}
+.horizon svg { position: absolute; bottom: 0; width: 100%; height: 100%; display: block; }
+
+/* halloween set */
+.decor .spooky { display: none; }
+html[data-decor="spooky"] .decor .spooky { display: block; }
+
+.web { position: absolute; top: 0; width: 180px; height: 180px; opacity: 0.32; }
+.web-l { left: 0; }
+.web-r { right: 0; transform: scaleX(-1); }
+
+.bat {
+  position: absolute;
+  width: 46px; height: 26px;
+  animation: flap 7s ease-in-out infinite;
+  transform-origin: center;
+}
+.bat-1 { top: 22%; left: 22%; animation-delay: -1s; }
+.bat-2 { top: 44%; left: 36%; width: 32px; height: 18px; animation-delay: -3.5s; opacity: .85; }
+.bat-3 { top: 13%; right: 4%; width: 58px; height: 32px; animation-delay: -5s; opacity: .9; }
+@keyframes flap {
+  0%, 100% { transform: translate(0, 0) scaleY(1); }
+  25% { transform: translate(14px, -10px) scaleY(.72); }
+  50% { transform: translate(28px, 4px) scaleY(1); }
+  75% { transform: translate(12px, 12px) scaleY(.8); }
+}
+
+.spider {
+  position: absolute; top: 0; left: 9%;
+  width: 2px; height: 160px;
+  background: linear-gradient(180deg, #ffffff35, #ffffff18);
+  animation: dangle 9s ease-in-out infinite;
+  transform-origin: top center;
+}
+.spider svg { position: absolute; bottom: -22px; left: -17px; width: 36px; height: 30px; }
+@keyframes dangle {
+  0%, 100% { transform: translateY(0) rotate(0.6deg); }
+  50% { transform: translateY(26px) rotate(-0.6deg); }
+}
+
+.pumpkins { position: absolute; left: 2.5%; bottom: 9%; width: 170px; height: 118px; }
+
+/* strawberri set: slow lime blobs, one of them follows the pointer */
+.decor .berry { display: none; }
+html[data-theme="strawberri"] .decor .berry { display: block; }
+
+.blob {
+  position: absolute; border-radius: 48% 52% 60% 40% / 52% 44% 56% 48%;
+  filter: blur(42px);
+  opacity: 0.85;
+}
+.blob-1 {
+  width: 260px; height: 230px; top: 26%; right: 12%;
+  background: radial-gradient(circle at 42% 38%, #fff36b, #d8ff2b 52%, #9bd40000 78%);
+  transform: translate3d(calc(var(--px, 0) * 34px), calc(var(--py, 0) * 28px), 0);
+  transition: transform 900ms cubic-bezier(.2,.7,.3,1);
+}
+.blob-2 {
+  width: 320px; height: 210px; bottom: 12%; left: 46%;
+  background: radial-gradient(circle at 56% 52%, #eaff4e, #c3f50033 62%, transparent 76%);
+  animation: wander 26s ease-in-out infinite;
+  opacity: 0.55;
+}
+@keyframes wander {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-90px, -40px) scale(1.12); }
+  66% { transform: translate(60px, 26px) scale(0.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars, .bat, .spider, .shoot, .blob-2 { animation: none; }
+  .blob-1 { transition: none; }
+}
+</style>
+<style>
+/* css/home.css */
+/* ===========================================================
+   Relay — the launcher home
+   Hero, search pill, tiles, dock, relay sheet.
+   =========================================================== */
+
+body.launcher {
+  min-height: 100vh;
+  margin: 0;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+.launch {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 0 20px;
+}
+
+.launch-in {
+  width: 100%; max-width: 760px; margin: 0 auto;
+  padding: 11vh 0 30px;
+  display: grid; justify-items: center;
+  align-content: start;
+}
+
+/* ---------- hero ---------- */
+
+.wordmark {
+  font-family: var(--wordmark-font);
+  font-style: var(--wordmark-style);
+  font-weight: var(--wordmark-weight);
+  font-size: var(--wordmark-size);
+  letter-spacing: var(--wordmark-spacing);
+  text-transform: var(--wordmark-case);
+  line-height: 1;
+  margin: 0;
+  background-image: var(--wordmark-fill);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-align: center;
+}
+html[data-theme="strawberri"] .wordmark,
+html[data-theme="console"] .wordmark {
+  background-image: none;
+  color: var(--accent);
+  -webkit-text-fill-color: currentColor;
+}
+html[data-theme="opium"] .wordmark { -webkit-text-fill-color: transparent; }
+
+.wordmark .berry-dot { font-size: 0.3em; vertical-align: super; margin-left: -0.1em; }
+
+.tagline {
+  font-family: var(--tagline-font);
+  font-style: var(--tagline-style);
+  font-weight: var(--tagline-weight);
+  font-size: 1rem;
+  color: var(--text);
+  opacity: 0.82;
+  margin: 12px 0 0;
+  text-align: center;
+}
+html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.98rem; }
+
+/* ---------- search pill ---------- */
+
+.pill {
+  position: relative;
+  width: min(640px, 100%);
+  margin-top: 40px;
+}
+.pill input {
+  width: 100%;
+  font: inherit; font-size: 1rem;
+  padding: 19px 22px 19px 54px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+  transition: border-color 200ms, box-shadow 240ms, background 200ms;
+}
+.pill input::placeholder { color: var(--muted); }
+.pill input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent),
+              0 18px 48px -26px color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+}
+.pill .glass {
+  position: absolute; left: 21px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; color: var(--muted); pointer-events: none;
+}
+.pill .enter {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 0.7rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px;
+  opacity: 0; transition: opacity 180ms;
+}
+.pill input:focus ~ .enter { opacity: 1; }
+
+/* mode chips */
+.chips { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+.chip {
+  font: inherit; font-size: 0.82rem;
+  padding: 6px 14px; border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 65%, transparent);
+  border: 1px solid var(--line);
+  color: var(--muted); cursor: pointer;
+  transition: color 160ms, border-color 160ms, background 160ms;
+}
+.chip:hover { color: var(--text); }
+.chip[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* ---------- tiles ---------- */
+
+.tiles {
+  width: min(680px, 100%);
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+@media (max-width: 720px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 430px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+
+.tile {
+  display: grid; justify-items: center; align-content: center; gap: 8px;
+  aspect-ratio: 1 / 1;
+  padding: 10px 6px;
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--tile-radius);
+  color: var(--text); font: inherit; font-size: 0.78rem;
+  text-align: center; cursor: pointer;
+  transition: transform 180ms cubic-bezier(.2,.7,.3,1), border-color 180ms, background 180ms;
+}
+.tile:hover {
+  text-decoration: none;
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+}
+.tile .face {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent); font-weight: 600; font-size: 0.95rem;
+  overflow: hidden;
+}
+.tile .face img { width: 100%; height: 100%; object-fit: contain; }
+.tile .cap {
+  line-height: 1.25; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tile.add { border-style: dashed; color: var(--muted); }
+.tile.add .face { background: transparent; color: var(--muted); font-size: 1.3rem; }
+
+/* ---------- dock ---------- */
+
+.dock {
+  position: relative; z-index: 2;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 18px;
+  padding: 16px 4px 20px;
+  max-width: 980px; margin: 0 auto; width: 100%;
+}
+
+.readout {
+  font-family: var(--mono); font-size: 0.68rem; line-height: 1.7;
+  color: var(--muted); opacity: 0.75; white-space: nowrap;
+}
+.readout b { font-weight: 400; color: color-mix(in srgb, var(--text) 75%, transparent); }
+.readout .ok { color: var(--live); }
+.readout .bad { color: var(--down); }
+
+.dock-nav { display: flex; gap: 4px; }
+.dock-nav a, .dock-nav button {
+  display: grid; justify-items: center; gap: 5px;
+  padding: 8px 16px; border-radius: 10px;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font: inherit; font-size: 0.64rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  transition: color 160ms, background 160ms;
+}
+.dock-nav a:hover, .dock-nav button:hover {
+  color: var(--text); text-decoration: none;
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+}
+.dock-nav svg { width: 17px; height: 17px; }
+
+@media (max-width: 680px) {
+  .dock { flex-direction: column-reverse; align-items: center; gap: 10px; }
+  .dock-nav { width: 100%; justify-content: space-around; gap: 0; }
+  .dock-nav a, .dock-nav button { padding: 8px 10px; }
+  .launch-in { padding-top: 8vh; }
+}
+
+/* ---------- trays (relays, library, add tile) ---------- */
+
+.scrim {
+  position: fixed; inset: 0; z-index: 60;
+  background: #04010a9e; backdrop-filter: blur(3px);
+  display: none;
+}
+.scrim[data-open="1"] { display: block; }
+
+.tray {
+  position: fixed; z-index: 61;
+  left: 50%; bottom: 0; transform: translateX(-50%);
+  width: min(620px, 100%);
+  max-height: 78vh; overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line); border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -30px 70px -40px #000;
+  display: none;
+}
+.tray[data-open="1"] { display: block; animation: tray-up 220ms cubic-bezier(.2,.8,.3,1); }
+@keyframes tray-up { from { transform: translate(-50%, 26px); opacity: 0; } }
+
+.tray-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.tray-head h2 { flex: 1; font-size: 1rem; }
+.tray-body { padding: 8px 12px 22px; }
+
+.tray .rack-list { list-style: none; margin: 0; padding: 0; }
+.tray .rack-list li { border-top: 1px solid var(--line); }
+.tray .rack-list li:first-child { border-top: none; }
+
+.relay {
+  display: grid; grid-template-columns: 3px minmax(0, 1fr) auto auto;
+  align-items: center; gap: 12px;
+  width: 100%; padding: 0;
+  background: none; border: none; color: inherit; font: inherit;
+  text-align: left; cursor: pointer; border-radius: 8px;
+  transition: background 160ms;
+}
+.relay:hover { background: color-mix(in srgb, var(--rail) 70%, transparent); }
+.relay .edge { align-self: stretch; border-radius: 2px; background: transparent; }
+.relay[aria-selected="true"] .edge { background: var(--accent); }
+.relay[aria-selected="true"] { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.relay .body { padding: 12px 0; min-width: 0; }
+.relay .name { font-weight: 500; font-size: 0.92rem; display: flex; align-items: center; gap: 7px; }
+.relay .host {
+  display: block; margin-top: 2px;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.relay .ping { font-family: var(--mono); font-size: 0.76rem; color: var(--muted); min-width: 58px; text-align: right; }
+.relay .ping[data-state="ok"] { color: var(--live); }
+.relay .ping[data-state="down"] { color: var(--down); }
+.relay .gauge { padding-right: 10px; }
+
+.lib { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lib li { display: flex; align-items: center; gap: 6px; }
+.lib a {
+  flex: 1; min-width: 0; color: var(--text); font-size: 0.9rem;
+  padding: 10px 12px; border-radius: 8px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lib a:hover { background: var(--rail); text-decoration: none; }
+.lib a small { display: block; font-family: var(--mono); font-size: 0.68rem; color: var(--muted); }
+.lib .drop { background: none; border: none; color: var(--muted); cursor: pointer; padding: 8px 10px; }
+.lib .drop:hover { color: var(--down); }
+
+.tile-form { display: grid; gap: 12px; padding: 4px 8px 8px; }
+</style>
+<style>
+/* css/views.css */
+/* ===========================================================
+   Relay — page layouts: console (home), viewport (browse),
+   settings, about
+   =========================================================== */
+
+/* ================= BROWSE: the viewport ================= */
+
+/* the viewport fills the window when its view is showing */
+#view-browse { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--base-2); z-index: 5; }
+#view-browse[hidden] { display: none; }
+
+.viewbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--base-2); border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.viewbar .addr { flex: 1; min-width: 0; }
+.viewbar .addr input { font-family: var(--mono); font-size: 0.86rem; padding: 8px 12px; }
+.viewbar-meta {
+  display: flex; align-items: center; gap: 8px; flex: none;
+  font-family: var(--mono); font-size: 0.74rem; color: var(--muted);
+}
+.nudge { color: var(--muted); background: var(--rail); border: 1px solid var(--line); }
+
+.stage { flex: 1; position: relative; background: var(--base-2); min-height: 0; }
+.stage iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: none; background: #fff;
+}
+.stage-msg {
+  position: absolute; inset: 0; display: none;
+  place-content: center; justify-items: center; text-align: center;
+  padding: 30px; gap: 12px;
+  background: var(--base-2);
+}
+.stage-msg[data-show="1"] { display: grid; }
+.stage-msg h2 { font-size: 1.1rem; }
+.stage-msg p { color: var(--muted); font-size: 0.92rem; }
+.stage-msg .trace {
+  font-family: var(--mono); font-size: 0.76rem; color: var(--muted);
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 10px 14px; max-width: 70ch; text-align: left; white-space: pre-wrap;
+}
+
+/* reader rendering */
+.reader {
+  position: absolute; inset: 0; overflow: auto;
+  padding: 44px 24px 80px;
+  background: var(--base);
+}
+.reader-in { max-width: 72ch; margin: 0 auto; }
+.reader-in h1 { font-size: 1.7rem; margin-bottom: 8px; }
+.reader-in .byline { color: var(--muted); font-family: var(--mono); font-size: 0.78rem; margin-bottom: 26px; }
+.reader-in p, .reader-in li { font-size: 1.02rem; line-height: 1.72; }
+.reader-in img { max-width: 100%; height: auto; border-radius: var(--r-md); }
+.reader-in pre { overflow-x: auto; background: var(--base-2); padding: 12px; border-radius: var(--r-md); }
+.reader-in a { color: var(--accent); }
+
+/* ================= SETTINGS ================= */
+
+.settings { padding: 36px 0 90px; position: relative; z-index: 1; }
+.settings-grid { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 30px; align-items: start; }
+
+.toc { position: sticky; top: 84px; display: grid; gap: 2px; }
+.toc a {
+  color: var(--muted); font-size: 0.9rem; padding: 7px 11px; border-radius: var(--r-md);
+  border-left: 2px solid transparent;
+}
+.toc a:hover { color: var(--text); background: var(--rail); text-decoration: none; }
+.toc a.active { color: var(--text); border-left-color: var(--accent); background: var(--rail); }
+
+.sheets { display: grid; gap: 22px; }
+.sheet { scroll-margin-top: 84px; }
+.sheet > p { color: var(--muted); font-size: 0.9rem; }
+
+.control {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px; align-items: center;
+  padding: 14px 0; border-top: 1px solid var(--line);
+}
+.control:first-of-type { border-top: none; padding-top: 4px; }
+.control .text { min-width: 0; }
+.control .text strong { display: block; font-weight: 500; font-size: 0.95rem; }
+.control .text span { display: block; color: var(--muted); font-size: 0.84rem; margin-top: 2px; }
+.control .input { min-width: 190px; justify-self: end; }
+.control.stacked { grid-template-columns: minmax(0, 1fr); }
+.control.stacked .input { justify-self: stretch; min-width: 0; }
+
+/* relay editor */
+.relay-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.relay-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px; align-items: center;
+  padding: 11px 13px;
+  background: var(--base-2); border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.relay-row .info { min-width: 0; }
+.relay-row .info strong { font-weight: 500; font-size: 0.93rem; }
+.relay-row .info code {
+  display: block; font-family: var(--mono); font-size: 0.74rem; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;
+}
+.relay-row .acts { display: flex; gap: 4px; }
+.relay-row.is-off { opacity: 0.5; }
+.order { display: grid; gap: 1px; }
+.order button {
+  background: var(--rail); border: 1px solid var(--line); color: var(--muted);
+  cursor: pointer; line-height: 1; padding: 2px 6px; font-size: 0.7rem; border-radius: var(--r-sm);
+}
+.order button:hover { color: var(--text); }
+
+.editor { display: grid; gap: 12px; margin-top: 14px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) {
+  .settings-grid { grid-template-columns: minmax(0, 1fr); }
+  .toc { position: static; display: flex; flex-wrap: wrap; }
+  .editor-grid { grid-template-columns: 1fr; }
+  .control { grid-template-columns: minmax(0, 1fr); }
+  .control .input { justify-self: stretch; }
+}
+
+/* theme swatches */
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch {
+  width: 64px; height: 44px; border-radius: var(--r-md); cursor: pointer;
+  border: 1px solid var(--line); position: relative; overflow: hidden;
+  background: none; padding: 0;
+}
+.swatch span { position: absolute; inset: 0; }
+.swatch i {
+  position: absolute; bottom: 6px; left: 6px; width: 14px; height: 14px; border-radius: 50%;
+}
+.swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.swatch small { position: absolute; bottom: 4px; right: 6px; font-family: var(--mono); font-size: 0.6rem; color: #fff8; }
+
+/* ================= ABOUT ================= */
+
+.doc { padding: 46px 0 90px; max-width: 74ch; position: relative; z-index: 1; }
+.doc h1 { margin-bottom: 18px; }
+.doc h2 { margin: 30px 0 8px; }
+.doc ul { padding-left: 20px; }
+.doc li { margin-bottom: 6px; }
+.doc .callout {
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line));
+  background: color-mix(in srgb, var(--warn) 7%, transparent);
+  border-radius: var(--r-md); padding: 14px 16px; margin: 20px 0;
+}
+.doc .callout p:last-child { margin-bottom: 0; }
+.doc code {
+  font-family: var(--mono); font-size: 0.84rem;
+  background: var(--base-2); border: 1px solid var(--line);
+  padding: 1px 5px; border-radius: var(--r-sm);
+}
+</style>
+</head>
+<body data-build="single" data-view="home">
+<!-- backdrop -->
+<div class="decor" id="decor-layer" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="moon spooky"></div>
+  <div class="shoot spooky"></div>
+
+  <svg class="web web-l spooky" viewBox="0 0 100 100" fill="none" stroke="#ffffff" stroke-width="0.7" opacity=".45">
+    <path d="M0 0 L100 60 M0 0 L85 85 M0 0 L60 100 M0 0 L30 100 M0 0 L100 25"/>
+    <path d="M22 8 Q30 22 10 30 M44 16 Q58 40 20 58 M66 25 Q86 58 30 86"/>
+  </svg>
+  <svg class="web web-r spooky" viewBox="0 0 100 100" fill="none" stroke="#c9a7ff" stroke-width="0.7" opacity=".4">
+    <path d="M0 0 L100 60 M0 0 L85 85 M0 0 L60 100 M0 0 L30 100 M0 0 L100 25"/>
+    <path d="M22 8 Q30 22 10 30 M44 16 Q58 40 20 58 M66 25 Q86 58 30 86"/>
+  </svg>
+
+  <svg class="bat bat-1 spooky" viewBox="0 0 64 36" fill="#3a2359">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+  <svg class="bat bat-2 spooky" viewBox="0 0 64 36" fill="#2e1b47">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+  <svg class="bat bat-3 spooky" viewBox="0 0 64 36" fill="#43296a">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+
+  <div class="spider spooky">
+    <svg viewBox="0 0 36 30" fill="none" stroke="#b9b2c8" stroke-width="1.6" stroke-linecap="round">
+      <path d="M4 6 L13 14 M4 22 L13 17 M32 6 L23 14 M32 22 L23 17 M8 2 L14 11 M8 26 L14 20 M28 2 L22 11 M28 26 L22 20"/>
+      <ellipse cx="18" cy="16" rx="6" ry="7" fill="#8f87a3" stroke="none"/>
+      <circle cx="18" cy="9" r="3.4" fill="#a79fb8" stroke="none"/>
+    </svg>
+  </div>
+
+  <svg class="pumpkins spooky" viewBox="0 0 160 110" aria-hidden="true">
+    <g>
+      <path d="M38 48c-16 0-28 12-28 28s12 28 28 28 28-12 28-28-12-28-28-28z" fill="#f08a1e"/>
+      <path d="M38 48c-7 0-11 12-11 28s4 28 11 28 11-12 11-28-4-28-11-28z" fill="#ffa63d"/>
+      <path d="M35 44h6v-8c0-3 4-5 7-4-4 3-3 6-3 9h-10z" fill="#4f7a2a"/>
+      <path d="M24 66l8-5 2 7zM52 66l-8-5-2 7zM26 82c6 6 22 6 28 0-4 2-8-3-11 0-3-3-7 2-11 0z" fill="#3a1b06"/>
+    </g>
+    <g transform="translate(62 30) scale(.68)">
+      <path d="M38 48c-16 0-28 12-28 28s12 28 28 28 28-12 28-28-12-28-28-28z" fill="#e0791a"/>
+      <path d="M35 44h6v-8c0-3 4-5 7-4-4 3-3 6-3 9h-10z" fill="#466e26"/>
+      <path d="M24 66l8-5 2 7zM52 66l-8-5-2 7zM26 82c6 6 22 6 28 0-4 2-8-3-11 0-3-3-7 2-11 0z" fill="#3a1b06"/>
+    </g>
+  </svg>
+
+  <!-- strawberri set -->
+  <div class="blob blob-1 berry"></div>
+  <div class="blob blob-2 berry"></div>
+
+  <div class="horizon">
+    <div class="glow"></div>
+    <svg viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 200V150c40-8 70 4 110 2 36-2 58-16 96-14 30 2 44 14 76 12 28-2 40-14 70-12 26 2 38 12 64 12 10-40 18-66 30-66s20 26 30 66c30 0 46-14 76-12 30 2 44 16 76 14 34-2 54-14 88-12 36 2 58 14 94 12 40-2 66-12 100-4 30 7 56 4 90-2v44z"
+            fill="color-mix(in srgb, var(--sky-low) 72%, #000)"/>
+      <g fill="#0c0612" opacity=".96">
+        <rect x="880" y="104" width="86" height="96"/>
+        <path d="M876 108l47-34 47 34z"/>
+        <rect x="966" y="130" width="52" height="70"/>
+        <path d="M962 134l30-22 30 22z"/>
+        <rect x="1030" y="150" width="34" height="50"/>
+      </g>
+      <g fill="var(--horizon)" opacity=".85">
+        <rect x="900" y="126" width="9" height="13"/>
+        <rect x="934" y="126" width="9" height="13"/>
+        <rect x="916" y="158" width="12" height="24"/>
+        <rect x="984" y="152" width="8" height="12"/>
+        <rect x="1040" y="170" width="7" height="12"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+
+<!-- ============ home ============ -->
+<section class="view" id="view-home">
+<div class="launch">
+  <div class="launch-in">
+    <h1 class="wordmark" id="hero-mark">relay</h1>
+    <p class="tagline" id="hero-tag">free relays, no account</p>
+
+    <form class="pill" id="dial" autocomplete="off" role="search">
+      <label class="sr" for="home-addr">Search or enter address</label>
+      <svg class="glass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+      </svg>
+      <input id="home-addr" type="text" inputmode="url" placeholder="Search or enter address">
+      <span class="enter">enter</span>
+    </form>
+
+    <div class="chips" role="group" aria-label="How pages are rendered">
+      <button type="button" class="chip" data-mode="page" aria-pressed="true">full page</button>
+      <button type="button" class="chip" data-mode="reader" aria-pressed="false">reader</button>
+      <button type="button" class="chip" data-mode="frame" aria-pressed="false">instance</button>
+    </div>
+
+    <div class="tiles" id="home-tiles"></div>
+  </div>
+
+  <div class="dock">
+    <div class="readout" id="readout">
+      <div>relay: <b id="r-relay">auto</b></div>
+      <div>ping: <b id="r-ping">untested</b></div>
+      <div>mode: <b id="r-mode">full page</b></div>
+    </div>
+    <nav class="dock-nav" aria-label="Sections">
+      <button type="button" id="open-relays">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="17" r="3"/><path d="M12 14V4"/><path d="M6 8a8 8 0 0 1 12 0"/>
+        </svg>
+        relays
+      </button>
+      <button type="button" id="open-library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M4 5h6v14H4zM12 5h4v14h-4zM18 6l3 13"/>
+        </svg>
+        library
+      </button>
+      <a href="#" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/>
+        </svg>
+        settings
+      </a>
+      <a href="#" data-view="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/>
+        </svg>
+        about
+      </a>
+    </nav>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<section class="tray" id="sheet-relays" aria-labelledby="sheet-relays-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-relays-title">Relays</h2>
+    <span class="meta" id="relay-count"></span>
+    <button class="btn btn-sm" id="tray-test-all" type="button">Test all</button>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body"><ul class="rack-list" id="rack"></ul></div>
+</section>
+
+<section class="tray" id="sheet-library" aria-labelledby="sheet-library-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-library-title">Library</h2>
+    <button class="btn btn-sm btn-ghost" id="clear-library" type="button">Clear</button>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body"><ul class="lib" id="library"></ul></div>
+</section>
+
+<section class="tray" id="sheet-tile" aria-labelledby="sheet-tile-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-tile-title">Add a tile</h2>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body">
+    <form class="tile-form" id="tile-form">
+      <div>
+        <label class="label" for="t-label">Name</label>
+        <input class="field" id="t-label" placeholder="Wikipedia">
+      </div>
+      <div>
+        <label class="label" for="t-url">Address</label>
+        <input class="field field-mono" id="t-url" placeholder="wikipedia.org">
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-sm" type="submit">Add tile</button>
+        <span class="hint" style="margin:0">Remove a tile by right-clicking it, or in Settings.</span>
+      </div>
+    </form>
+  </div>
+</section>
+</section>
+
+<!-- ============ viewport ============ -->
+<section class="view" id="view-browse" hidden>
+<div class="viewbar">
+  <button class="btn btn-sm btn-icon nudge" data-view="home" title="Home" aria-label="Home">⌂</button>
+  <button class="btn btn-sm btn-icon nudge" id="back" title="Back" aria-label="Back">‹</button>
+  <button class="btn btn-sm btn-icon nudge" id="forward" title="Forward" aria-label="Forward">›</button>
+  <button class="btn btn-sm btn-icon nudge" id="reload" title="Reload" aria-label="Reload">⟳</button>
+
+  <form class="addr" id="addr-form" autocomplete="off">
+    <label class="sr" for="view-addr">Address</label>
+    <input class="field" id="view-addr" type="text" spellcheck="false">
+  </form>
+
+  <select class="field field-mono btn-sm" id="view-mode" style="width:auto;padding:7px 10px" aria-label="Render mode">
+    <option value="page">full page</option>
+    <option value="reader">reader</option>
+    <option value="frame">proxy instance</option>
+  </select>
+
+  <div class="viewbar-meta">
+    <span id="via">—</span>
+    <span class="bars" id="bars" data-level="0" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </div>
+
+  <button class="btn btn-sm btn-ghost" id="open-blank" title="Open in a blank window">Blank window</button>
+</div>
+
+<div class="stage" id="stage">
+  <iframe id="frame" title="Proxied page"
+          sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+          referrerpolicy="no-referrer"></iframe>
+
+  <div class="stage-msg" id="busy" data-show="1">
+    <div class="spin"></div>
+    <h2 id="busy-head">Reaching the relay</h2>
+    <p id="busy-sub">asking the first relay in the chain</p>
+  </div>
+
+  <div class="stage-msg" id="failed">
+    <h2 id="fail-head">The page did not come through</h2>
+    <p id="fail-sub">Every enabled relay refused it.</p>
+    <div class="trace" id="fail-trace"></div>
+    <div class="row">
+      <button class="btn" id="retry">Try again</button>
+      <button class="btn" id="try-reader">Open in reader</button>
+      <button class="btn btn-ghost" data-view="settings">Relay settings</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ settings ============ -->
+<section class="view" id="view-settings" hidden>
+<header class="topbar">
+  <div class="shell topbar-in">
+    <a class="brand" href="#" data-view="home"><span class="dot"></span> Relay <small>free relays only</small></a>
+    <nav class="nav">
+      <a href="#" data-view="home">Home</a>
+      <a href="#" data-view="settings" aria-current="page">Settings</a>
+      <a href="#" data-view="about">How it works</a>
+    </nav>
+  </div>
+</header>
+<main class="shell settings">
+  <h1 style="margin-bottom:22px">Settings</h1>
+
+  <div class="settings-grid">
+    <nav class="toc" aria-label="Settings sections">
+      <a href="#relays">Relays</a>
+      <a href="#connection">Connection</a>
+      <a href="#browsing">Browsing</a>
+      <a href="#look">Look</a>
+      <a href="#tiles">Tiles</a>
+      <a href="#tab">Tab and escape</a>
+      <a href="#data">Your data</a>
+    </nav>
+
+    <div class="sheets">
+
+      <!-- ===== relays ===== -->
+      <section class="panel sheet" id="relays">
+        <div class="panel-head">
+          <h2>Relays</h2>
+          <button class="btn btn-sm" id="test-all" type="button">Test all</button>
+          <button class="btn btn-sm" id="restore" type="button">Restore built-ins</button>
+        </div>
+        <div class="panel-body">
+          <p>These are the servers that fetch pages for you. Drag order is top-down: with the relay set to
+             <em>fastest available</em>, the quickest one answers first and the rest stand in if it fails.</p>
+          <ul class="relay-rows" id="relay-rows"></ul>
+
+          <div class="editor" id="editor">
+            <h3 id="editor-title">Add a relay</h3>
+            <div class="editor-grid">
+              <div>
+                <label class="label" for="r-name">Name</label>
+                <input class="field" id="r-name" placeholder="My proxy">
+              </div>
+              <div>
+                <label class="label" for="r-kind">Type</label>
+                <select class="field" id="r-kind">
+                  <option value="raw">raw bytes — returns the page as-is</option>
+                  <option value="json">json wrapped — page inside a JSON field</option>
+                  <option value="reader">text only — returns readable text</option>
+                  <option value="frame">proxy instance — a full web proxy, loaded in a frame</option>
+                  <option value="direct">no relay — straight from your browser</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="label" for="r-template">Endpoint</label>
+              <input class="field field-mono" id="r-template" placeholder="https://example.com/fetch?url=%URL%">
+              <p class="hint"><code>%URL%</code> is where the address you want goes. Leave it out and the address is appended to the end.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="r-encode" checked>
+              <span class="track"></span>
+              <span>Percent-encode the address (needed when it sits in a query string)</span>
+            </label>
+            <div class="row">
+              <button class="btn btn-primary btn-sm" id="r-save" type="button">Save relay</button>
+              <button class="btn btn-sm btn-ghost" id="r-cancel" type="button">Cancel</button>
+              <button class="btn btn-sm btn-ghost" id="r-test" type="button">Test this endpoint</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== connection ===== -->
+      <section class="panel sheet" id="connection">
+        <div class="panel-head"><h2>Connection</h2></div>
+        <div class="panel-body">
+          <div class="control">
+            <div class="text"><strong>Relay</strong><span>Which server fetches your pages.</span></div>
+            <div class="input"><select class="field" id="activeRelay"></select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Fall back to other relays</strong><span>If the chosen relay fails, try the rest in order.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="failover"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Give up after</strong><span>How long one relay gets before the next is tried.</span></div>
+            <div class="input"><select class="field" id="timeout">
+              <option value="6000">6 seconds</option>
+              <option value="12000">12 seconds</option>
+              <option value="20000">20 seconds</option>
+              <option value="35000">35 seconds</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Default mode</strong><span>How pages render when you connect from the console.</span></div>
+            <div class="input"><select class="field" id="mode">
+              <option value="page">full page</option>
+              <option value="reader">reader</option>
+              <option value="frame">proxy instance</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== browsing ===== -->
+      <section class="panel sheet" id="browsing">
+        <div class="panel-head"><h2>Browsing</h2></div>
+        <div class="panel-body">
+          <div class="control">
+            <div class="text"><strong>Search with</strong><span>Used when what you type isn't an address.</span></div>
+            <div class="input"><select class="field" id="searchEngine">
+              <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+              <option value="https://www.google.com/search?q=%s">Google</option>
+              <option value="https://www.bing.com/search?q=%s">Bing</option>
+              <option value="https://search.brave.com/search?q=%s">Brave</option>
+              <option value="https://lite.duckduckgo.com/lite/?q=%s">DuckDuckGo Lite</option>
+              <option value="https://en.wikipedia.org/w/index.php?search=%s">Wikipedia</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Remove scripts from pages</strong><span>On is faster and steadier. Off breaks more often than it fixes.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="stripScripts"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Skip images</strong><span>Loads text only. Useful on a slow or rate-limited relay.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="blockImages"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Open pages in</strong><span>Where the viewport appears when you hit Connect.</span></div>
+            <div class="input"><select class="field" id="openIn">
+              <option value="same">this tab</option>
+              <option value="tab">a new tab</option>
+              <option value="blank">a blank window</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== look ===== -->
+      <section class="panel sheet" id="look">
+        <div class="panel-head"><h2>Look</h2></div>
+        <div class="panel-body">
+          <div class="control stacked">
+            <div class="text"><strong>Skin</strong><span>Palette, wordmark face and backdrop. Applies to every page.</span></div>
+            <div class="input swatches" id="swatches"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Wordmark</strong><span>The big name on the home page.</span></div>
+            <div class="input"><input class="field" id="wordmark" placeholder="relay"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Tagline</strong><span>The line under it. Leave blank to drop it.</span></div>
+            <div class="input"><input class="field" id="tagline" placeholder="free relays, no account"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Backdrop</strong><span>Stars and scenery behind the launcher. Seasonal adds the Halloween set through October on the Opium skin.</span></div>
+            <div class="input"><select class="field" id="decor">
+              <option value="auto">seasonal</option>
+              <option value="on">always on</option>
+              <option value="off">off</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Density</strong><span>Compact shrinks type and spacing a little.</span></div>
+            <div class="input"><select class="field" id="density">
+              <option value="comfortable">comfortable</option>
+              <option value="compact">compact</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== tiles ===== -->
+      <section class="panel sheet" id="tiles">
+        <div class="panel-head">
+          <h2>Tiles</h2>
+          <button class="btn btn-sm" id="restore-tiles" type="button">Restore defaults</button>
+        </div>
+        <div class="panel-body">
+          <p>The shortcuts under the search bar. They open through the relay like anything else.</p>
+          <ul class="relay-rows" id="tile-rows"></ul>
+
+          <div class="editor">
+            <h3>Add a tile</h3>
+            <div class="editor-grid">
+              <div>
+                <label class="label" for="nt-label">Name</label>
+                <input class="field" id="nt-label" placeholder="Wikipedia">
+              </div>
+              <div>
+                <label class="label" for="nt-url">Address</label>
+                <input class="field field-mono" id="nt-url" placeholder="wikipedia.org">
+              </div>
+            </div>
+            <div class="row"><button class="btn btn-primary btn-sm" id="nt-save" type="button">Add tile</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== tab and escape ===== -->
+      <section class="panel sheet" id="tab">
+        <div class="panel-head"><h2>Tab and escape</h2></div>
+        <div class="panel-body">
+          <div class="control">
+            <div class="text"><strong>Tab title</strong><span>Replaces the title on every page here. Blank keeps "Relay".</span></div>
+            <div class="input"><input class="field" id="tabTitle" placeholder="Relay"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Tab icon</strong><span>Address of an image to use as the favicon.</span></div>
+            <div class="input"><input class="field field-mono" id="tabIcon" placeholder="https://…/icon.png"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Escape key</strong><span>Pressing it leaves for the address below.</span></div>
+            <div class="input"><select class="field" id="panicKey">
+              <option value="">off</option>
+              <option value="Escape">Escape</option>
+              <option value="`">backtick</option>
+              <option value="]">right bracket</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Escape address</strong><span>Where the escape key sends you.</span></div>
+            <div class="input"><input class="field field-mono" id="panicUrl" placeholder="https://www.google.com"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== data ===== -->
+      <section class="panel sheet" id="data">
+        <div class="panel-head"><h2>Your data</h2></div>
+        <div class="panel-body">
+          <p>Everything lives in this browser's local storage. Nothing is sent anywhere except the page requests you make.</p>
+          <div class="control">
+            <div class="text"><strong>Keep a recent list</strong><span>Off stops new entries and leaves nothing behind.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="keepHistory"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Recent pages</strong><span id="hist-count">—</span></div>
+            <div class="input"><button class="btn btn-sm btn-danger" id="clear-history" type="button">Clear list</button></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Settings file</strong><span>Carry your relays and preferences to another browser.</span></div>
+            <div class="input row" style="justify-content:flex-end">
+              <button class="btn btn-sm" id="export" type="button">Export</button>
+              <button class="btn btn-sm" id="import-btn" type="button">Import</button>
+              <input type="file" id="import-file" accept=".json,application/json" hidden>
+            </div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Start over</strong><span>Returns every setting and the relay list to defaults.</span></div>
+            <div class="input"><button class="btn btn-sm btn-danger" id="reset" type="button">Reset everything</button></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+</section>
+
+<!-- ============ how it works ============ -->
+<section class="view" id="view-about" hidden>
+<header class="topbar">
+  <div class="shell topbar-in">
+    <a class="brand" href="#" data-view="home"><span class="dot"></span> Relay <small>free relays only</small></a>
+    <nav class="nav">
+      <a href="#" data-view="home">Home</a>
+      <a href="#" data-view="settings">Settings</a>
+      <a href="#" data-view="about" aria-current="page">How it works</a>
+    </nav>
+  </div>
+</header>
+<main class="shell doc">
+  <h1>How it works</h1>
+
+  <p>You type an address. This page asks one of the free public relays to fetch it. The relay sends the
+     page back with permission headers that let a browser read it, and Relay then rewrites every link,
+     image and stylesheet inside so they travel the same path. The result is shown in a sandboxed frame
+     that cannot touch your settings or your recent list.</p>
+
+  <h2>The three modes</h2>
+  <ul>
+    <li><strong>Full page</strong> — the real page, rewritten. Closest to normal browsing. Scripts are
+        removed by default, so heavily interactive sites will look plain.</li>
+    <li><strong>Reader</strong> — just the article text and its pictures. The most reliable mode, and the
+        lightest on rate-limited relays.</li>
+    <li><strong>Proxy instance</strong> — hands the whole job to a full web-proxy server you add yourself
+        in settings. This is the only mode that can run a site's own scripts, because the server does the
+        rewriting rather than this page.</li>
+  </ul>
+
+  <h2>Adding your own relay</h2>
+  <p>Settings → Relays → Add a relay. The endpoint is the address of a service that fetches pages,
+     with <code>%URL%</code> standing in for the target. Two shapes cover almost everything:</p>
+  <ul>
+    <li><code>https://service.example/fetch?url=%URL%</code> — keep percent-encoding on.</li>
+    <li><code>https://service.example/%URL%</code> — turn percent-encoding off.</li>
+  </ul>
+  <p>Pick <strong>raw bytes</strong> if the service returns the page itself, <strong>json wrapped</strong>
+     if it returns JSON with the page in a <code>contents</code> field, and <strong>text only</strong> if it
+     returns readable text rather than HTML. If you run your own proxy server, add it as a
+     <strong>proxy instance</strong> and use the proxy-instance mode.</p>
+
+  <h2>What this is not</h2>
+  <div class="callout">
+    <p><strong>This is not a VPN.</strong> A VPN encrypts everything leaving your device and hides your
+       address from the sites you visit. This moves one page request through a public relay, and that is all.</p>
+    <p>Whoever runs a free relay can see which pages you ask for and everything in them. So: don't sign in to
+       anything through it, don't send anything private, and treat every page you get back as something a
+       stranger handed you. For accounts, banking or anything that matters, use the real connection.</p>
+  </div>
+
+  <h2>Why a page sometimes won't load</h2>
+  <ul>
+    <li>The relay hit its rate limit — wait a moment or pick another from the list.</li>
+    <li>The site blocks requests that don't come from a real browser. Reader mode gets through more often.</li>
+    <li>The page needs a login or a POST form. Free relays forward neither.</li>
+    <li>The site is built entirely in JavaScript, so there is no HTML to rewrite. Use a proxy instance.</li>
+  </ul>
+  <p>The failure screen lists every relay that was tried and what each one said, so you can tell
+     a rate limit apart from a block.</p>
+
+  <h2>Where your data sits</h2>
+  <p>Settings, relays, measured speeds and the recent list are stored in this browser's local storage and
+     nowhere else. Nothing here talks to a server of its own — there is no account and no backend. Clear
+     your browser data, or hit <em>Reset everything</em> in settings, and it is all gone.</p>
+
+  <h2>Files</h2>
+  <ul>
+    <li><code>index.html</code> — the launcher: wordmark, search bar, tiles, dock</li>
+    <li><code>browse.html</code> — the viewport that shows proxied pages</li>
+    <li><code>settings.html</code> — everything you can change</li>
+    <li><code>js/relays.js</code> — the built-in relay list, plain and editable</li>
+    <li><code>js/engine.js</code> — fetching, failover and page rewriting</li>
+    <li><code>js/shortcuts.js</code> — the default tiles</li>
+    <li><code>js/store.js</code> — settings, tiles and history in local storage</li>
+    <li><code>css/skins.css</code> — the Opium, Strawberri and Console skins</li>
+  </ul>
+
+  <p style="margin-top:28px"><a href="#" data-view="home">Back to the launcher</a></p>
+</main>
+</section>
+<div id="toasts"></div>
+
+<script>
+/* js/relays.js */
+/* ===========================================================
+   Relay — the relay registry
+   -----------------------------------------------------------
+   Tested from a real browser on 2026-10-30. Most of the free
+   public CORS proxies that existed a couple of years ago are
+   gone: dead hosts, or an API key, or a short internal timeout
+   that gives up on any page bigger than a few hundred KB.
+
+   What survives is at the top. What needs a key, or has stopped
+   answering, is kept below and switched off, with the reason
+   written on it — so the list stays honest instead of failing
+   silently six relays deep.
+
+   The one that will not let you down is your own: worker/relay-worker.js
+   puts a private relay on Cloudflare's free plan in about two
+   minutes. Add it, drag it to the top, and the rest become backup.
+
+   kind:
+     raw    - returns the page bytes as-is            (best)
+     json   - returns JSON, page body in .contents     (fallback)
+     reader - returns plain text / markdown only       (reading)
+     frame  - a full web-proxy instance you load in a frame
+     direct - no relay at all
+   template: %URL% is where the target address goes.
+   encode:   true  -> percent-encoded into the template
+             false -> appended verbatim
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  FP.BUILTIN_RELAYS = [
+    /* ---------- yours, once you put it up ---------- */
+    {
+      id: "my-worker",
+      name: "My Worker",
+      provider: "set this up — see worker/relay-worker.js",
+      kind: "raw",
+      template: "https://YOUR-WORKER.workers.dev/?url=%URL%",
+      encode: true,
+      note: "Your own relay on Cloudflare's free plan. No rate limit worth worrying about, no timeout, and it strips the headers that stop pages rendering. Edit this entry with your address and turn it on.",
+      enabled: false,
+      builtin: true
+    },
+
+    /* ---------- working public relays ---------- */
+    {
+      id: "allorigins-raw",
+      name: "AllOrigins",
+      provider: "allorigins.win",
+      kind: "raw",
+      template: "https://api.allorigins.win/raw?charset=UTF-8&url=%URL%",
+      encode: true,
+      note: "The last free one still answering. Rate-limits if you hit it fast, and gives up (408) on heavy pages.",
+      enabled: true,
+      builtin: true
+    },
+    {
+      id: "allorigins-json",
+      name: "AllOrigins (wrapped)",
+      provider: "allorigins.win",
+      kind: "json",
+      template: "https://api.allorigins.win/get?url=%URL%",
+      encode: true,
+      note: "Same host, JSON-wrapped. Sometimes gets through when raw does not.",
+      enabled: true,
+      builtin: true
+    },
+    {
+      id: "codetabs",
+      name: "CodeTabs",
+      provider: "api.codetabs.com",
+      kind: "raw",
+      template: "https://api.codetabs.com/v1/proxy/?quest=%URL%",
+      encode: true,
+      note: "Very slow lately — often over 15 seconds. Kept as a last resort.",
+      enabled: true,
+      builtin: true
+    },
+
+    /* ---------- need an account, so they cannot be defaults ---------- */
+    {
+      id: "corsproxy-io",
+      name: "CorsProxy.io",
+      provider: "corsproxy.io",
+      kind: "raw",
+      template: "https://corsproxy.io/?url=%URL%",
+      encode: true,
+      note: "Answers 401 without an API key. Free key at corsproxy.io — paste it into the endpoint and turn this on.",
+      enabled: false,
+      builtin: true
+    },
+    {
+      id: "jina-reader",
+      name: "Jina Reader",
+      provider: "r.jina.ai",
+      kind: "reader",
+      template: "https://r.jina.ai/%URL%",
+      encode: false,
+      note: "Clean article text, but now 401s without a key. Free key at jina.ai, then add it to the endpoint.",
+      enabled: false,
+      builtin: true
+    },
+
+    /* ---------- stopped answering ---------- */
+    {
+      id: "cors-workers",
+      name: "Workers Edge",
+      provider: "test.cors.workers.dev",
+      kind: "raw",
+      template: "https://test.cors.workers.dev/?%URL%",
+      encode: false,
+      note: "Offline. Left here so you know it was tried, not forgotten.",
+      enabled: false,
+      builtin: true
+    },
+    {
+      id: "cors-lol",
+      name: "cors.lol",
+      provider: "api.cors.lol",
+      kind: "raw",
+      template: "https://api.cors.lol/?url=%URL%",
+      encode: true,
+      note: "Offline.",
+      enabled: false,
+      builtin: true
+    },
+    {
+      id: "thingproxy",
+      name: "Thingproxy",
+      provider: "thingproxy.freeboard.io",
+      kind: "raw",
+      template: "https://thingproxy.freeboard.io/fetch/%URL%",
+      encode: false,
+      note: "Offline for years.",
+      enabled: false,
+      builtin: true
+    },
+
+    /* ---------- for a real proxy backend ---------- */
+    {
+      id: "instance",
+      name: "My proxy instance",
+      provider: "an Ultraviolet / Wisp server you run",
+      kind: "frame",
+      template: "https://YOUR-INSTANCE.example/service/%URL%",
+      encode: true,
+      note: "The only thing that runs sites built entirely in JavaScript — now.gg, cloud gaming, anything with a login. Point this at your own instance and use proxy-instance mode.",
+      enabled: false,
+      builtin: true
+    },
+    {
+      id: "direct",
+      name: "No relay",
+      provider: "your own connection",
+      kind: "direct",
+      template: "%URL%",
+      encode: false,
+      note: "Straight request from your browser. Only works on sites that already allow cross-origin reads.",
+      enabled: false,
+      builtin: true
+    }
+  ];
+
+  FP.defaultRelays = function () {
+    return FP.BUILTIN_RELAYS.map(function (r) { return Object.assign({}, r); });
+  };
+
+  FP.KIND_LABELS = {
+    raw: "raw bytes",
+    json: "json wrapped",
+    reader: "text only",
+    frame: "proxy instance",
+    direct: "no relay"
+  };
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/shortcuts.js */
+/* ===========================================================
+   Relay — the tiles under the search bar
+   Edit this list for new defaults, or change them in Settings.
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  FP.DEFAULT_SHORTCUTS = [
+    { id: "yt",   label: "YouTube",   url: "https://www.youtube.com" },
+    { id: "wiki", label: "Wikipedia", url: "https://en.wikipedia.org" },
+    { id: "gh",   label: "GitHub",    url: "https://github.com" },
+    { id: "rd",   label: "Reddit",    url: "https://www.reddit.com" },
+    { id: "hn",   label: "Hacker News", url: "https://news.ycombinator.com" },
+    { id: "ddg",  label: "DuckDuckGo", url: "https://duckduckgo.com" },
+    { id: "arch", label: "Archive",   url: "https://archive.org" },
+    { id: "wthr", label: "Weather",   url: "https://wttr.in" },
+    { id: "nasa", label: "NASA",      url: "https://www.nasa.gov" },
+    { id: "gnow", label: "GeForce Now", url: "https://play.geforcenow.com" },
+    { id: "nowgg", label: "now.gg",   url: "https://now.gg" }
+  ];
+
+  FP.defaultShortcuts = function () {
+    return FP.DEFAULT_SHORTCUTS.map(function (t) { return Object.assign({}, t); });
+  };
+
+  /* Tile face: a site icon when the network allows it, the first
+     letter when it doesn't. */
+  FP.tileIcon = function (url) {
+    try {
+      return "https://icons.duckduckgo.com/ip3/" + new URL(url).host + ".ico";
+    } catch (e) { return ""; }
+  };
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/store.js */
+/* ===========================================================
+   Relay — settings + history, saved in this browser only
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var KEY = "relay.settings.v1";
+  var HKEY = "relay.history.v1";
+
+  var DEFAULTS = {
+    /* connection */
+    relays: null,                 /* filled from FP.defaultRelays() on first run */
+    activeRelay: "auto",          /* relay id, or "auto" for fastest-first */
+    failover: true,
+    timeout: 12000,
+    mode: "page",                 /* page | reader | frame */
+
+    /* browsing */
+    searchEngine: "https://duckduckgo.com/?q=%s",
+    stripScripts: true,
+    blockImages: false,
+    openIn: "same",               /* same | tab | blank  (blank = about:blank window) */
+    keepHistory: true,
+
+    /* appearance */
+    theme: "opium",               /* opium | strawberri | console */
+    density: "comfortable",       /* comfortable | compact */
+    wordmark: "relay",
+    tagline: "free relays, no account",
+    decor: "auto",                /* auto (seasonal) | on | off */
+    shortcuts: null,              /* filled from FP.defaultShortcuts() on first run */
+
+    /* tab + escape */
+    tabTitle: "",
+    tabIcon: "",
+    panicKey: "Escape",
+    panicUrl: "https://www.google.com"
+  };
+
+  var cache = null;
+  var listeners = [];
+
+  /* ---------- where settings can live ----------
+     Written into about:blank the document may have an opaque origin,
+     where localStorage throws. Fall back to the window that opened
+     us (same origin, so its storage is reachable), then to memory —
+     the app keeps working either way, it just forgets on close. */
+
+  var memory = {};
+
+  var backing = (function () {
+    function usable(store) {
+      try {
+        if (!store) return false;
+        var probe = "relay.probe";
+        store.setItem(probe, "1");
+        store.removeItem(probe);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    try { if (usable(window.localStorage)) return window.localStorage; } catch (e) {}
+    try { if (window.opener && usable(window.opener.localStorage)) return window.opener.localStorage; } catch (e) {}
+    try { if (window.parent !== window && usable(window.parent.localStorage)) return window.parent.localStorage; } catch (e) {}
+
+    return {
+      persistent: false,
+      getItem: function (k) { return k in memory ? memory[k] : null; },
+      setItem: function (k, v) { memory[k] = String(v); },
+      removeItem: function (k) { delete memory[k]; }
+    };
+  })();
+
+  function read(key, fallback) {
+    try {
+      var raw = backing.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function write(key, value) {
+    try { backing.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  }
+
+  var store = {
+    all: function () {
+      if (!cache) {
+        cache = Object.assign({}, DEFAULTS, read(KEY, {}));
+        if (!Array.isArray(cache.relays) || !cache.relays.length) {
+          cache.relays = FP.defaultRelays();
+        }
+        if (!Array.isArray(cache.shortcuts)) {
+          cache.shortcuts = FP.defaultShortcuts();
+        }
+      }
+      return cache;
+    },
+
+    /* ---------- shortcut tiles ---------- */
+
+    shortcuts: function () { return store.all().shortcuts; },
+
+    saveShortcuts: function (list) { return store.set("shortcuts", list); },
+
+    upsertShortcut: function (tile) {
+      var list = store.shortcuts().slice();
+      var at = -1;
+      list.forEach(function (t, i) { if (t.id === tile.id) at = i; });
+      if (at >= 0) list[at] = Object.assign({}, list[at], tile);
+      else list.push(tile);
+      return store.saveShortcuts(list);
+    },
+
+    removeShortcut: function (id) {
+      return store.saveShortcuts(store.shortcuts().filter(function (t) { return t.id !== id; }));
+    },
+
+    moveShortcut: function (id, delta) {
+      var list = store.shortcuts().slice();
+      var at = -1;
+      list.forEach(function (t, i) { if (t.id === id) at = i; });
+      var to = at + delta;
+      if (at < 0 || to < 0 || to >= list.length) return list;
+      list.splice(to, 0, list.splice(at, 1)[0]);
+      return store.saveShortcuts(list);
+    },
+
+    restoreShortcuts: function () { return store.saveShortcuts(FP.defaultShortcuts()); },
+
+    get: function (key) { return store.all()[key]; },
+
+    set: function (key, value) {
+      var s = store.all();
+      s[key] = value;
+      write(KEY, s);
+      listeners.forEach(function (fn) { try { fn(key, value, s); } catch (e) {} });
+      return value;
+    },
+
+    patch: function (obj) {
+      Object.keys(obj).forEach(function (k) { store.set(k, obj[k]); });
+    },
+
+    onChange: function (fn) { listeners.push(fn); },
+
+    reset: function () {
+      try { backing.removeItem(KEY); } catch (e) {}
+      cache = null;
+      return store.all();
+    },
+
+    /* ---------- relays ---------- */
+
+    relays: function () { return store.all().relays; },
+
+    enabledRelays: function () {
+      return store.relays().filter(function (r) { return r.enabled; });
+    },
+
+    relay: function (id) {
+      return store.relays().filter(function (r) { return r.id === id; })[0] || null;
+    },
+
+    saveRelays: function (list) { return store.set("relays", list); },
+
+    upsertRelay: function (relay) {
+      var list = store.relays().slice();
+      var at = -1;
+      list.forEach(function (r, i) { if (r.id === relay.id) at = i; });
+      if (at >= 0) list[at] = Object.assign({}, list[at], relay);
+      else list.push(relay);
+      return store.saveRelays(list);
+    },
+
+    removeRelay: function (id) {
+      var list = store.relays().filter(function (r) { return r.id !== id; });
+      if (store.get("activeRelay") === id) store.set("activeRelay", "auto");
+      return store.saveRelays(list);
+    },
+
+    moveRelay: function (id, delta) {
+      var list = store.relays().slice();
+      var at = -1;
+      list.forEach(function (r, i) { if (r.id === id) at = i; });
+      var to = at + delta;
+      if (at < 0 || to < 0 || to >= list.length) return list;
+      var item = list.splice(at, 1)[0];
+      list.splice(to, 0, item);
+      return store.saveRelays(list);
+    },
+
+    restoreRelays: function () {
+      var custom = store.relays().filter(function (r) { return !r.builtin; });
+      return store.saveRelays(FP.defaultRelays().concat(custom));
+    },
+
+    /* ---------- measured latency, kept separately ---------- */
+
+    pings: function () { return read("relay.pings.v1", {}); },
+
+    setPing: function (id, ms) {
+      var p = store.pings();
+      p[id] = { ms: ms, at: Date.now() };
+      write("relay.pings.v1", p);
+      return p;
+    },
+
+    /* fastest enabled relay that can serve the given mode */
+    fastest: function (mode) {
+      var pings = store.pings();
+      var list = store.enabledRelays().filter(function (r) {
+        return FP.engine.supports(r, mode);
+      });
+      var scored = list.map(function (r, i) {
+        var p = pings[r.id];
+        var ms = p && p.ms > 0 ? p.ms : 9000 + i; /* untested keeps list order */
+        return { relay: r, ms: ms };
+      });
+      scored.sort(function (a, b) { return a.ms - b.ms; });
+      return scored.length ? scored[0].relay : null;
+    },
+
+    /* relays to try, in order, for one request */
+    chain: function (mode) {
+      var active = store.get("activeRelay");
+      var pool = store.enabledRelays().filter(function (r) {
+        return FP.engine.supports(r, mode);
+      });
+      var first = null;
+      if (active !== "auto") {
+        first = pool.filter(function (r) { return r.id === active; })[0] || null;
+      }
+      if (!first) first = store.fastest(mode);
+      if (!first) return [];
+      if (!store.get("failover")) return [first];
+      var rest = pool.filter(function (r) { return r.id !== first.id; });
+      var pings = store.pings();
+      rest.sort(function (a, b) {
+        var pa = pings[a.id] && pings[a.id].ms > 0 ? pings[a.id].ms : 9000;
+        var pb = pings[b.id] && pings[b.id].ms > 0 ? pings[b.id].ms : 9000;
+        return pa - pb;
+      });
+      return [first].concat(rest);
+    },
+
+    /* ---------- history ---------- */
+
+    history: function () { return read(HKEY, []); },
+
+    pushHistory: function (url, title) {
+      if (!store.get("keepHistory")) return store.history();
+      var list = store.history().filter(function (h) { return h.url !== url; });
+      list.unshift({ url: url, title: title || "", at: Date.now() });
+      list = list.slice(0, 40);
+      write(HKEY, list);
+      return list;
+    },
+
+    dropHistory: function (url) {
+      var list = store.history().filter(function (h) { return h.url !== url; });
+      write(HKEY, list);
+      return list;
+    },
+
+    clearHistory: function () {
+      try { backing.removeItem(HKEY); } catch (e) {}
+      return [];
+    },
+
+    /* ---------- portable config ---------- */
+
+    exportJson: function () {
+      return JSON.stringify({
+        kind: "relay-config",
+        version: 1,
+        exported: new Date().toISOString(),
+        settings: store.all()
+      }, null, 2);
+    },
+
+    importJson: function (text) {
+      var data = JSON.parse(text);
+      var incoming = data && data.settings ? data.settings : data;
+      if (!incoming || typeof incoming !== "object") throw new Error("Not a Relay config file.");
+      cache = Object.assign({}, DEFAULTS, incoming);
+      if (!Array.isArray(cache.relays) || !cache.relays.length) cache.relays = FP.defaultRelays();
+      if (!Array.isArray(cache.shortcuts)) cache.shortcuts = FP.defaultShortcuts();
+      write(KEY, cache);
+      return cache;
+    },
+
+    /* false when we are running on memory only */
+    persists: function () { return backing.persistent !== false; },
+
+    DEFAULTS: DEFAULTS
+  };
+
+  FP.store = store;
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/engine.js */
+/* ===========================================================
+   Relay — the proxy engine
+   -----------------------------------------------------------
+   Asks a free relay for a page, then rewrites that page so every
+   link, image and stylesheet inside it also travels through the
+   relay. The result is rendered in a sandboxed frame, which keeps
+   the fetched page away from your settings and history.
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var SAFE_SCHEMES = /^(https?:)$/i;
+
+  var engine = {
+
+    /* ---------- addresses ---------- */
+
+    normalize: function (input) {
+      var q = String(input || "").trim();
+      if (!q) return "";
+      if (/^(javascript|data|file|blob|chrome|about):/i.test(q)) return "";
+      if (/^https?:\/\//i.test(q)) return q;
+
+      var looksLikeHost = /^[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?(\/|$|\?|#)/i.test(q) ||
+                          /^localhost(:\d+)?(\/|$)/i.test(q);
+      if (looksLikeHost && !/\s/.test(q)) return "https://" + q;
+
+      var tpl = FP.store.get("searchEngine") || "https://duckduckgo.com/?q=%s";
+      return tpl.replace("%s", encodeURIComponent(q));
+    },
+
+    host: function (url) {
+      try { return new URL(url).host; } catch (e) { return url; }
+    },
+
+    resolve: function (href, base) {
+      try {
+        var u = new URL(href, base);
+        return SAFE_SCHEMES.test(u.protocol) ? u.href : "";
+      } catch (e) { return ""; }
+    },
+
+    /* ---------- relays ---------- */
+
+    supports: function (relay, mode) {
+      if (!relay) return false;
+      if (mode === "frame") return relay.kind === "frame" || relay.kind === "direct";
+      if (mode === "reader") return relay.kind !== "frame";
+      return relay.kind === "raw" || relay.kind === "json" || relay.kind === "direct";
+    },
+
+    build: function (relay, url) {
+      if (!relay) return url;
+      var target = relay.encode ? encodeURIComponent(url) : url;
+      return relay.template.indexOf("%URL%") >= 0
+        ? relay.template.replace("%URL%", target)
+        : relay.template + target;
+    },
+
+    /* One attempt through one relay. Resolves {body, ms, kind}. */
+    request: function (relay, url, timeout) {
+      var started = Date.now();
+      var endpoint = engine.build(relay, url);
+      var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); },
+        timeout || FP.store.get("timeout") || 12000);
+
+      return fetch(endpoint, {
+        method: "GET",
+        credentials: "omit",
+        redirect: "follow",
+        signal: ctrl ? ctrl.signal : undefined
+      }).then(function (res) {
+        if (!res.ok) {
+          var why = engine.explain(res.status);
+          throw new Error("relay answered " + res.status + (why ? " — " + why : ""));
+        }
+        return res.text();
+      }).then(function (text) {
+        clearTimeout(timer);
+        var body = text;
+        if (relay.kind === "json") {
+          try {
+            var parsed = JSON.parse(text);
+            body = parsed.contents != null ? parsed.contents
+                 : parsed.body != null ? parsed.body
+                 : parsed.data != null ? parsed.data : text;
+          } catch (e) { /* not JSON after all; use as-is */ }
+        }
+        if (!body || !String(body).trim()) throw new Error("relay returned an empty page");
+        return { body: String(body), ms: Date.now() - started, kind: relay.kind, relay: relay };
+      }).catch(function (err) {
+        clearTimeout(timer);
+        var why;
+        if (err && err.name === "AbortError") {
+          why = "timed out — the page is probably too big for a free relay";
+        } else if (err && /failed to fetch|networkerror|load failed/i.test(err.message || "")) {
+          why = engine.fromFile()
+            ? "refused this page's origin (opened from a file)"
+            : "no answer — the relay is down or blocked here";
+        } else {
+          why = (err && err.message) || "failed";
+        }
+        throw new Error(why);
+      });
+    },
+
+    /* what a relay's status code means in practice */
+    explain: function (status) {
+      if (status === 401 || status === 403) return "needs an API key";
+      if (status === 408 || status === 504) return "gave up on the page, too heavy";
+      if (status === 429) return "rate limit, wait a moment";
+      if (status === 404) return "endpoint is wrong or gone";
+      if (status >= 500) return "relay is having trouble";
+      return "";
+    },
+
+    /* file:// pages send Origin: null, which several relays reject */
+    fromFile: function () {
+      return location.protocol === "file:";
+    },
+
+    /* one sentence naming the most likely cause of a total failure */
+    advise: function (attempts, url) {
+      var all = attempts.map(function (a) { return a.why; }).join(" ");
+
+      if (engine.fromFile() && /origin|no answer/.test(all)) {
+        return "This page is open from a file, so relays see it as coming from nowhere and several refuse it. " +
+               "Serve the folder, or run it through your launcher, and most of these come back.";
+      }
+      if (/too heavy|too big|rate limit/.test(all)) {
+        return "The free relays time out on pages this size. Reader mode is lighter, and your own relay " +
+               "(Settings → Relays → My Worker) has no such limit.";
+      }
+      if (/needs an API key/.test(all) && attempts.length <= 2) {
+        return "The relays that answered want an API key. Set up your own relay instead — it takes two minutes " +
+               "and the steps are in worker/relay-worker.js.";
+      }
+      if (engine.isAppSite(url)) {
+        return "Sites like this one are built entirely in JavaScript, so there is no page for a relay to hand back. " +
+               "Only a real proxy instance can run it — add one in Settings and switch to proxy-instance mode.";
+      }
+      return "The site may block proxies, or the relays are rate-limited. Try reader mode, or set up your own " +
+             "relay in Settings for something that does not fall over.";
+    },
+
+    /* sites that are an app, not a document: a text relay can never serve these */
+    isAppSite: function (url) {
+      return /(^|\.)(now\.gg|nowgg|geforcenow|play\.geforcenow\.com|xbox\.com|boosteroid|netflix|spotify|discord\.com|roblox\.com|figma\.com|meet\.google)/i
+        .test(engine.host(url || ""));
+    },
+
+    /* Walks the relay chain until one works. */
+    load: function (url, mode) {
+      var chain = FP.store.chain(mode);
+      var attempts = [];
+      if (!chain.length) {
+        return Promise.reject({
+          message: "No relay can serve this mode.",
+          attempts: [],
+          hint: "Turn on at least one relay in Settings."
+        });
+      }
+
+      var i = 0;
+      function next() {
+        var relay = chain[i++];
+        if (!relay) {
+          return Promise.reject({
+            message: "Every relay refused this page.",
+            attempts: attempts,
+            hint: engine.advise(attempts, url)
+          });
+        }
+        if (FP.onAttempt) FP.onAttempt(relay, i, chain.length);
+        return engine.request(relay, url).then(function (out) {
+          FP.store.setPing(relay.id, out.ms);
+          out.attempts = attempts;
+          return out;
+        }).catch(function (err) {
+          attempts.push({ relay: relay.name, why: err.message });
+          FP.store.setPing(relay.id, -1);
+          return next();
+        });
+      }
+      return next();
+    },
+
+    /* Latency probe: fetch a tiny page through the relay. */
+    ping: function (relay) {
+      if (relay.kind === "frame") return Promise.resolve(-1);
+      var target = "https://example.com/";
+      var started = Date.now();
+      return engine.request(relay, target, 9000).then(function () {
+        var ms = Date.now() - started;
+        FP.store.setPing(relay.id, ms);
+        return ms;
+      }).catch(function () {
+        FP.store.setPing(relay.id, -1);
+        return -1;
+      });
+    },
+
+    /* ---------- rewriting ---------- */
+
+    /* Build a document that can live in a sandboxed frame: every
+       resource points back at the relay, nothing is relative. */
+    rewrite: function (html, pageUrl, relay, opts) {
+      opts = opts || {};
+      var doc;
+      try {
+        doc = new DOMParser().parseFromString(html, "text/html");
+      } catch (e) {
+        return engine.textDocument(html, pageUrl);
+      }
+      if (!doc || !doc.documentElement) return engine.textDocument(html, pageUrl);
+
+      /* the page's own <base> wins for resolving its links */
+      var base = pageUrl;
+      var baseEl = doc.querySelector("base[href]");
+      if (baseEl) {
+        base = engine.resolve(baseEl.getAttribute("href"), pageUrl) || pageUrl;
+        baseEl.parentNode.removeChild(baseEl);
+      }
+
+      var via = function (href) {
+        var abs = engine.resolve(href, base);
+        return abs ? engine.build(relay, abs) : "";
+      };
+
+      /* scripts: off by default — through a text relay they mostly
+         break anyway, and they are the main way a page escapes. */
+      if (opts.stripScripts !== false) {
+        Array.prototype.forEach.call(doc.querySelectorAll("script"), function (el) {
+          el.parentNode.removeChild(el);
+        });
+      } else {
+        Array.prototype.forEach.call(doc.querySelectorAll("script[src]"), function (el) {
+          var u = via(el.getAttribute("src"));
+          if (u) el.setAttribute("src", u); else el.parentNode.removeChild(el);
+        });
+      }
+
+      /* stylesheets, icons, preloads */
+      Array.prototype.forEach.call(doc.querySelectorAll("link[href]"), function (el) {
+        var rel = (el.getAttribute("rel") || "").toLowerCase();
+        if (rel.indexOf("stylesheet") >= 0 || rel.indexOf("icon") >= 0) {
+          var u = via(el.getAttribute("href"));
+          if (u) el.setAttribute("href", u); else el.parentNode.removeChild(el);
+        } else {
+          el.parentNode.removeChild(el);
+        }
+      });
+
+      /* media */
+      Array.prototype.forEach.call(doc.querySelectorAll("img, source, video, audio, embed, track"), function (el) {
+        if (opts.blockImages && (el.tagName === "IMG" || el.tagName === "SOURCE")) {
+          el.removeAttribute("src");
+          el.removeAttribute("srcset");
+          el.setAttribute("data-blocked", "1");
+          return;
+        }
+        ["src", "poster", "data-src"].forEach(function (attr) {
+          if (!el.hasAttribute(attr)) return;
+          var u = via(el.getAttribute(attr));
+          if (u) el.setAttribute(attr === "data-src" ? "src" : attr, u);
+        });
+        if (el.hasAttribute("srcset")) {
+          var parts = el.getAttribute("srcset").split(",").map(function (chunk) {
+            var bits = chunk.trim().split(/\s+/);
+            var u = via(bits[0]);
+            return u ? [u].concat(bits.slice(1)).join(" ") : "";
+          }).filter(Boolean);
+          if (parts.length) el.setAttribute("srcset", parts.join(", "));
+          else el.removeAttribute("srcset");
+        }
+      });
+
+      /* nested frames: drop them, they rarely survive the trip */
+      Array.prototype.forEach.call(doc.querySelectorAll("iframe, frame, object"), function (el) {
+        el.parentNode.removeChild(el);
+      });
+
+      /* links become messages to the shell */
+      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"), function (el) {
+        var abs = engine.resolve(el.getAttribute("href"), base);
+        el.removeAttribute("target");
+        if (abs) {
+          el.setAttribute("data-rl", abs);
+          el.setAttribute("href", abs);
+        } else {
+          el.removeAttribute("href");
+        }
+      });
+
+      /* forms: GET is re-sent through the relay, POST is not supported */
+      Array.prototype.forEach.call(doc.querySelectorAll("form"), function (el) {
+        var abs = engine.resolve(el.getAttribute("action") || base, base);
+        el.setAttribute("data-rl-action", abs || base);
+        el.setAttribute("data-rl-method", (el.getAttribute("method") || "get").toLowerCase());
+        el.removeAttribute("action");
+      });
+
+      /* url() inside <style> blocks and style attributes */
+      var fixCss = function (css) {
+        return String(css).replace(/url\((['"]?)([^'")]+)\1\)/gi, function (m, q, href) {
+          if (/^(data|blob):/i.test(href)) return m;
+          var u = via(href);
+          return u ? 'url("' + u + '")' : m;
+        }).replace(/@import\s+(['"])([^'"]+)\1/gi, function (m, q, href) {
+          var u = via(href);
+          return u ? '@import "' + u + '"' : "";
+        });
+      };
+      Array.prototype.forEach.call(doc.querySelectorAll("style"), function (el) {
+        el.textContent = fixCss(el.textContent);
+      });
+      Array.prototype.forEach.call(doc.querySelectorAll("[style]"), function (el) {
+        el.setAttribute("style", fixCss(el.getAttribute("style")));
+      });
+
+      /* inline handlers go away with scripts */
+      if (opts.stripScripts !== false) {
+        Array.prototype.forEach.call(doc.querySelectorAll("*"), function (el) {
+          Array.prototype.slice.call(el.attributes || []).forEach(function (a) {
+            if (/^on/i.test(a.name)) el.removeAttribute(a.name);
+          });
+        });
+      }
+
+      var head = doc.head || doc.documentElement;
+      var charset = doc.createElement("meta");
+      charset.setAttribute("charset", "utf-8");
+      head.insertBefore(charset, head.firstChild);
+
+      var patch = doc.createElement("style");
+      patch.textContent = "html{-webkit-text-size-adjust:100%}" +
+        "[data-blocked]{outline:1px dashed #9993;min-height:12px}" +
+        "a[data-rl]{cursor:pointer}";
+      head.appendChild(patch);
+
+      var boot = doc.createElement("script");
+      boot.textContent = engine.BOOTSTRAP;
+      (doc.body || head).appendChild(boot);
+
+      return "<!doctype html>" + doc.documentElement.outerHTML;
+    },
+
+    /* Plain text (or markdown-ish) relays land here. */
+    textDocument: function (text, pageUrl) {
+      var esc = engine.escape(text);
+      /* light markdown so Jina output reads properly */
+      esc = esc
+        .replace(/^###\s?(.+)$/gm, "<h3>$1</h3>")
+        .replace(/^##\s?(.+)$/gm, "<h2>$1</h2>")
+        .replace(/^#\s?(.+)$/gm, "<h1>$1</h1>")
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a data-rl="$2" href="$2">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+      return engine.frameDocument(
+        '<article class="plain">' + esc + "</article>",
+        engine.READER_CSS + ".plain{white-space:pre-wrap}"
+      );
+    },
+
+    /* Reader view: pull the main text out of a full page. */
+    reader: function (html, pageUrl, relay) {
+      var doc;
+      try { doc = new DOMParser().parseFromString(html, "text/html"); } catch (e) { doc = null; }
+      if (!doc || !doc.body) return engine.textDocument(html, pageUrl);
+
+      ["script", "style", "noscript", "nav", "aside", "footer", "header", "form",
+       "iframe", "svg", "button", "[aria-hidden='true']", "[role='navigation']"]
+        .forEach(function (sel) {
+          Array.prototype.forEach.call(doc.querySelectorAll(sel), function (el) {
+            el.parentNode && el.parentNode.removeChild(el);
+          });
+        });
+
+      var best = null, bestScore = 0;
+      var candidates = doc.querySelectorAll("article, main, [role='main'], .post, .article, .content, #content, div, section");
+      Array.prototype.forEach.call(candidates, function (el) {
+        var ps = el.querySelectorAll("p");
+        var len = 0;
+        Array.prototype.forEach.call(ps, function (p) { len += (p.textContent || "").trim().length; });
+        var score = len + ps.length * 25;
+        if (el.tagName === "ARTICLE" || el.tagName === "MAIN") score *= 1.4;
+        if (score > bestScore) { bestScore = score; best = el; }
+      });
+      if (!best || bestScore < 260) best = doc.body;
+
+      var via = function (href) {
+        var abs = engine.resolve(href, pageUrl);
+        return abs ? engine.build(relay, abs) : "";
+      };
+
+      Array.prototype.forEach.call(best.querySelectorAll("img"), function (el) {
+        var u = via(el.getAttribute("src") || el.getAttribute("data-src"));
+        if (u) { el.setAttribute("src", u); el.removeAttribute("srcset"); }
+        else el.parentNode.removeChild(el);
+      });
+      Array.prototype.forEach.call(best.querySelectorAll("a[href]"), function (el) {
+        var abs = engine.resolve(el.getAttribute("href"), pageUrl);
+        if (abs) { el.setAttribute("data-rl", abs); el.setAttribute("href", abs); }
+        else el.removeAttribute("href");
+        el.removeAttribute("target");
+      });
+      Array.prototype.forEach.call(best.querySelectorAll("*"), function (el) {
+        Array.prototype.slice.call(el.attributes || []).forEach(function (a) {
+          if (/^on/i.test(a.name) || a.name === "class" || a.name === "id" || a.name === "style") {
+            el.removeAttribute(a.name);
+          }
+        });
+      });
+
+      var title = (doc.querySelector("title") || {}).textContent || engine.host(pageUrl);
+      var body = '<h1>' + engine.escape(title.trim()) + "</h1>" +
+        '<p class="src">' + engine.escape(engine.host(pageUrl)) + " · reader view</p>" +
+        '<article>' + best.innerHTML + "</article>";
+
+      return engine.frameDocument(body, engine.READER_CSS);
+    },
+
+    frameDocument: function (bodyHtml, css) {
+      return "<!doctype html><html><head><meta charset='utf-8'>" +
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>" +
+        "<style>" + css + "</style></head><body>" + bodyHtml +
+        "<script>" + engine.BOOTSTRAP + "<\/script></body></html>";
+    },
+
+    escape: function (s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    },
+
+    title: function (html) {
+      var m = /<title[^>]*>([\s\S]{0,300}?)<\/title>/i.exec(html || "");
+      if (!m) return "";
+      var t = m[1].replace(/\s+/g, " ").trim();
+      var d = document.createElement("textarea");
+      d.innerHTML = t;
+      return d.value;
+    },
+
+    READER_CSS:
+      ":root{color-scheme:dark}" +
+      "body{margin:0;padding:46px 22px 90px;background:#11182b;color:#e8ebf7;" +
+      "font:17px/1.72 'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif}" +
+      "body>*,article{max-width:72ch;margin-inline:auto}" +
+      "h1{font-size:1.75rem;line-height:1.2;margin:0 0 6px}" +
+      "h2{font-size:1.2rem;margin:1.8em 0 .4em}h3{font-size:1.05rem;margin:1.5em 0 .3em}" +
+      ".src{font:12px/1.5 'IBM Plex Mono',monospace;color:#8e97c4;margin:0 0 30px}" +
+      "p,li{font-size:1.02rem}img{max-width:100%;height:auto;border-radius:8px;margin:14px 0}" +
+      "a{color:#f7a93b}pre,code{font-family:'IBM Plex Mono',monospace;font-size:.88em}" +
+      "pre{overflow-x:auto;background:#0d1324;padding:12px;border-radius:8px}" +
+      "blockquote{border-left:2px solid #30396b;margin:1em 0;padding-left:16px;color:#b9c0e0}" +
+      "table{max-width:100%;overflow-x:auto;display:block;border-collapse:collapse}" +
+      "td,th{border:1px solid #30396b;padding:6px 10px}",
+
+    /* Runs inside the sandboxed frame. It cannot reach this site's
+       storage; it only talks back through postMessage. */
+    BOOTSTRAP: [
+      "(function(){",
+      "  function send(msg){ try{ parent.postMessage(msg,'*'); }catch(e){} }",
+      "  document.addEventListener('click', function(e){",
+      "    var a = e.target && e.target.closest ? e.target.closest('a') : null;",
+      "    if(!a) return;",
+      "    var to = a.getAttribute('data-rl') || a.getAttribute('href');",
+      "    if(!to || to.charAt(0)==='#') return;",
+      "    e.preventDefault();",
+      "    send({ rl:'navigate', url:to, newTab: e.metaKey||e.ctrlKey||e.button===1 });",
+      "  }, true);",
+      "  document.addEventListener('submit', function(e){",
+      "    var f = e.target; if(!f || f.tagName!=='FORM') return;",
+      "    e.preventDefault();",
+      "    var action = f.getAttribute('data-rl-action') || '';",
+      "    var method = (f.getAttribute('data-rl-method')||'get');",
+      "    if(method !== 'get'){ send({ rl:'notice', text:'This form needs POST, which free relays cannot forward.' }); return; }",
+      "    var pairs = [];",
+      "    Array.prototype.forEach.call(f.elements||[], function(el){",
+      "      if(!el.name || el.disabled) return;",
+      "      if((el.type==='checkbox'||el.type==='radio') && !el.checked) return;",
+      "      if(el.type==='file'||el.type==='submit'||el.type==='button') return;",
+      "      pairs.push(encodeURIComponent(el.name)+'='+encodeURIComponent(el.value==null?'':el.value));",
+      "    });",
+      "    var url = action.split('#')[0];",
+      "    url += (url.indexOf('?')>=0 ? '&' : '?') + pairs.join('&');",
+      "    send({ rl:'navigate', url:url });",
+      "  }, true);",
+      "  window.addEventListener('keydown', function(e){ send({ rl:'key', key:e.key }); });",
+      "  send({ rl:'ready', title: document.title||'' });",
+      "})();"
+    ].join("\n")
+  };
+
+  FP.engine = engine;
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/router.js */
+/* ===========================================================
+   Relay — views
+   -----------------------------------------------------------
+   The whole site is one document, so it survives being written
+   into about:blank where there are no page loads, no relative
+   paths and no query string to read.
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var started = {};   /* a view's controller is started the first time it shows */
+
+  var router = {
+    current: "home",
+
+    show: function (name, arg) {
+      var view = document.getElementById("view-" + name);
+      if (!view) return;
+
+      Array.prototype.forEach.call(document.querySelectorAll(".view"), function (v) {
+        v.hidden = v !== view;
+      });
+      document.body.setAttribute("data-view", name);
+      router.current = name;
+
+      /* lazy start, then let the view refresh itself */
+      var ctrl = FP[name];
+      if (ctrl && ctrl.init && !started[name]) { started[name] = true; ctrl.init(); }
+      if (ctrl && ctrl.enter) ctrl.enter(arg);
+
+      /* keep the address bar honest when the site is hosted normally;
+         inside about:blank this throws and is skipped. */
+      if (name === "home") {
+        try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      }
+      window.scrollTo(0, 0);
+    },
+
+    /* Open a page in the viewport, a new tab, or a blank window,
+       whichever the settings ask for. */
+    open: function (url, mode) {
+      mode = mode || FP.store.get("mode");
+      var where = FP.store.get("openIn");
+      if (where === "tab" || where === "blank") {
+        FP.shell.spawn(url, mode, where);
+        return;
+      }
+      router.show("browse", { url: url, mode: mode });
+    },
+
+    wire: function () {
+      /* any element with data-view="x" switches to that view */
+      document.addEventListener("click", function (e) {
+        var el = e.target.closest ? e.target.closest("[data-view]") : null;
+        /* body carries the current view as state, not as a link */
+        if (!el || el === document.body || el === document.documentElement) return;
+        e.preventDefault();
+        router.show(el.getAttribute("data-view"), el.getAttribute("data-arg") || null);
+      });
+    }
+  };
+
+  FP.router = router;
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/shell.js */
+/* ===========================================================
+   Relay — shared shell: theme, tab appearance, toasts, panic key
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var shell = {
+
+    /* Theme, density and tab appearance are applied on every page. */
+    paint: function () {
+      var s = FP.store.all();
+      document.documentElement.setAttribute("data-theme", s.theme || "relay");
+      document.documentElement.setAttribute("data-density", s.density || "comfortable");
+      if (s.density === "compact") document.documentElement.style.fontSize = "14.5px";
+      else document.documentElement.style.fontSize = "";
+
+      if (s.tabTitle) document.title = s.tabTitle;
+      var link = document.querySelector("link[rel='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = s.tabIcon || FP.ICON;
+    },
+
+    markNav: function () {
+      Array.prototype.forEach.call(document.querySelectorAll("a[data-view], button[data-view]"), function (el) {
+        if (el.getAttribute("data-view") === FP.router.current) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      });
+    },
+
+    toast: function (text, kind) {
+      var host = document.getElementById("toasts");
+      if (!host) {
+        host = document.createElement("div");
+        host.id = "toasts";
+        document.body.appendChild(host);
+      }
+      var el = document.createElement("div");
+      el.className = "toast";
+      el.setAttribute("data-kind", kind || "info");
+      el.setAttribute("role", "status");
+      el.textContent = text;
+      host.appendChild(el);
+      setTimeout(function () {
+        el.style.transition = "opacity 200ms";
+        el.style.opacity = "0";
+        setTimeout(function () { el.remove(); }, 220);
+      }, 3200);
+    },
+
+    /* One key sends the browser somewhere ordinary. */
+    armPanic: function () {
+      var key = FP.store.get("panicKey");
+      if (!key) return;
+      window.addEventListener("keydown", function (e) {
+        if (e.key !== key) return;
+        var tag = (e.target && e.target.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        shell.panic();
+      });
+    },
+
+    panic: function () {
+      var to = FP.store.get("panicUrl") || "https://www.google.com";
+      try { location.replace(to); } catch (e) { location.href = to; }
+    },
+
+    /* Latency -> 0..4 signal bars */
+    level: function (ms) {
+      if (ms == null || ms < 0) return 0;
+      if (ms < 700) return 4;
+      if (ms < 1500) return 3;
+      if (ms < 3000) return 2;
+      return 1;
+    },
+
+    bars: function (ms) {
+      return '<span class="bars" data-level="' + shell.level(ms) + '" aria-hidden="true">' +
+        "<i></i><i></i><i></i><i></i></span>";
+    },
+
+    pingText: function (entry) {
+      if (!entry) return "untested";
+      if (entry.ms < 0) return "no answer";
+      return entry.ms + " ms";
+    },
+
+    /* Open the app again in a new tab or a blank window.
+       There is no URL to point at when we are running inside
+       about:blank, so the whole document is copied across and told
+       which page to open. */
+    spawn: function (url, mode, where) {
+      var win = window.open("about:blank", "_blank");
+      if (!win) {
+        shell.toast("Your browser blocked the new window. Allow pop-ups here.", "bad");
+        FP.router.show("browse", { url: url, mode: mode });
+        return null;
+      }
+
+      var s = FP.store.all();
+      var boot = "<script>window.FP_BOOT=" +
+        JSON.stringify({ url: url, mode: mode }).replace(/</g, "\\u003c") + ";<\/script>";
+
+      /* when the site is hosted normally, relative paths in the copy
+         need a base; inside about:blank everything is already inline */
+      var base = "";
+      if (/^https?:/i.test(location.href)) {
+        base = '<base href="' + location.href.replace(/[^/]*$/, "") + '">';
+      }
+
+      var html = document.documentElement.outerHTML
+        .replace(/<head([^>]*)>/i, "<head$1>" + base + boot);
+
+      win.document.open();
+      win.document.write("<!doctype html>" + html);
+      win.document.close();
+
+      try {
+        win.document.title = s.tabTitle || document.title;
+      } catch (e) {}
+      return win;
+    },
+
+    /* Where a launch should go, given the current setting. */
+    launch: function (url, mode) {
+      FP.router.open(url, mode);
+    },
+
+    boot: function () {
+      shell.paint();
+      shell.markNav();
+      shell.armPanic();
+    }
+  };
+
+  FP.shell = shell;
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/home.js */
+/* ===========================================================
+   Relay — launcher home
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var store = FP.store, engine = FP.engine, shell = FP.shell;
+  var wired = false;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var MODE_LABELS = { page: "full page", reader: "reader", frame: "instance" };
+
+  /* ---------- hero ---------- */
+
+  function drawHero() {
+    var s = store.all();
+    var mark = $("hero-mark");
+    mark.textContent = s.wordmark || "relay";
+    if (s.theme === "strawberri") {
+      var dot = document.createElement("span");
+      dot.className = "berry-dot";
+      dot.textContent = "🍓";
+      mark.appendChild(dot);
+    }
+    $("hero-tag").textContent = s.tagline || "";
+    $("hero-tag").style.display = s.tagline ? "" : "none";
+  }
+
+  /* ---------- tiles ---------- */
+
+  function drawTiles() {
+    var host = $("home-tiles");
+    host.innerHTML = "";
+
+    store.shortcuts().forEach(function (t) {
+      var a = document.createElement("button");
+      a.type = "button";
+      a.className = "tile";
+      a.title = t.url;
+
+      var face = document.createElement("span");
+      face.className = "face";
+      face.textContent = (t.label || "?").charAt(0).toUpperCase();
+      var icon = FP.tileIcon(engine.normalize(t.url));
+      if (icon) {
+        var img = new Image();
+        img.alt = "";
+        img.onload = function () { face.textContent = ""; face.appendChild(img); };
+        img.src = icon;
+      }
+
+      var cap = document.createElement("span");
+      cap.className = "cap";
+      cap.textContent = t.label;
+
+      a.appendChild(face);
+      a.appendChild(cap);
+
+      a.addEventListener("click", function () {
+        FP.router.open(engine.normalize(t.url), store.get("mode"));
+      });
+      a.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        if (!confirm("Remove the " + t.label + " tile?")) return;
+        store.removeShortcut(t.id);
+        drawTiles();
+        shell.toast(t.label + " removed", "good");
+      });
+
+      host.appendChild(a);
+    });
+
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "tile add";
+    add.innerHTML = '<span class="face">+</span><span class="cap">add</span>';
+    add.addEventListener("click", function () { openSheet("sheet-tile"); $("t-label").focus(); });
+    host.appendChild(add);
+  }
+
+  /* ---------- readout ---------- */
+
+  function drawReadout() {
+    var s = store.all();
+    var active = s.activeRelay === "auto" ? store.fastest(s.mode) : store.relay(s.activeRelay);
+    var pings = store.pings();
+    var p = active ? pings[active.id] : null;
+
+    $("r-relay").textContent = active ? active.name.toLowerCase() : "none enabled";
+    $("r-mode").textContent = MODE_LABELS[s.mode] || s.mode;
+
+    var ping = $("r-ping");
+    ping.className = p ? (p.ms > 0 ? "ok" : "bad") : "";
+    ping.textContent = p ? (p.ms > 0 ? p.ms + "ms" : "no answer") : "untested";
+  }
+
+  /* ---------- relay sheet ---------- */
+
+  function drawRack() {
+    var mode = store.get("mode");
+    var pings = store.pings();
+    var active = store.get("activeRelay");
+    var rack = $("rack");
+    var usable = 0;
+
+    rack.innerHTML = "";
+    rack.appendChild(relayRow({
+      id: "auto", name: "Fastest available",
+      provider: "whichever answered quickest", kind: "auto"
+    }, null, active === "auto", true, ""));
+
+    store.relays().forEach(function (r) {
+      var fits = engine.supports(r, mode);
+      if (r.enabled && fits) usable++;
+      var why = !r.enabled ? "off" : (!fits ? "not for " + MODE_LABELS[mode] : "");
+      rack.appendChild(relayRow(r, pings[r.id], active === r.id, false, why));
+    });
+
+    $("relay-count").textContent = usable + " ready";
+  }
+
+  function relayRow(relay, ping, selected, isAuto, why) {
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "relay";
+    b.setAttribute("aria-selected", selected ? "true" : "false");
+    if (why) b.style.opacity = "0.45";
+
+    b.innerHTML =
+      '<span class="edge"></span>' +
+      '<span class="body">' +
+        '<span class="name">' + engine.escape(relay.name) +
+          (why ? ' <span class="tag">' + engine.escape(why) + "</span>" : "") +
+        "</span>" +
+        '<span class="host">' + engine.escape(relay.provider || "") +
+          (isAuto ? "" : " · " + (FP.KIND_LABELS[relay.kind] || relay.kind)) + "</span>" +
+      "</span>" +
+      '<span class="ping" data-state="' + (isAuto || !ping ? "" : (ping.ms < 0 ? "down" : "ok")) + '">' +
+        (isAuto ? "—" : shell.pingText(ping)) + "</span>" +
+      '<span class="gauge">' + (isAuto ? "" : shell.bars(ping ? ping.ms : null)) + "</span>";
+
+    b.addEventListener("click", function () {
+      store.set("activeRelay", relay.id);
+      drawRack();
+      drawReadout();
+      shell.toast(isAuto ? "Using the fastest relay" : "Relay set to " + relay.name, "good");
+    });
+
+    li.appendChild(b);
+    return li;
+  }
+
+  /* ---------- library sheet ---------- */
+
+  function drawLibrary() {
+    var list = store.history();
+    var host = $("library");
+    host.innerHTML = "";
+    if (!list.length) {
+      host.innerHTML = '<li><span class="meta" style="padding:10px 12px">Nothing opened yet.</span></li>';
+      return;
+    }
+    list.forEach(function (h) {
+      var li = document.createElement("li");
+      var a = document.createElement("button");
+      a.type = "button";
+      a.innerHTML = engine.escape(h.title || engine.host(h.url)) +
+        "<small>" + engine.escape(h.url) + "</small>";
+      a.addEventListener("click", function () {
+        closeSheet();
+        FP.router.open(h.url, store.get("mode"));
+      });
+      var drop = document.createElement("button");
+      drop.className = "drop";
+      drop.type = "button";
+      drop.textContent = "×";
+      drop.setAttribute("aria-label", "Remove " + (h.title || h.url));
+      drop.addEventListener("click", function () { store.dropHistory(h.url); drawLibrary(); });
+      li.appendChild(a); li.appendChild(drop);
+      host.appendChild(li);
+    });
+  }
+
+  /* ---------- sheets ---------- */
+
+  var openId = null;
+
+  function openSheet(id) {
+    closeSheet();
+    openId = id;
+    $("scrim").setAttribute("data-open", "1");
+    $(id).setAttribute("data-open", "1");
+  }
+
+  function closeSheet() {
+    if (openId) $(openId).setAttribute("data-open", "0");
+    $("scrim").setAttribute("data-open", "0");
+    openId = null;
+  }
+
+  $("scrim").addEventListener("click", closeSheet);
+  Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (b) {
+    b.addEventListener("click", closeSheet);
+  });
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && openId) { e.stopPropagation(); closeSheet(); }
+  }, true);
+
+  $("open-relays").addEventListener("click", function () { drawRack(); openSheet("sheet-relays"); });
+  $("open-library").addEventListener("click", function () { drawLibrary(); openSheet("sheet-library"); });
+
+  $("clear-library").addEventListener("click", function () {
+    store.clearHistory();
+    drawLibrary();
+    shell.toast("Library cleared", "good");
+  });
+
+  $("tile-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var label = $("t-label").value.trim();
+    var url = $("t-url").value.trim();
+    if (!label || !url) { shell.toast("Both a name and an address, please.", "bad"); return; }
+    store.upsertShortcut({ id: "t" + Date.now().toString(36), label: label, url: url });
+    $("t-label").value = ""; $("t-url").value = "";
+    drawTiles();
+    closeSheet();
+    shell.toast(label + " added", "good");
+  });
+
+  /* ---------- modes + search ---------- */
+
+  Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (chip) {
+    chip.addEventListener("click", function () {
+      store.set("mode", chip.dataset.mode);
+      Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+        c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+      });
+      drawReadout();
+      drawTiles();
+      if (openId === "sheet-relays") drawRack();
+    });
+  });
+
+  $("dial").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var url = engine.normalize($("home-addr").value);
+    if (!url) { shell.toast("Type an address or a search.", "bad"); $("home-addr").focus(); return; }
+    if (!store.chain(store.get("mode")).length) {
+      shell.toast("No relay is enabled for this mode.", "bad");
+      drawRack(); openSheet("sheet-relays");
+      return;
+    }
+    FP.router.open(url, store.get("mode"));
+  });
+
+  /* ---------- decor ---------- */
+
+  function paintDecor() {
+    var mode = store.get("decor");
+    var month = new Date().getMonth();           /* 9 = october */
+    var spooky = store.get("theme") === "opium" &&
+      (mode === "on" || (mode === "auto" && month === 9));
+    document.documentElement.setAttribute("data-decor", spooky ? "spooky" : "plain");
+    $("decor-layer").style.display = mode === "off" ? "none" : "";
+  }
+
+  /* the lime blob leans toward the pointer on the strawberri skin */
+  window.addEventListener("pointermove", function (e) {
+    if (store.get("theme") !== "strawberri") return;
+    var x = (e.clientX / window.innerWidth - 0.5) * 2;
+    var y = (e.clientY / window.innerHeight - 0.5) * 2;
+    document.documentElement.style.setProperty("--px", x.toFixed(3));
+    document.documentElement.style.setProperty("--py", y.toFixed(3));
+  }, { passive: true });
+
+  /* ---------- test all ---------- */
+
+  $("tray-test-all").addEventListener("click", function () {
+    var list = store.enabledRelays().filter(function (r) { return r.kind !== "frame"; });
+    if (!list.length) { shell.toast("No relays to test.", "bad"); return; }
+    var btn = $("tray-test-all");
+    btn.disabled = true; btn.textContent = "Testing…";
+    var done = 0, alive = 0;
+    list.forEach(function (r) {
+      engine.ping(r).then(function (ms) {
+        done++; if (ms > 0) alive++;
+        drawRack(); drawReadout();
+        if (done === list.length) {
+          btn.disabled = false; btn.textContent = "Test all";
+          shell.toast(alive + " of " + list.length + " relays answered", alive ? "good" : "bad");
+        }
+      });
+    });
+  });
+
+  /* ---------- view ---------- */
+
+  FP.home = {
+    init: function () {
+      wired = true;
+      paintDecor();
+      drawHero();
+      drawTiles();
+      drawReadout();
+      var mode = store.get("mode");
+      Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+        c.setAttribute("aria-pressed", c.dataset.mode === mode ? "true" : "false");
+      });
+
+      /* opened straight from a file: several relays will refuse it */
+      if (engine.fromFile()) {
+        setTimeout(function () {
+          shell.toast("Opened from a file, so relays see no origin and most will refuse. Serve the folder or use your launcher.", "bad");
+        }, 900);
+      }
+    },
+
+    /* shown again: settings may have changed underneath */
+    enter: function () {
+      if (!wired) return;
+      paintDecor();
+      drawHero();
+      drawTiles();
+      drawReadout();
+      closeSheet();
+      $("home-addr").focus();
+    }
+  };
+})(window.FP);
+</script>
+<script>
+/* js/browse.js */
+/* ===========================================================
+   Relay — viewport page
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var store = FP.store, engine = FP.engine, shell = FP.shell;
+
+  var el = {
+    frame: document.getElementById("frame"),
+    addrForm: document.getElementById("addr-form"),
+    addr: document.getElementById("view-addr"),
+    mode: document.getElementById("view-mode"),
+    via: document.getElementById("via"),
+    bars: document.getElementById("bars"),
+    back: document.getElementById("back"),
+    forward: document.getElementById("forward"),
+    reload: document.getElementById("reload"),
+    blank: document.getElementById("open-blank"),
+    busy: document.getElementById("busy"),
+    busyHead: document.getElementById("busy-head"),
+    busySub: document.getElementById("busy-sub"),
+    failed: document.getElementById("failed"),
+    failHead: document.getElementById("fail-head"),
+    failSub: document.getElementById("fail-sub"),
+    failTrace: document.getElementById("fail-trace"),
+    retry: document.getElementById("retry"),
+    tryReader: document.getElementById("try-reader")
+  };
+
+  var stack = [];      /* own history, so the frame cannot rewrite it */
+  var at = -1;
+  var current = "";
+  var mode = "page";
+  var inFlight = 0;
+
+  function show(which) {
+    el.busy.setAttribute("data-show", which === "busy" ? "1" : "0");
+    el.failed.setAttribute("data-show", which === "failed" ? "1" : "0");
+  }
+
+  function setArrows() {
+    el.back.disabled = at <= 0;
+    el.forward.disabled = at >= stack.length - 1;
+  }
+
+  /* ---------- the one job ---------- */
+
+  function go(url, pushState) {
+    if (!url) return;
+    current = url;
+    el.addr.value = url;
+    document.title = (store.get("tabTitle") || engine.host(url) + " — Relay");
+
+    if (pushState !== false) {
+      stack = stack.slice(0, at + 1);
+      stack.push(url);
+      at = stack.length - 1;
+    }
+    setArrows();
+
+    /* say so before the wait, not after it */
+    if (engine.isAppSite(url) && mode !== "frame") {
+      shell.toast(engine.host(url) + " is a JavaScript app — a text relay cannot run it. Proxy-instance mode is the only one that can.", "bad");
+    }
+
+    var ticket = ++inFlight;
+    show("busy");
+    el.busyHead.textContent = "Reaching the relay";
+    el.busySub.textContent = engine.host(url);
+    el.via.textContent = "…";
+    el.bars.setAttribute("data-level", "0");
+
+    FP.onAttempt = function (relay, n, total) {
+      if (ticket !== inFlight) return;
+      el.busyHead.textContent = "Asking " + relay.name;
+      el.busySub.textContent = "relay " + n + " of " + total + " · " + engine.host(url);
+    };
+
+    /* proxy-instance mode hands the whole job to a full proxy server */
+    if (mode === "frame") {
+      var frameRelay = store.enabledRelays().filter(function (r) { return r.kind === "frame"; })[0];
+      if (!frameRelay) {
+        fail({
+          message: "No proxy instance is set up.",
+          hint: "Add a relay of type \"proxy instance\" in Settings — the address of a web-proxy server, with %URL% where the target goes.",
+          attempts: []
+        });
+        return;
+      }
+      el.frame.removeAttribute("srcdoc");
+      el.frame.src = engine.build(frameRelay, url);
+      el.via.textContent = frameRelay.name;
+      el.bars.setAttribute("data-level", "4");
+      setTimeout(function () { if (ticket === inFlight) show("none"); }, 900);
+      store.pushHistory(url, engine.host(url));
+      return;
+    }
+
+    engine.load(url, mode).then(function (out) {
+      if (ticket !== inFlight) return;
+
+      var html;
+      if (mode === "reader" || out.kind === "reader") {
+        html = out.kind === "reader"
+          ? engine.textDocument(out.body, url)
+          : engine.reader(out.body, url, out.relay);
+      } else {
+        html = engine.rewrite(out.body, url, out.relay, {
+          stripScripts: store.get("stripScripts"),
+          blockImages: store.get("blockImages")
+        });
+      }
+
+      el.frame.removeAttribute("src");
+      el.frame.srcdoc = html;
+
+      el.via.textContent = out.relay.name + " · " + out.ms + " ms";
+      el.bars.setAttribute("data-level", shell.level(out.ms));
+      show("none");
+
+      var title = engine.title(out.body) || engine.host(url);
+      store.pushHistory(url, title);
+      if (!store.get("tabTitle")) document.title = title + " — Relay";
+
+      if (out.attempts && out.attempts.length) {
+        shell.toast(out.attempts.length + " relay" + (out.attempts.length > 1 ? "s" : "") +
+          " failed first; served by " + out.relay.name, "info");
+      }
+    }).catch(function (err) {
+      if (ticket !== inFlight) return;
+      fail(err);
+    });
+  }
+
+  function fail(err) {
+    show("failed");
+    el.via.textContent = "no route";
+    el.bars.setAttribute("data-level", "0");
+    el.failHead.textContent = (err && err.message) || "The page did not come through";
+    el.failSub.textContent = (err && err.hint) || "";
+    var lines = (err && err.attempts || []).map(function (a) {
+      return a.relay + " — " + a.why;
+    });
+    el.failTrace.textContent = lines.length ? lines.join("\n") : "No relay was tried.";
+    el.failTrace.style.display = lines.length ? "" : "none";
+  }
+
+  /* ---------- messages from the sandboxed page ---------- */
+
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.source !== el.frame.contentWindow) return;
+    var msg = e.data;
+    if (msg.rl === "navigate" && msg.url) {
+      var next = engine.resolve(msg.url, current);
+      if (!next) return;
+      if (msg.newTab) shell.spawn(next, mode, "tab");
+      else go(next);
+    } else if (msg.rl === "notice") {
+      shell.toast(msg.text, "bad");
+    } else if (msg.rl === "key") {
+      if (msg.key === store.get("panicKey")) shell.panic();
+    }
+  });
+
+  /* ---------- controls ---------- */
+
+  el.addrForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var url = engine.normalize(el.addr.value);
+    if (!url) { shell.toast("That address could not be read.", "bad"); return; }
+    go(url);
+  });
+
+  el.back.addEventListener("click", function () {
+    if (at <= 0) return;
+    at--;
+    go(stack[at], false);
+  });
+
+  el.forward.addEventListener("click", function () {
+    if (at >= stack.length - 1) return;
+    at++;
+    go(stack[at], false);
+  });
+
+  el.reload.addEventListener("click", function () { if (current) go(current, false); });
+
+  el.retry.addEventListener("click", function () { if (current) go(current, false); });
+
+  el.tryReader.addEventListener("click", function () {
+    mode = "reader";
+    el.mode.value = "reader";
+    if (current) go(current, false);
+  });
+
+  el.mode.addEventListener("change", function () {
+    mode = el.mode.value;
+    store.set("mode", mode);
+    if (current) go(current, false);
+  });
+
+  el.blank.addEventListener("click", function () {
+    if (!current) return;
+    shell.spawn(current, mode, "blank");
+  });
+
+  /* ---------- view ---------- */
+
+  FP.browse = {
+    init: function () { /* listeners above are wired once at load */ },
+
+    /* the launcher hands over an address and a mode */
+    enter: function (arg) {
+      if (!arg || !arg.url) {
+        if (current) return;            /* reopened with nothing new: keep the page */
+        show("failed");
+        el.failHead.textContent = "No address given";
+        el.failSub.textContent = "Go back and type where you want to go.";
+        el.failTrace.style.display = "none";
+        return;
+      }
+      mode = arg.mode || store.get("mode");
+      el.mode.value = mode;
+      stack = []; at = -1;
+      go(engine.normalize(arg.url));
+    }
+  };
+})(window.FP);
+</script>
+<script>
+/* js/settings.js */
+/* ===========================================================
+   Relay — settings page
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var store = FP.store, engine = FP.engine, shell = FP.shell;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var THEMES = [
+    { id: "opium", name: "Opium", base: "linear-gradient(170deg,#1d1030,#140a20 60%,#2a1420)", accent: "#ff9a4d" },
+    { id: "strawberri", name: "Strawberri", base: "radial-gradient(120% 90% at 60% 10%,#2b0808,#0b0404 70%)", accent: "#ff2b52" },
+    { id: "console", name: "Console", base: "linear-gradient(170deg,#16203c,#11182b)", accent: "#f7a93b" }
+  ];
+
+  var editing = null; /* relay id being edited, or null for a new one */
+
+  /* ---------- simple bound controls ---------- */
+
+  var toggles = ["failover", "stripScripts", "blockImages", "keepHistory"];
+  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor"];
+  var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline"];
+
+  function bind() {
+    toggles.forEach(function (key) {
+      var box = $(key);
+      box.checked = !!store.get(key);
+      box.addEventListener("change", function () {
+        store.set(key, box.checked);
+        shell.paint();
+        shell.toast(label(key) + (box.checked ? " on" : " off"), "good");
+      });
+    });
+
+    selects.forEach(function (key) {
+      var sel = $(key);
+      var val = store.get(key);
+      sel.value = key === "timeout" ? String(val) : (val == null ? "" : val);
+      sel.addEventListener("change", function () {
+        store.set(key, key === "timeout" ? parseInt(sel.value, 10) : sel.value);
+        shell.paint();
+        drawRelayPicker();
+        shell.toast(label(key) + " saved", "good");
+      });
+    });
+
+    texts.forEach(function (key) {
+      var input = $(key);
+      input.value = store.get(key) || "";
+      input.addEventListener("change", function () {
+        store.set(key, input.value.trim());
+        shell.paint();
+        shell.toast(label(key) + " saved", "good");
+      });
+    });
+  }
+
+  function label(key) {
+    return ({
+      failover: "Relay fallback", stripScripts: "Script removal", blockImages: "Image skipping",
+      keepHistory: "Recent list", timeout: "Timeout", mode: "Default mode",
+      searchEngine: "Search engine", openIn: "Open location", density: "Density",
+      panicKey: "Escape key", tabTitle: "Tab title", tabIcon: "Tab icon",
+      panicUrl: "Escape address", decor: "Backdrop", wordmark: "Wordmark",
+      tagline: "Tagline"
+    })[key] || key;
+  }
+
+  /* ---------- relay picker ---------- */
+
+  function drawRelayPicker() {
+    var sel = $("activeRelay");
+    var mode = store.get("mode");
+    sel.innerHTML = "";
+    var auto = document.createElement("option");
+    auto.value = "auto";
+    auto.textContent = "fastest available";
+    sel.appendChild(auto);
+    store.relays().forEach(function (r) {
+      var o = document.createElement("option");
+      o.value = r.id;
+      o.textContent = r.name + (r.enabled ? "" : " (off)") +
+        (engine.supports(r, mode) ? "" : " — not for " + mode);
+      sel.appendChild(o);
+    });
+    sel.value = store.get("activeRelay");
+    sel.onchange = function () {
+      store.set("activeRelay", sel.value);
+      shell.toast("Relay saved", "good");
+    };
+  }
+
+  /* ---------- relay list ---------- */
+
+  function drawRelays() {
+    var host = $("relay-rows");
+    var pings = store.pings();
+    host.innerHTML = "";
+
+    store.relays().forEach(function (r) {
+      var li = document.createElement("li");
+      li.className = "relay-row" + (r.enabled ? "" : " is-off");
+
+      var order = document.createElement("div");
+      order.className = "order";
+      order.innerHTML = "<button type='button' data-move='-1' aria-label='Move up'>▲</button>" +
+                        "<button type='button' data-move='1' aria-label='Move down'>▼</button>";
+
+      var info = document.createElement("div");
+      info.className = "info";
+      var p = pings[r.id];
+      info.innerHTML = "<strong>" + engine.escape(r.name) + "</strong> " +
+        '<span class="tag' + (p && p.ms > 0 ? " tag-live" : (p ? " tag-down" : "")) + '">' +
+        (FP.KIND_LABELS[r.kind] || r.kind) + (p ? " · " + shell.pingText(p) : "") + "</span>" +
+        "<code>" + engine.escape(r.template) + "</code>";
+
+      var acts = document.createElement("div");
+      acts.className = "acts";
+      acts.innerHTML =
+        "<button class='btn btn-sm btn-ghost' data-act='toggle'>" + (r.enabled ? "Off" : "On") + "</button>" +
+        "<button class='btn btn-sm btn-ghost' data-act='ping'>Test</button>" +
+        "<button class='btn btn-sm btn-ghost' data-act='edit'>Edit</button>" +
+        "<button class='btn btn-sm btn-ghost' data-act='drop'>Remove</button>";
+
+      li.appendChild(order);
+      li.appendChild(info);
+      li.appendChild(acts);
+      host.appendChild(li);
+
+      order.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-move]");
+        if (!b) return;
+        store.moveRelay(r.id, parseInt(b.dataset.move, 10));
+        drawRelays();
+        drawRelayPicker();
+      });
+
+      acts.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-act]");
+        if (!b) return;
+        var act = b.dataset.act;
+
+        if (act === "toggle") {
+          store.upsertRelay({ id: r.id, enabled: !r.enabled });
+          drawRelays(); drawRelayPicker();
+          shell.toast(r.name + (r.enabled ? " turned off" : " turned on"), "good");
+        }
+        else if (act === "ping") {
+          b.textContent = "…"; b.disabled = true;
+          engine.ping(r).then(function (ms) {
+            drawRelays();
+            shell.toast(r.name + (ms > 0 ? " answered in " + ms + " ms" : " did not answer"), ms > 0 ? "good" : "bad");
+          });
+        }
+        else if (act === "edit") { openEditor(r); }
+        else if (act === "drop") {
+          store.removeRelay(r.id);
+          drawRelays(); drawRelayPicker();
+          shell.toast(r.name + " removed", "good");
+        }
+      });
+    });
+  }
+
+  /* ---------- relay editor ---------- */
+
+  function openEditor(relay) {
+    editing = relay ? relay.id : null;
+    $("editor-title").textContent = relay ? "Edit " + relay.name : "Add a relay";
+    $("r-name").value = relay ? relay.name : "";
+    $("r-kind").value = relay ? relay.kind : "raw";
+    $("r-template").value = relay ? relay.template : "";
+    $("r-encode").checked = relay ? !!relay.encode : true;
+    $("r-name").focus();
+    $("editor").scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
+  function clearEditor() {
+    editing = null;
+    $("editor-title").textContent = "Add a relay";
+    $("r-name").value = "";
+    $("r-template").value = "";
+    $("r-kind").value = "raw";
+    $("r-encode").checked = true;
+  }
+
+  function readEditor() {
+    var name = $("r-name").value.trim();
+    var template = $("r-template").value.trim();
+    if (!name) { shell.toast("Give the relay a name.", "bad"); return null; }
+    if (!template && $("r-kind").value !== "direct") {
+      shell.toast("Add the endpoint address.", "bad"); return null;
+    }
+    return {
+      id: editing || ("custom-" + Date.now().toString(36)),
+      name: name,
+      provider: hostOf(template),
+      kind: $("r-kind").value,
+      template: template || "%URL%",
+      encode: $("r-encode").checked,
+      note: "Added by you.",
+      enabled: true,
+      builtin: false
+    };
+  }
+
+  function hostOf(t) {
+    try { return new URL(t.replace("%URL%", "")).host; } catch (e) { return "custom"; }
+  }
+
+  $("r-save").addEventListener("click", function () {
+    var relay = readEditor();
+    if (!relay) return;
+    store.upsertRelay(relay);
+    drawRelays(); drawRelayPicker();
+    shell.toast(relay.name + " saved", "good");
+    clearEditor();
+  });
+
+  $("r-cancel").addEventListener("click", clearEditor);
+
+  $("r-test").addEventListener("click", function () {
+    var relay = readEditor();
+    if (!relay) return;
+    var btn = $("r-test");
+    btn.disabled = true; btn.textContent = "Testing…";
+    engine.ping(relay).then(function (ms) {
+      btn.disabled = false; btn.textContent = "Test this endpoint";
+      shell.toast(ms > 0 ? "Answered in " + ms + " ms" : "No answer from that endpoint", ms > 0 ? "good" : "bad");
+    });
+  });
+
+  $("test-all").addEventListener("click", function () {
+    var list = store.relays().filter(function (r) { return r.kind !== "frame"; });
+    var btn = $("test-all");
+    btn.disabled = true; btn.textContent = "Testing…";
+    var done = 0, alive = 0;
+    list.forEach(function (r) {
+      engine.ping(r).then(function (ms) {
+        done++; if (ms > 0) alive++;
+        if (done === list.length) {
+          btn.disabled = false; btn.textContent = "Test all";
+          drawRelays();
+          shell.toast(alive + " of " + list.length + " relays answered", alive ? "good" : "bad");
+        }
+      });
+    });
+  });
+
+  $("restore").addEventListener("click", function () {
+    store.restoreRelays();
+    drawRelays(); drawRelayPicker();
+    shell.toast("Built-in relays restored", "good");
+  });
+
+  /* ---------- themes ---------- */
+
+  function drawSwatches() {
+    var host = $("swatches");
+    var active = store.get("theme");
+    host.innerHTML = "";
+    THEMES.forEach(function (t) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "swatch";
+      b.setAttribute("aria-pressed", t.id === active ? "true" : "false");
+      b.setAttribute("aria-label", t.name + " theme");
+      b.title = t.name;
+      b.innerHTML = "<span style='background:" + t.base + "'></span>" +
+        "<i style='background:" + t.accent + "'></i>" +
+        "<small style='color:#ffffff99'>" + t.name.toLowerCase() + "</small>";
+      b.addEventListener("click", function () {
+        store.set("theme", t.id);
+        shell.paint();
+        drawSwatches();
+        if (FP.home && FP.home.enter) FP.home.enter();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  /* ---------- tiles ---------- */
+
+  function drawTiles() {
+    var host = $("tile-rows");
+    host.innerHTML = "";
+    var list = store.shortcuts();
+
+    if (!list.length) {
+      host.innerHTML = '<li class="empty"><strong>No tiles</strong>The home page will show only the search bar.</li>';
+      return;
+    }
+
+    list.forEach(function (t) {
+      var li = document.createElement("li");
+      li.className = "relay-row";
+
+      var order = document.createElement("div");
+      order.className = "order";
+      order.innerHTML = "<button type='button' data-move='-1' aria-label='Move up'>▲</button>" +
+                        "<button type='button' data-move='1' aria-label='Move down'>▼</button>";
+
+      var info = document.createElement("div");
+      info.className = "info";
+      info.innerHTML = "<strong>" + engine.escape(t.label) + "</strong><code>" +
+        engine.escape(t.url) + "</code>";
+
+      var acts = document.createElement("div");
+      acts.className = "acts";
+      acts.innerHTML = "<button class='btn btn-sm btn-ghost' data-act='rename'>Rename</button>" +
+                       "<button class='btn btn-sm btn-ghost' data-act='drop'>Remove</button>";
+
+      order.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-move]");
+        if (!b) return;
+        store.moveShortcut(t.id, parseInt(b.dataset.move, 10));
+        drawTiles();
+      });
+
+      acts.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-act]");
+        if (!b) return;
+        if (b.dataset.act === "drop") {
+          store.removeShortcut(t.id);
+          drawTiles();
+          shell.toast(t.label + " removed", "good");
+        } else {
+          var name = prompt("Name for this tile", t.label);
+          if (name == null) return;
+          var url = prompt("Address", t.url);
+          if (url == null) return;
+          store.upsertShortcut({ id: t.id, label: name.trim() || t.label, url: url.trim() || t.url });
+          drawTiles();
+          shell.toast("Tile updated", "good");
+        }
+      });
+
+      li.appendChild(order); li.appendChild(info); li.appendChild(acts);
+      host.appendChild(li);
+    });
+  }
+
+  $("nt-save").addEventListener("click", function () {
+    var label = $("nt-label").value.trim();
+    var url = $("nt-url").value.trim();
+    if (!label || !url) { shell.toast("A name and an address, please.", "bad"); return; }
+    store.upsertShortcut({ id: "t" + Date.now().toString(36), label: label, url: url });
+    $("nt-label").value = ""; $("nt-url").value = "";
+    drawTiles();
+    shell.toast(label + " added", "good");
+  });
+
+  $("restore-tiles").addEventListener("click", function () {
+    store.restoreShortcuts();
+    drawTiles();
+    shell.toast("Default tiles restored", "good");
+  });
+
+  /* ---------- data ---------- */
+
+  function drawHistCount() {
+    var n = store.history().length;
+    $("hist-count").textContent = n ? n + " saved in this browser" : "nothing saved";
+  }
+
+  $("clear-history").addEventListener("click", function () {
+    store.clearHistory();
+    drawHistCount();
+    shell.toast("Recent list cleared", "good");
+  });
+
+  $("export").addEventListener("click", function () {
+    var blob = new Blob([store.exportJson()], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "relay-settings.json";
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    shell.toast("Settings file downloaded", "good");
+  });
+
+  $("import-btn").addEventListener("click", function () { $("import-file").click(); });
+
+  $("import-file").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        store.importJson(String(reader.result));
+        shell.toast("Settings imported", "good");
+        FP.settings.init();
+        shell.paint();
+      } catch (err) {
+        shell.toast("That file could not be read as a Relay config.", "bad");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  $("reset").addEventListener("click", function () {
+    if (!confirm("Reset every setting and restore the default relay list?")) return;
+    store.reset();
+    store.clearHistory();
+    shell.toast("Back to defaults", "good");
+    FP.settings.init();
+    shell.paint();
+  });
+
+  /* ---------- section highlighting ---------- */
+
+  function tocWatch() {
+    var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+    var sections = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+    if (!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (a, i) {
+          a.classList.toggle("active", sections[i] === entry.target);
+        });
+      });
+    }, { rootMargin: "-80px 0px -70% 0px" });
+    sections.forEach(function (s) { if (s) io.observe(s); });
+  }
+
+  /* ---------- view ---------- */
+
+  FP.settings = {
+    init: function () {
+      bind();
+      drawRelays();
+      drawRelayPicker();
+      drawSwatches();
+      drawTiles();
+      drawHistCount();
+      tocWatch();
+      if (!store.persists()) {
+        shell.toast("This window cannot save settings, so they last until you close it.", "info");
+      }
+    },
+    enter: function () {
+      drawRelays();
+      drawRelayPicker();
+      drawHistCount();
+    }
+  };
+})(window.FP);
+</script>
+<script>
+/* js/boot.js */
+/* ===========================================================
+   Relay — start up
+   Runs last. Works the same whether the files are served from a
+   host or written straight into an about:blank document.
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  /* the icon travels with the document, so there is no file to fetch */
+  FP.ICON = "data:image/svg+xml," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    '<rect width="64" height="64" rx="14" fill="#140a20"/>' +
+    '<circle cx="32" cy="40" r="5" fill="#ff9a4d"/>' +
+    '<path d="M32 35V14" stroke="#ff9a4d" stroke-width="3.5" stroke-linecap="round"/>' +
+    '<path d="M20 22a17 17 0 0 1 24 0" stroke="#7ee0b8" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+    '<path d="M13 13a26 26 0 0 1 38 0" stroke="#7ee0b8" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>' +
+    "</svg>"
+  );
+
+  FP.router.wire();
+  FP.shell.boot();
+
+  /* A copy opened in a new tab or blank window is told where to go. */
+  var seed = window.FP_BOOT;
+  if (seed && seed.url) {
+    FP.router.show("browse", { url: seed.url, mode: seed.mode });
+  } else {
+    /* When the site is hosted normally, a shared ?url= link still works. */
+    var asked = "";
+    try { asked = new URLSearchParams(location.search).get("url") || ""; } catch (e) {}
+    if (asked) FP.router.show("browse", { url: asked, mode: FP.store.get("mode") });
+    else FP.router.show("home");
+  }
+
+  /* keep the nav marks honest after every switch */
+  var show = FP.router.show;
+  FP.router.show = function (name, arg) {
+    show(name, arg);
+    FP.shell.markNav();
+  };
+  FP.shell.markNav();
+})(window.FP);
+</script>
+</body>
+</html>
