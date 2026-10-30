@@ -129,6 +129,10 @@
         return "This page is open from a file, so relays see it as coming from nowhere and several refuse it. " +
                "Serve the folder, or run it through your launcher, and most of these come back.";
       }
+      if (engine.isAppSite(url)) {
+        return "Sites like this one are built entirely in JavaScript, so the relay gets an empty shell. " +
+               "The storefront may render, but nothing will launch. Only a real proxy instance can run it.";
+      }
       if (/too heavy|too big|rate limit/.test(all)) {
         return "The free relays time out on pages this size. Reader mode is lighter, and your own relay " +
                "(Settings → Relays → My Worker) has no such limit.";
@@ -136,10 +140,6 @@
       if (/needs an API key/.test(all) && attempts.length <= 2) {
         return "The relays that answered want an API key. Set up your own relay instead — it takes two minutes " +
                "and the steps are in worker/relay-worker.js.";
-      }
-      if (engine.isAppSite(url)) {
-        return "Sites like this one are built entirely in JavaScript, so there is no page for a relay to hand back. " +
-               "Only a real proxy instance can run it — add one in Settings and switch to proxy-instance mode.";
       }
       return "The site may block proxies, or the relays are rate-limited. Try reader mode, or set up your own " +
              "relay in Settings for something that does not fall over.";
@@ -224,6 +224,20 @@
         baseEl.parentNode.removeChild(baseEl);
       }
 
+      /* The document is the only thing that needs a relay: a browser
+         loads images, stylesheets, fonts and media cross-origin without
+         asking CORS. Sending them through the relay as well turned one
+         page into sixty relay requests, which is what was rate-limiting
+         the relay and leaving every picture broken. */
+      var direct = opts.assets !== "relay";
+
+      var asset = function (href) {
+        var abs = engine.resolve(href, base);
+        if (!abs) return "";
+        return direct ? abs : engine.build(relay, abs);
+      };
+
+      /* links still go through the shell, and the shell relays them */
       var via = function (href) {
         var abs = engine.resolve(href, base);
         return abs ? engine.build(relay, abs) : "";
@@ -237,7 +251,7 @@
         });
       } else {
         Array.prototype.forEach.call(doc.querySelectorAll("script[src]"), function (el) {
-          var u = via(el.getAttribute("src"));
+          var u = asset(el.getAttribute("src"));
           if (u) el.setAttribute("src", u); else el.parentNode.removeChild(el);
         });
       }
@@ -246,7 +260,7 @@
       Array.prototype.forEach.call(doc.querySelectorAll("link[href]"), function (el) {
         var rel = (el.getAttribute("rel") || "").toLowerCase();
         if (rel.indexOf("stylesheet") >= 0 || rel.indexOf("icon") >= 0) {
-          var u = via(el.getAttribute("href"));
+          var u = asset(el.getAttribute("href"));
           if (u) el.setAttribute("href", u); else el.parentNode.removeChild(el);
         } else {
           el.parentNode.removeChild(el);
@@ -263,13 +277,13 @@
         }
         ["src", "poster", "data-src"].forEach(function (attr) {
           if (!el.hasAttribute(attr)) return;
-          var u = via(el.getAttribute(attr));
+          var u = asset(el.getAttribute(attr));
           if (u) el.setAttribute(attr === "data-src" ? "src" : attr, u);
         });
         if (el.hasAttribute("srcset")) {
           var parts = el.getAttribute("srcset").split(",").map(function (chunk) {
             var bits = chunk.trim().split(/\s+/);
-            var u = via(bits[0]);
+            var u = asset(bits[0]);
             return u ? [u].concat(bits.slice(1)).join(" ") : "";
           }).filter(Boolean);
           if (parts.length) el.setAttribute("srcset", parts.join(", "));
@@ -306,10 +320,10 @@
       var fixCss = function (css) {
         return String(css).replace(/url\((['"]?)([^'")]+)\1\)/gi, function (m, q, href) {
           if (/^(data|blob):/i.test(href)) return m;
-          var u = via(href);
+          var u = asset(href);
           return u ? 'url("' + u + '")' : m;
         }).replace(/@import\s+(['"])([^'"]+)\1/gi, function (m, q, href) {
-          var u = via(href);
+          var u = asset(href);
           return u ? '@import "' + u + '"' : "";
         });
       };
@@ -392,8 +406,8 @@
       if (!best || bestScore < 260) best = doc.body;
 
       var via = function (href) {
-        var abs = engine.resolve(href, pageUrl);
-        return abs ? engine.build(relay, abs) : "";
+        /* pictures come straight from the site, same as above */
+        return engine.resolve(href, pageUrl);
       };
 
       Array.prototype.forEach.call(best.querySelectorAll("img"), function (el) {

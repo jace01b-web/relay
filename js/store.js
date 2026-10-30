@@ -20,6 +20,7 @@
     searchEngine: "https://duckduckgo.com/?q=%s",
     stripScripts: true,
     blockImages: false,
+    assets: "direct",             /* direct | relay — where images and CSS come from */
     openIn: "same",               /* same | tab | blank  (blank = about:blank window) */
     keepHistory: true,
 

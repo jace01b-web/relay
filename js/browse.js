@@ -109,7 +109,8 @@
       } else {
         html = engine.rewrite(out.body, url, out.relay, {
           stripScripts: store.get("stripScripts"),
-          blockImages: store.get("blockImages")
+          blockImages: store.get("blockImages"),
+          assets: store.get("assets")
         });
       }
 

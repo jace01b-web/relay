@@ -141,6 +141,18 @@ requests a day. Yours has no rate limit worth worrying about, no internal timeou
 `content-security-policy` and `x-frame-options` headers that stop fetched pages from rendering in a
 frame, which the public relays don't do. Pages look noticeably better through it.
 
+### One relay request per page, not sixty
+
+Only the HTML document goes through a relay. Images, stylesheets, fonts and media load straight from the
+site, because a browser fetches those cross-origin without asking CORS. Routing them through the relay
+as well — which is what the first version did — turned one page into sixty relay requests, which
+rate-limited the relay instantly and left every picture broken and every stylesheet unapplied.
+
+Measured on a 20-image test page: **22 relay requests before, 1 after.**
+
+Settings → Browsing → *Images and styles* switches it back to **through the relay**, for when the
+pictures themselves are blocked on your network. Expect it to be slow and to break on free relays.
+
 ### Sites that can never work this way
 
 now.gg, GeForce Now, Discord, Roblox, Netflix — anything that is a JavaScript app rather than a

@@ -19,7 +19,7 @@
   /* ---------- simple bound controls ---------- */
 
   var toggles = ["failover", "stripScripts", "blockImages", "keepHistory"];
-  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor"];
+  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor", "assets"];
   var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline"];
 
   function bind() {
@@ -63,7 +63,7 @@
       searchEngine: "Search engine", openIn: "Open location", density: "Density",
       panicKey: "Escape key", tabTitle: "Tab title", tabIcon: "Tab icon",
       panicUrl: "Escape address", decor: "Backdrop", wordmark: "Wordmark",
-      tagline: "Tagline"
+      tagline: "Tagline", assets: "Image loading"
     })[key] || key;
   }
 
