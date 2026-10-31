@@ -1,0 +1,405 @@
+/* ==========================================================================
+ * css/12-vip-spin.css
+ * VIP lounge, badges, flair names, Daily Spin
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===== VIP Lounge + Daily Spin ===== */
+@property --vipA{syntax:'<angle>';initial-value:0deg;inherits:false}
+.vip-hero{grid-column:1/-1;position:relative}
+.gc-modal .gc-card.gc-vip,.gc-modal .gc-card.gc-vip:hover{
+  background:radial-gradient(80% 150% at 6% 50%,rgba(255,190,70,.24),transparent 62%),linear-gradient(100deg,rgba(64,44,8,.55),rgba(22,20,30,.45) 65%),var(--ui-panel2)}
+.gc-modal .gc-card.gc-vip{width:100%;flex-direction:row;justify-content:flex-start;align-items:center;text-align:left;gap:22px;min-height:0;padding:26px 200px 26px 28px;
+  border:1px solid rgba(255,196,86,.3);
+  box-shadow:0 18px 46px rgba(0,0,0,.35),0 0 44px rgba(255,180,60,.16),inset 0 1px 0 rgba(255,236,190,.28)}
+.gc-modal .gc-card.gc-vip:hover{border-color:rgba(255,206,110,.55);box-shadow:0 20px 52px rgba(0,0,0,.4),0 0 60px rgba(255,180,60,.28),inset 0 1px 0 rgba(255,236,190,.35)}
+.vip-ring{position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:conic-gradient(from var(--vipA),rgba(255,214,120,0) 0%,#ffd97a 12%,rgba(255,214,120,0) 32%,rgba(120,200,255,0) 55%,#8fd4ff 68%,rgba(120,200,255,0) 84%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:vipSpin 6s linear infinite}
+@keyframes vipSpin{to{--vipA:360deg}}
+.vip-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(255,238,196,.17) 50%,transparent 58%);
+  transform:translateX(-130%);animation:vipSheen 6s ease-in-out 1.2s infinite}
+@keyframes vipSheen{0%{transform:translateX(-130%)}32%,100%{transform:translateX(130%)}}
+.vip-sparks{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.vip-sparks i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:50%;background:#fff1c9;
+  box-shadow:0 0 8px 2px rgba(255,205,100,.85);opacity:0;animation:vipTw var(--d) ease-in-out var(--t) infinite}
+@keyframes vipTw{0%,100%{opacity:0;transform:translateY(4px) scale(.4)}50%{opacity:.95;transform:translateY(-6px) scale(1)}}
+.vip-gem{position:relative;flex:none;font-size:66px;line-height:1;animation:vipFloat 4.2s ease-in-out infinite;
+  filter:drop-shadow(0 6px 16px rgba(80,170,255,.5)) drop-shadow(0 0 18px rgba(255,200,90,.35))}
+.vip-gem::before{content:'';position:absolute;inset:-22px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,200,90,.32),transparent 68%);animation:vipHalo 3.2s ease-in-out infinite}
+@keyframes vipFloat{0%,100%{transform:translateY(2px) rotate(-3deg)}50%{transform:translateY(-6px) rotate(3deg)}}
+@keyframes vipHalo{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
+.vip-copy{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+.vip-title{font-size:24px;font-weight:800;line-height:1.1;background:linear-gradient(100deg,#ffe9b0,#ffbf4d 40%,#fff1c9 60%,#ffd27a);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:vipText 7s linear infinite}
+@keyframes vipText{to{background-position:-220% 0}}
+.vip-sub{font-size:13px;line-height:1.4;color:rgba(255,236,200,.72)}
+.vip-state{margin-top:2px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;color:#ffe2a0;background:rgba(255,196,86,.15);border:1px solid rgba(255,196,86,.34)}
+.vip-hero.locked .vip-state{color:#e9d9b5;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16)}
+.vip-spin{position:absolute;right:22px;top:50%;transform:translateY(-50%);z-index:3;padding:11px 17px;border-radius:14px;font-weight:700;font-size:13.5px;color:#2a1c00;
+  background:linear-gradient(135deg,#ffd97a,#e8a020);box-shadow:0 8px 22px rgba(224,154,31,.38),inset 0 1px 0 rgba(255,255,255,.55);transition:transform .18s ease,box-shadow .18s ease}
+.vip-spin:hover{transform:translateY(-50%) scale(1.05);box-shadow:0 10px 28px rgba(224,154,31,.5),inset 0 1px 0 rgba(255,255,255,.55)}
+.vip-spin:active{transform:translateY(-50%) scale(.97)}
+.gc-vip:focus-visible,.vip-spin:focus-visible{outline:2px solid #ffd97a;outline-offset:3px}
+@media (max-width:620px){
+  .vip-hero{display:flex;flex-direction:column;gap:8px}
+  .gc-modal .gc-card.gc-vip{padding:20px 18px;gap:16px}
+  .vip-gem{font-size:50px}.vip-title{font-size:21px}
+  .vip-spin{position:static;transform:none;width:100%}
+  .vip-spin:hover,.vip-spin:active{transform:none}
+}
+@media (prefers-reduced-motion:reduce){.vip-ring,.vip-sheen,.vip-sparks i,.vip-gem,.vip-gem::before,.vip-title{animation:none}.vip-sparks i{opacity:.5}}
+
+/* VIP room: same chat, warmer edges so it reads as a different place */
+#chatPage.vip-mode .topbar{box-shadow:inset 0 -1px 0 rgba(255,196,86,.38),0 14px 40px -26px rgba(255,190,70,.6)}
+#chatPage.vip-mode .composer{box-shadow:inset 0 1px 0 rgba(255,196,86,.3)}
+#chatPage.vip-mode .send{background:linear-gradient(135deg,#ffcf6a,#e09a1f);color:#2a1c00}
+.vip-bar{display:flex;align-items:center;gap:12px;margin:10px 14px 0;padding:10px 14px;border-radius:16px;
+  background:linear-gradient(100deg,rgba(255,196,86,.16),rgba(255,196,86,.05));border:1px solid rgba(255,196,86,.32)}
+.vb-gem{font-size:26px;line-height:1;filter:drop-shadow(0 3px 8px rgba(80,170,255,.4))}
+.vb-txt{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.vb-txt b{font-size:14px;color:#ffe2a0}
+.vb-txt span{font-size:12px;color:var(--muted)}
+.vb-pill{margin-left:auto;font-size:12px;font-weight:600;color:#ffe2a0;background:rgba(255,196,86,.16);border:1px solid rgba(255,196,86,.3);padding:5px 11px;border-radius:999px;white-space:nowrap}
+.vip-lock{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.vl-card{max-width:400px;text-align:center;padding:34px 28px;border-radius:24px;background:var(--ui-panel);
+  backdrop-filter:blur(var(--ui-blur));-webkit-backdrop-filter:blur(var(--ui-blur));border:1px solid rgba(255,196,86,.34);
+  box-shadow:0 20px 60px rgba(0,0,0,.35),0 0 60px rgba(255,190,70,.1)}
+.vl-gem{font-size:64px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 6px 16px rgba(80,170,255,.45))}
+.vl-card h2{font-size:22px;color:#ffe2a0;margin-bottom:8px}
+.vl-card p{font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:20px}
+.vl-btn{background:linear-gradient(135deg,#ffcf6a,#e09a1f)!important;color:#2a1c00!important;box-shadow:0 8px 24px rgba(224,154,31,.3)!important}
+
+/* name badges */
+.vip-badge,.flair-badge{display:inline-block;font-size:13px;line-height:1;vertical-align:-1px}
+.flair-rainbow{animation:flairHue 4s linear infinite}
+.flair-neon{filter:drop-shadow(0 0 5px #27d8f0)}
+.flair-fire{filter:drop-shadow(0 0 4px #ff6a1a)}
+.flair-ice{filter:drop-shadow(0 0 4px #7cc4ff)}
+.flair-gold,.flair-crown{filter:drop-shadow(0 0 4px rgba(255,200,80,.8))}
+@keyframes flairHue{to{filter:hue-rotate(360deg)}}
+
+/* Custom (role/flair) colored usernames — applied when the owner-level
+   "custom usernames with roles" setting is on. Kept separate from the small
+   emoji badges above: these color the NAME TEXT itself. */
+/* ---- Flair-colored usernames ----
+   Seamless loop: every gradient starts and ends on the SAME color, is exactly one tile wide
+   (background-size:200%), and the animation travels exactly one tile (200% -> 0), so the
+   last frame equals the first and there is no visible snap. Padding + negative margin give
+   the glyphs room so descenders / glow are never cut off by the clip box. */
+.flair-name{display:inline-block;font-weight:700;letter-spacing:.01em;line-height:1.25;padding:.06em .12em .16em;margin:-.06em -.12em -.16em;
+  background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  animation:nmFlow var(--nm-dur,6s) linear infinite;will-change:background-position}
+.flair-name.flair-gold{--nm-dur:6s;background-image:linear-gradient(90deg,#f0b429 0%,#ffe9a0 25%,#fff6cf 50%,#ffe9a0 75%,#f0b429 100%)}
+.flair-name.flair-rainbow{--nm-dur:5s;background-image:linear-gradient(90deg,#ff5fc0 0%,#ffd84d 20%,#4cd6a0 40%,#5aa9ff 60%,#b07cff 80%,#ff5fc0 100%)}
+.flair-name.flair-crown{--nm-dur:6s;background-image:linear-gradient(90deg,#7a63ff 0%,#b9abff 25%,#ece7ff 50%,#b9abff 75%,#7a63ff 100%)}
+.flair-name.flair-neon{--nm-dur:5s;background-image:linear-gradient(90deg,#27d8f0 0%,#8cf6ff 25%,#7dffe1 50%,#8cf6ff 75%,#27d8f0 100%)}
+.flair-name.flair-lucky{--nm-dur:6s;background-image:linear-gradient(90deg,#22a95e 0%,#8dffb8 25%,#c9ffdc 50%,#8dffb8 75%,#22a95e 100%)}
+.flair-name.flair-ice{--nm-dur:6s;background-image:linear-gradient(90deg,#5aa9ff 0%,#a9dcff 25%,#ffffff 50%,#a9dcff 75%,#5aa9ff 100%)}
+.flair-name.flair-fire{--nm-dur:3.6s;background-image:linear-gradient(90deg,#ff3d2e 0%,#ff7a1f 25%,#ffd166 50%,#ff7a1f 75%,#ff3d2e 100%)}
+/* glow lives on a pseudo-free wrapper-safe property: soft text glow that is NOT clipped */
+.flair-name.flair-gold{filter:drop-shadow(0 0 4px rgba(240,180,41,.45))}
+.flair-name.flair-rainbow{filter:drop-shadow(0 0 4px rgba(150,120,255,.4))}
+.flair-name.flair-crown{filter:drop-shadow(0 0 4px rgba(139,120,255,.5))}
+.flair-name.flair-neon{filter:drop-shadow(0 0 5px rgba(39,216,240,.7))}
+.flair-name.flair-lucky{filter:drop-shadow(0 0 4px rgba(34,169,94,.5))}
+.flair-name.flair-ice{filter:drop-shadow(0 0 4px rgba(124,196,255,.55))}
+.flair-name.flair-fire{filter:drop-shadow(0 0 4px rgba(255,90,31,.6))}
+/* exactly one full tile of travel => perfect loop */
+@keyframes nmFlow{from{background-position:0% 0}to{background-position:-200% 0}}
+@keyframes flairHue2{from{background-position:0% 0}to{background-position:-200% 0}}
+@keyframes nmShift{from{background-position:0% 0}to{background-position:-200% 0}}
+
+/* spin modal */
+.spin-modal{max-width:440px;text-align:center;padding:26px 22px 22px}
+.spin-modal h2{font-size:22px;margin-bottom:6px}
+.spin-x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);font-size:14px}
+.spin-sub{font-size:13px;line-height:1.5;color:var(--muted);margin:0 auto 14px;max-width:340px}
+.spin-stage{position:relative;width:min(300px,78vw);aspect-ratio:1;margin:12px auto 10px;border-radius:50%;padding:8px;
+  background:conic-gradient(from 0deg,#f4f1ff,#b9b3d8,#f4f1ff,#b9b3d8,#f4f1ff);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.45),0 0 60px rgba(124,108,255,.25)}
+.spin-wheel{width:100%;height:100%;border-radius:50%;overflow:hidden;will-change:transform}
+.spin-wheel svg{display:block;width:100%;height:100%}
+.spin-hub{position:absolute;left:50%;top:50%;width:14%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(14px,4vw,20px);background:linear-gradient(135deg,#8b78ff,#5a4bff);border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.spin-ptr{position:absolute;left:50%;top:-6px;width:0;height:0;transform:translateX(-50%);z-index:3;
+  border-left:11px solid transparent;border-right:11px solid transparent;border-top:20px solid #8b78ff;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+.spin-res{min-height:20px;margin:6px 0 12px;font-size:13px;color:var(--muted)}
+.spin-res.win{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;background:rgba(124,108,255,.14);border:1px solid rgba(124,108,255,.35);color:var(--text)}
+.spin-res .sr-e{font-size:34px;line-height:1}
+.spin-res.win div{display:flex;flex-direction:column;gap:2px}
+.spin-res.win b{font-size:15px}
+.spin-res.win span:not(.sr-e){font-size:12.5px;color:var(--muted)}
+.spin-res.bad{padding:10px 12px;border-radius:12px;background:rgba(255,93,115,.12);border:1px solid rgba(255,93,115,.4);color:#ffb3bd;text-align:left;word-break:break-word}
+.spin-go{width:100%;padding:13px 20px}
+.spin-go:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+.odds-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:16px;text-align:left}
+.odd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:10px;font-size:12px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.odd b{color:var(--muted);font-weight:600}
+.odd.vip{border-color:rgba(255,196,86,.4);background:rgba(255,196,86,.08)}
+.spin-roles{margin-top:16px;text-align:left}
+.sr-head{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:8px}
+.sr-head span{color:var(--muted);font-weight:500}
+.sr-grid{display:flex;flex-wrap:wrap;gap:6px}
+.sr-chip{font-size:11.5px;padding:5px 9px;border-radius:999px;border:1px dashed var(--border);color:var(--muted);opacity:.55}
+.sr-chip.on{opacity:1;border-style:solid;border-color:rgba(124,108,255,.5);background:rgba(124,108,255,.16);color:var(--text)}
+@media (max-width:420px){.odds-grid{grid-template-columns:1fr}}
+.cfx{position:fixed;inset:0;pointer-events:none;z-index:900;overflow:hidden}
+.cfx i{position:absolute;top:-16px;left:var(--x);width:var(--w);height:calc(var(--w)*1.6);border-radius:2px;opacity:0;animation:cfxFall var(--d) cubic-bezier(.3,.6,.4,1) forwards}
+@keyframes cfxFall{0%{opacity:1;transform:translate3d(0,0,0) rotate(0)}100%{opacity:0;transform:translate3d(var(--dx),105vh,0) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){.spin-wheel{transition:none!important}.flair-rainbow{animation:none}}
+
+
+/* ===== Role titles + profile role pills (Legend = perm VIP, Star = 24h VIP) ===== */
+/* ---- VIP tiers: the WHOLE name (title + username) is ONE unit ----
+   Glow is drawn by the pill (box-shadow) and never by filter on clipped text, and the username
+   box has vertical/horizontal padding so nothing is sliced. Text shine is a seamless 200% tile. */
+.nm-wrap{display:inline-flex;align-items:center;gap:8px;max-width:100%;vertical-align:middle;padding:2px 12px 2px 9px;border-radius:999px;position:relative;isolation:isolate;line-height:1.3}
+.nm-wrap .nm-title{display:inline-flex;align-items:center;gap:5px;font-weight:900;white-space:nowrap;letter-spacing:.07em;text-transform:uppercase;font-size:.7em;flex:none}
+.nm-wrap .nm-title .nm-ic{font-size:1.2em;line-height:1;letter-spacing:0}
+/* soft divider instead of a hard 1px line */
+.nm-wrap .nm-title::after{content:'';display:block;width:1px;height:1.15em;margin-left:4px;border-radius:1px;background:linear-gradient(to bottom,transparent,currentColor,transparent);opacity:.7}
+.nm-wrap .nm-user{display:inline-block;font-weight:800;min-width:0;max-width:100%;white-space:nowrap;
+  padding:.08em .14em .2em;margin:-.08em -.14em -.2em;line-height:1.25;overflow:visible}
+/* ---- Legend (permanent VIP) ---- */
+.nm-wrap.tier-legend{color:#ffd45a;
+  background:linear-gradient(100deg,rgba(255,196,55,.20),rgba(255,236,160,.30) 50%,rgba(255,196,55,.20));
+  box-shadow:inset 0 0 0 1px rgba(255,208,100,.55),inset 0 1px 0 rgba(255,246,205,.35),0 0 12px rgba(255,190,50,.30)}
+.nm-wrap.tier-legend .nm-title{text-shadow:0 0 8px rgba(255,190,50,.6)}
+.nm-wrap.tier-legend .nm-user:not(.flair-name){
+  background-image:linear-gradient(90deg,#ffbf2b 0%,#ffe27a 25%,#ffffff 50%,#ffe27a 75%,#ffbf2b 100%);
+  background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:nmFlow 4.8s linear infinite}
+/* ---- Owner: same pill as Legend/Star, in rose ---- */
+.nm-wrap.tier-owner{color:#ff7fab;
+  background:linear-gradient(100deg,rgba(255,70,125,.26),rgba(255,160,195,.36) 50%,rgba(255,70,125,.26));
+  box-shadow:inset 0 0 0 1px rgba(255,110,158,.7),inset 0 1px 0 rgba(255,225,236,.4),0 0 14px rgba(255,70,125,.4)}
+.nm-wrap.tier-owner{padding:3px 12px 3px 11px;gap:9px;align-items:center}
+.nm-wrap.tier-owner .nm-title{text-shadow:0 0 8px rgba(255,80,135,.7);line-height:1;align-items:center;gap:6px}
+.nm-wrap.tier-owner .nm-title .nm-ic{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.nm-wrap.tier-owner .nm-title::after{margin-left:3px}
+.nm-wrap.tier-owner .nm-user{line-height:1.15;padding:.14em .14em;margin:-.14em}
+.pf-role.owner-role{padding:4px 11px;gap:6px;line-height:1}
+.nm-wrap.tier-owner .nm-user:not(.flair-name){
+  background-image:linear-gradient(90deg,#ff6b9d 0%,#ff9dc0 25%,#fff0f5 50%,#ff9dc0 75%,#ff6b9d 100%);
+  background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:nmFlow 4.5s linear infinite}
+/* ---- Star (24h VIP) ---- */
+.nm-wrap.tier-star{color:#ffab52;
+  background:linear-gradient(100deg,rgba(255,150,60,.17),rgba(255,214,160,.26) 50%,rgba(255,150,60,.17));
+  box-shadow:inset 0 0 0 1px rgba(255,168,84,.5),inset 0 1px 0 rgba(255,236,210,.28),0 0 10px rgba(255,150,50,.26)}
+.nm-wrap.tier-star .nm-title{text-shadow:0 0 7px rgba(255,150,50,.55)}
+.nm-wrap.tier-star .nm-user:not(.flair-name){
+  background-image:linear-gradient(90deg,#ff9440 0%,#ffc98c 25%,#fff4e0 50%,#ffc98c 75%,#ff9440 100%);
+  background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:nmFlow 6s linear infinite}
+/* flair inside a VIP pill: same seamless flow, no extra clipping */
+.nm-wrap .nm-user.flair-name{text-shadow:none}
+@media (prefers-reduced-motion:reduce){.nm-wrap *,.flair-name{animation:none!important}}
+
+/* ===== Give VIP picker ===== */
+.gv-modal{max-width:400px;padding:0;overflow:hidden}
+.gv-head{position:relative;padding:22px 24px 18px;display:flex;align-items:center;gap:14px;
+  background:radial-gradient(120% 140% at 0% 0%,rgba(255,196,86,.20),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.04),transparent);
+  border-bottom:1px solid var(--border)}
+.gv-head .gv-av{flex:none;position:relative}
+.gv-head .gv-av::after{content:'💎';position:absolute;right:-6px;bottom:-6px;font-size:16px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--panel);border:1px solid rgba(255,206,110,.55);box-shadow:0 0 12px rgba(255,190,50,.45)}
+.gv-head .gv-t{min-width:0}
+.gv-head .gv-k{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#ffcf6a}
+.gv-head .gv-n{font-size:19px;font-weight:800;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gv-head .gv-id{font-size:12px;color:var(--muted);margin-top:1px}
+.gv-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.07);color:var(--text);font-size:13px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.gv-x:hover{background:rgba(255,255,255,.14)}
+.gv-body{padding:18px 24px 22px}
+.gv-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.02em}
+.gv-opts{display:flex;flex-direction:column;gap:10px}
+.gv-opt{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:16px;
+  background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--text);transition:transform .15s,border-color .15s,background .15s,box-shadow .15s;cursor:pointer}
+.gv-opt:hover{transform:translateY(-1px);background:rgba(255,255,255,.07)}
+.gv-opt:focus-visible{outline:2px solid #ffd97a;outline-offset:2px}
+.gv-opt .gv-ic{flex:none;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
+.gv-opt .gv-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.gv-opt .gv-tt{font-weight:800;font-size:15px}
+.gv-opt .gv-ds{font-size:12.5px;color:var(--muted)}
+.gv-opt .gv-ck{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:.15s}
+.gv-opt.on .gv-ck{color:#2a1c00;border-color:transparent}
+.gv-opt[data-k="perm"].on{border-color:rgba(255,208,100,.85);background:linear-gradient(100deg,rgba(255,196,55,.16),rgba(255,236,160,.08));box-shadow:0 0 0 3px rgba(255,196,55,.13),0 10px 28px -12px rgba(255,190,50,.55)}
+.gv-opt[data-k="perm"].on .gv-ic{background:linear-gradient(135deg,#ffe27a,#ffb300);border-color:transparent;box-shadow:0 0 16px rgba(255,190,50,.5)}
+.gv-opt[data-k="perm"].on .gv-ck{background:linear-gradient(135deg,#ffe27a,#ffb300)}
+.gv-opt[data-k="24h"].on{border-color:rgba(255,168,84,.85);background:linear-gradient(100deg,rgba(255,150,60,.15),rgba(255,214,160,.07));box-shadow:0 0 0 3px rgba(255,150,60,.12),0 10px 28px -12px rgba(255,150,50,.5)}
+.gv-opt[data-k="24h"].on .gv-ic{background:linear-gradient(135deg,#ffd08a,#ff9440);border-color:transparent;box-shadow:0 0 16px rgba(255,150,50,.45)}
+.gv-opt[data-k="24h"].on .gv-ck{background:linear-gradient(135deg,#ffd08a,#ff9440)}
+.gv-prev{margin-top:16px;padding:12px 16px;border-radius:14px;background:rgba(0,0,0,.22);border:1px dashed var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gv-prev .gv-pl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);flex:none}
+.gv-prev .gv-pn{min-width:0;display:flex;justify-content:flex-end;overflow:hidden;padding:8px 10px;margin:-8px -10px}
+.gv-actions{display:flex;gap:10px;margin-top:18px}
+.gv-actions .btn{flex:1;padding:13px 16px}
+.gv-actions .gv-cancel{flex:0 0 auto;padding:13px 20px}
+.gv-go{background:linear-gradient(135deg,#ffd45a,#f0a010)!important;color:#2a1c00!important;box-shadow:0 8px 22px rgba(240,160,16,.38)!important}
+.gv-go[data-k="24h"]{background:linear-gradient(135deg,#ffc98c,#ff8f3a)!important;box-shadow:0 8px 22px rgba(255,143,58,.36)!important}
+.gv-go:disabled{opacity:.6;cursor:progress}
+
+/* meta line: name + time on one baseline; the VIP pill sits inline without being clipped */
+.msg .meta{display:flex;flex-wrap:wrap;align-items:center;gap:0 5px;line-height:1.35;min-height:26px}
+.msg.me .meta{justify-content:flex-end}
+/* slightly smaller pill inside chat rows so VIP and plain names give the same row height */
+.msg .meta .nm-wrap{font-size:12.5px;padding-top:1px;padding-bottom:1px;margin:-1px 0}
+.msg .meta .nm-sep{opacity:.7}
+.pf-roles{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pf-role{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text)}
+.pf-role.vip-perm{color:#3a2a00;background:linear-gradient(135deg,#ffe98a,#ffbf2e);border-color:rgba(255,200,80,.7)}
+.pf-role.owner-role{color:#3a0a1f;background:linear-gradient(135deg,#ffc9dc,#ff4f8b);border-color:rgba(255,110,158,.75)}
+.pf-role.vip-day{color:#3a2a00;background:linear-gradient(135deg,#ffd9a0,#ffb347);border-color:rgba(255,170,60,.7)}
+.pf-role.fl-gold{border-color:rgba(230,169,31,.6);color:#e6a91f}
+.pf-role.fl-rainbow{border-color:rgba(90,169,255,.6);color:#5aa9ff}
+.pf-role.fl-crown{border-color:rgba(139,120,255,.6);color:#8b78ff}
+.pf-role.fl-neon{border-color:rgba(39,216,240,.6);color:#27d8f0}
+.pf-role.fl-lucky{border-color:rgba(34,169,94,.6);color:#22a95e}
+.pf-role.fl-ice{border-color:rgba(63,134,245,.6);color:#3f86f5}
+.pf-role.fl-fire{border-color:rgba(255,74,15,.6);color:#ff4a0f}
+.pf-role.fl-confetti{border-color:rgba(255,95,192,.6);color:#ff5fc0}
+.pf-vip-timer{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px;color:#3a2a00;background:linear-gradient(135deg,#ffd75e,#ffb31a)}
+
+/* ===== Online list: VIP / Legend / Star / Owner names =====
+   .online-row .nm used to be a plain ellipsis box (overflow:hidden + white-space:nowrap). The tier pill is an
+   inline-flex box whose username has overflow:visible, so inside that box a long name was sliced off with no
+   ellipsis and the pill's glow was cut - it looked broken for permanent VIP (Legend) most of all, since that
+   pill is the widest. Make the cell a flex container so the pill can shrink, and let the USERNAME (not the
+   whole pill) take the ellipsis. */
+.online-row .nm{display:flex;align-items:center;min-width:0;overflow:hidden}
+.online-row .nm>*{min-width:0;max-width:100%}
+.online-row .nm .nm-wrap{flex:0 1 auto;min-width:0;max-width:100%}
+.online-row .nm .nm-wrap .nm-title{flex:none}
+.online-row .nm .nm-wrap .nm-user{flex:0 1 auto;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+
+
+/* ===================================================================================================
+   MVP — permanent role (Daily Spin 0.1% / owner-given). Ranks above staff in lists, no staff powers.
+   =================================================================================================== */
+@keyframes mvpGlow{0%,100%{box-shadow:inset 0 0 0 1px rgba(255,92,200,.7),inset 0 1px 0 rgba(255,236,250,.4),0 0 14px rgba(255,47,160,.38)}
+  50%{box-shadow:inset 0 0 0 1px rgba(255,196,86,.8),inset 0 1px 0 rgba(255,246,220,.5),0 0 20px rgba(255,176,46,.5)}}
+/* ---- name: title pill + animated holographic username ---- */
+.nm-wrap.tier-mvp{color:#ff7ed2;padding:3px 12px 3px 11px;gap:9px;align-items:center;
+  background:linear-gradient(100deg,rgba(255,47,160,.26),rgba(255,190,70,.24) 50%,rgba(62,230,255,.22));
+  animation:mvpGlow 3.2s ease-in-out infinite}
+.nm-wrap.tier-mvp .nm-title{text-shadow:0 0 9px rgba(255,47,160,.75);line-height:1;align-items:center;gap:6px}
+.nm-wrap.tier-mvp .nm-title .nm-ic{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.nm-wrap.tier-mvp .nm-user{line-height:1.15;padding:.14em .14em;margin:-.14em}
+.nm-wrap.tier-mvp .nm-user:not(.flair-name){
+  background-image:linear-gradient(90deg,#ff2fa0 0%,#ffb02e 22%,#ffffff 40%,#3ee6ff 60%,#b86bff 80%,#ff2fa0 100%);
+  background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  animation:nmFlow 3.8s linear infinite}
+.nm-wrap.tier-mvp::after{content:'✦';position:absolute;right:3px;top:-5px;font-size:10px;line-height:1;color:#fff;text-shadow:0 0 6px #ff7ed2,0 0 10px #ffb02e;animation:mvpTwinkle 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes mvpTwinkle{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(35deg)}}
+.vip-badge.mvp-badge{filter:drop-shadow(0 0 4px rgba(255,47,160,.7))}
+/* member list: MVP name effect (the Discord look flattens the pill, so the text carries it) */
+.dl-mem-nm .nm-user.mvp-nm{background-image:linear-gradient(90deg,#ff2fa0 0%,#ffb02e 25%,#fff 50%,#3ee6ff 75%,#ff2fa0 100%);background-size:200% 100%;background-repeat:repeat-x;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:700;animation:nmFlow 4.2s linear infinite}
+.dl-mem-nm .nm-user.mvp-nm .mvp-mark{-webkit-text-fill-color:initial;font-size:.85em;margin-left:2px}
+/* ---- profile role pill ---- */
+.pf-role.mvp-role{color:#3a0a2a;background:linear-gradient(135deg,#ffd0ee,#ff63c0 45%,#ffc24d);border-color:rgba(255,120,205,.8);padding:4px 11px;gap:6px;line-height:1;box-shadow:0 0 12px rgba(255,47,160,.35)}
+.pf-role.mvp-role small{font-weight:600;opacity:.75;font-size:.9em}
+/* ---- MVP lounge look (the room) ---- */
+:root{--mvp-holo:linear-gradient(90deg,#ff2fa0,#ffd27a,#fff,#3ee6ff,#c28bff,#ff2fa0,#ffd27a,#fff,#3ee6ff,#c28bff,#ff2fa0)}
+@property --mvpA{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes mvpSpin{to{--mvpA:360deg}}
+@keyframes mvpHolo{to{background-position:100% 0}}
+@keyframes mvpFloat{0%,100%{transform:translateY(2px) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+@keyframes mvpHalo{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes mvpOrbit{to{transform:rotate(360deg)}}
+@keyframes mvpRise{0%{opacity:0;transform:translateY(0) scale(.5)}18%{opacity:1}100%{opacity:0;transform:translateY(-120px) scale(1.05)}}
+@keyframes mvpPulse{0%,100%{box-shadow:0 18px 50px rgba(0,0,0,.4),0 0 40px rgba(255,47,160,.22),0 0 80px rgba(62,230,255,.08),inset 0 1px 0 rgba(255,225,245,.35)}
+  50%{box-shadow:0 18px 50px rgba(0,0,0,.4),0 0 64px rgba(255,47,160,.42),0 0 110px rgba(62,230,255,.16),inset 0 1px 0 rgba(255,225,245,.5)}}
+@keyframes mvpBorder{to{background-position:0 0,100% 0}}
+@keyframes mvpTw{0%,100%{opacity:.1;transform:scale(.5) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(40deg)}}
+@keyframes mvpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+#chatPage.mvp-mode .topbar{box-shadow:inset 0 -1px 0 rgba(255,92,200,.5),0 14px 40px -24px rgba(255,47,160,.75)}
+#chatPage.mvp-mode .composer{box-shadow:inset 0 1px 0 rgba(255,92,200,.4),0 -14px 34px -24px rgba(255,47,160,.7)}
+#chatPage.mvp-mode .send{background:linear-gradient(135deg,#ff63c0,#ff2fa0 55%,#ffb02e);color:#2a0018;box-shadow:0 6px 20px rgba(255,47,160,.4)}
+#chatPage.mvp-mode .messages{background-image:radial-gradient(60% 42% at 88% 0,rgba(255,47,160,.11),transparent 70%),radial-gradient(52% 40% at 8% 100%,rgba(62,230,255,.09),transparent 70%),radial-gradient(40% 30% at 50% 55%,rgba(194,139,255,.05),transparent 75%)}
+#chatPage.mvp-mode .vip-bar{position:relative;overflow:hidden;isolation:isolate;gap:14px;padding:11px 16px;border:1.5px solid transparent;
+  background:linear-gradient(100deg,rgba(58,10,48,.9),rgba(20,14,44,.86) 55%,rgba(8,34,48,.8)) padding-box,var(--mvp-holo) border-box;background-size:auto,200% 100%;
+  box-shadow:0 0 30px rgba(255,47,160,.3),0 0 60px rgba(62,230,255,.1),inset 0 1px 0 rgba(255,225,245,.2);animation:mvpBorder 6s linear infinite}
+#chatPage.mvp-mode .vip-bar::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%);transform:translateX(-130%);animation:vipSheen 5s ease-in-out 1s infinite}
+#chatPage.mvp-mode .vb-gem{font-size:30px;filter:drop-shadow(0 3px 10px rgba(255,47,160,.65)) drop-shadow(0 0 10px rgba(255,190,70,.4));animation:mvpFloat 4s ease-in-out infinite}
+#chatPage.mvp-mode .vb-txt b{font-size:15px;font-weight:900;letter-spacing:.02em;background:var(--mvp-holo);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:mvpHolo 6s linear infinite}
+#chatPage.mvp-mode .vb-txt span{color:rgba(255,220,240,.72)}
+#chatPage.mvp-mode .vb-pill{font-weight:800;color:#2a0018;border:0;background:var(--mvp-holo);background-size:200% 100%;animation:mvpHolo 6s linear infinite;box-shadow:0 4px 16px rgba(255,47,160,.4)}
+.mvp-bar-sp{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.mvp-bar-sp i{position:absolute;font-style:normal;font-size:11px;line-height:1;color:#fff;text-shadow:0 0 8px #ff2fa0;opacity:0;animation:mvpTw 2.8s ease-in-out infinite}
+.mvp-bar-sp i::before{content:'✦'}
+.mvp-bar-sp i:nth-child(1){left:20%;top:18%}.mvp-bar-sp i:nth-child(2){left:38%;top:68%;animation-delay:.7s;text-shadow:0 0 8px #ffb02e}
+.mvp-bar-sp i:nth-child(3){left:57%;top:22%;animation-delay:1.3s;text-shadow:0 0 8px #3ee6ff}.mvp-bar-sp i:nth-child(4){left:72%;top:64%;animation-delay:.3s}
+.mvp-bar-sp i:nth-child(5){left:86%;top:20%;animation-delay:1.9s;text-shadow:0 0 8px #ffb02e}.mvp-bar-sp i:nth-child(6){left:8%;top:62%;animation-delay:2.2s;text-shadow:0 0 8px #3ee6ff}
+.vip-lock.mvp-lock .vl-card{border-color:rgba(255,110,200,.55);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 70px rgba(255,47,160,.22),0 0 110px rgba(62,230,255,.08)}
+.vip-lock.mvp-lock .vl-gem{filter:drop-shadow(0 6px 18px rgba(255,47,160,.6)) drop-shadow(0 0 18px rgba(255,190,70,.4));animation:mvpFloat 4s ease-in-out infinite}
+.vip-lock.mvp-lock .vl-card h2{background:var(--mvp-holo);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:mvpHolo 6s linear infinite}
+.vip-lock.mvp-lock .vl-btn{background:linear-gradient(135deg,#ff63c0,#ff2fa0 55%,#ffb02e)!important;color:#2a0018!important;box-shadow:0 8px 24px rgba(255,47,160,.38)!important}
+/* ---- home "MVP Chat" hero (same slot as the VIP hero, but louder) ---- */
+.mvp-hero{grid-column:1/-1;position:relative}
+.gc-modal .gc-card.gc-mvp,.gc-modal .gc-card.gc-mvp:hover{background:
+  radial-gradient(70% 170% at 7% 50%,rgba(255,47,160,.36),transparent 60%),radial-gradient(60% 150% at 97% 15%,rgba(62,230,255,.24),transparent 62%),
+  linear-gradient(105deg,rgba(60,10,50,.82),rgba(18,12,42,.74) 60%,rgba(8,32,46,.66)),var(--ui-panel2)}
+.gc-modal .gc-card.gc-mvp{width:100%;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;align-items:center;text-align:left;gap:22px;min-height:0;padding:28px 28px;
+  border:1px solid rgba(255,120,210,.4);animation:mvpPulse 4.5s ease-in-out infinite}
+.gc-modal .gc-card.gc-mvp:hover,.gc-modal .gc-card.gc-mvp:focus-visible,html.hw-on .gc-modal .gc-card.gc-mvp:hover{border-color:rgba(255,170,225,.9);animation-duration:1.8s}
+.gc-mvp:focus-visible{outline:2px solid #ff9bd8;outline-offset:3px}
+.mvp-aurora{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;margin:-75% 0 0 -75%;pointer-events:none;opacity:.55;filter:blur(26px);
+  background:conic-gradient(from 0deg,rgba(255,47,160,0),rgba(255,47,160,.55),rgba(255,176,46,0) 30%,rgba(62,230,255,.5) 52%,rgba(155,92,255,0) 72%,rgba(255,47,160,.55));animation:mvpOrbit 16s linear infinite}
+.mvp-ring{position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;
+  background:conic-gradient(from var(--mvpA),#ff2fa0,#ffb02e,#3ee6ff,#c28bff,#ff2fa0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:mvpSpin 4s linear infinite}
+.mvp-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,235,250,.2) 50%,transparent 60%);transform:translateX(-130%);animation:vipSheen 5s ease-in-out .8s infinite}
+.mvp-sparks{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.mvp-sparks i{position:absolute;left:var(--x);bottom:-8px;width:var(--s);height:var(--s);border-radius:50%;background:#fff;--c:rgba(255,47,160,.95);box-shadow:0 0 8px 2px var(--c);opacity:0;animation:mvpRise var(--d) ease-in var(--t) infinite}
+.mvp-sparks i:nth-child(3n+2){--c:rgba(255,190,70,.95)}.mvp-sparks i:nth-child(3n){--c:rgba(62,230,255,.95)}
+.mvp-trophy{position:relative;isolation:isolate;flex:none;font-size:64px;line-height:1;animation:mvpFloat 4.2s ease-in-out infinite;
+  filter:drop-shadow(0 6px 18px rgba(255,47,160,.6)) drop-shadow(0 0 20px rgba(255,190,70,.45))}
+.mvp-trophy::before{content:'';position:absolute;inset:-26px;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,80,190,.4),rgba(255,190,70,.14) 50%,transparent 70%);animation:mvpHalo 3.2s ease-in-out infinite}
+.mvp-trophy::after{content:'';position:absolute;inset:-12px;border-radius:50%;border:1.5px dashed rgba(255,190,230,.55);animation:mvpOrbit 10s linear infinite}
+.mvp-crown{position:absolute;left:50%;top:-20px;font-size:26px;transform:translateX(-50%) rotate(-10deg);filter:drop-shadow(0 0 8px rgba(255,200,80,.8))}
+.mvp-copy{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;flex:1 1 220px}
+.mvp-kicker{font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffd27a;text-shadow:0 0 10px rgba(255,190,70,.6)}
+.mvp-title{font-size:28px;font-weight:900;line-height:1.05;letter-spacing:.01em;background:var(--mvp-holo);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  animation:mvpHolo 6s linear infinite;filter:drop-shadow(0 0 14px rgba(255,47,160,.45))}
+.mvp-sub{font-size:13px;line-height:1.4;color:rgba(255,222,242,.78)}
+.mvp-perks{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.mvp-perks i{font-style:normal;font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:999px;color:#ffe0f3;background:rgba(255,255,255,.08);border:1px solid rgba(255,160,220,.3);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.mvp-state{position:relative;margin-left:auto;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:7px 14px;border-radius:999px;color:#2a0018;
+  background:var(--mvp-holo);background-size:200% 100%;animation:mvpHolo 6s linear infinite;box-shadow:0 6px 20px rgba(255,47,160,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+@media (max-width:620px){
+  .gc-modal .gc-card.gc-mvp{padding:22px 18px;gap:14px}
+  .mvp-trophy{font-size:50px}.mvp-title{font-size:23px}.mvp-crown{font-size:21px;top:-16px}
+  .mvp-state{flex-basis:100%;margin:0;text-align:center}
+}
+html.anti-lag .mvp-aurora{display:none}
+html.anti-lag .mvp-hero *,html.anti-lag .mvp-hero *::before,html.anti-lag .mvp-hero *::after,html.anti-lag .gc-card.gc-mvp,html.anti-lag #chatPage.mvp-mode .vip-bar,html.anti-lag #chatPage.mvp-mode .vip-bar *,
+html.anti-lag #chatPage.mvp-mode .vip-bar::before,html.anti-lag .vip-lock.mvp-lock *,html.anti-lag .dl-rail-mvp,html.anti-lag .dl-rail-mvp *,html.anti-lag .dl-rail-mvp::before,html.anti-lag .dl-sb-mvp .nm{animation:none!important}
+@media (prefers-reduced-motion:reduce){.mvp-hero *,.mvp-hero *::before,.mvp-hero *::after,.gc-card.gc-mvp,#chatPage.mvp-mode .vip-bar,#chatPage.mvp-mode .vip-bar *,#chatPage.mvp-mode .vip-bar::before,.vip-lock.mvp-lock *,.dl-rail-mvp,.dl-rail-mvp *,.dl-rail-mvp::before,.dl-sb-mvp .nm{animation:none!important}.mvp-aurora{display:none}}
+/* ---- daily spin: MVP prize, perks, hall of MVPs ---- */
+.odd.mvp{border-color:rgba(255,92,200,.6);background:linear-gradient(100deg,rgba(255,47,160,.16),rgba(255,176,46,.1))}
+.odd.mvp b{color:#ff9bd8}
+.odds-grid .odd:last-child:nth-child(odd){grid-column:1/-1}
+.sr-chip.mvp.on{border-color:rgba(255,92,200,.7);background:linear-gradient(100deg,rgba(255,47,160,.25),rgba(255,176,46,.2))}
+.mvp-perks{margin-top:14px;text-align:left;border:1px solid rgba(255,92,200,.35);border-radius:12px;background:rgba(255,47,160,.06);padding:0}
+.mvp-perks summary{cursor:pointer;padding:10px 12px;font-size:13px;font-weight:700;list-style:none}
+.mvp-perks summary::-webkit-details-marker{display:none}
+.mvp-perks summary::after{content:'▾';float:right;opacity:.7;transition:transform .15s}
+.mvp-perks[open] summary::after{transform:rotate(180deg)}
+.mvp-perks ul{margin:0;padding:0 14px 12px 28px;font-size:12.5px;line-height:1.6;color:var(--muted)}
+.mvp-perks li b{color:var(--text)}
+.mvp-hall{margin-top:14px;text-align:left}
+.mh-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px}
+.mh-head span{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,47,160,.2);color:#ffb3df}
+.mh-empty{font-size:12px;color:var(--muted)}
+.mh-grid{display:flex;flex-wrap:wrap;gap:6px}
+.mh-chip{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,92,200,.45);background:rgba(255,47,160,.1);color:#ffc2e6;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mh-chip.me{background:linear-gradient(100deg,rgba(255,47,160,.35),rgba(255,176,46,.3));color:#fff}
+.mh-chip.more{border-style:dashed;opacity:.8}
+/* ---- image banners (MVP) ---- */
+.pf-banner.banner-img,.acc-banner-preview.banner-img,.dlpo-banner.banner-img,.dlp-banner.banner-img{animation:none;background-color:#111}
+.pf-banner.banner-img::after,.acc-banner-preview.banner-img::after{display:none}
+.mvp-bb{margin:10px 0 2px;padding:12px;border-radius:12px;border:1px solid rgba(255,92,200,.4);background:rgba(255,47,160,.07)}
+.mvp-bb.locked{border-style:dashed;background:rgba(255,255,255,.03);border-color:var(--border)}
+.mvp-bb-h{font-size:13px;font-weight:800}
+@media (prefers-reduced-motion:reduce){.nm-wrap.tier-mvp,.nm-wrap.tier-mvp::after,.dl-mem-nm .nm-user.mvp-nm{animation:none!important}}

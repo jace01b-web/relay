@@ -1,0 +1,430 @@
+/* ==========================================================================
+ * css/26-trick-or-treat.css
+ * Halloween 2026 — Trick or Treat event (js/features/trick-or-treat.js)
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+:root{--tot-o:#ff8a2b;--tot-o2:#ff5b1a;--tot-p:#8b5cf6;--tot-g:#4cd6a0}
+
+/* ---------- home tile ---------- */
+.opt.tot-opt{position:relative;overflow:hidden;
+  background:radial-gradient(120% 140% at 0% 0%,rgba(255,138,43,.26),transparent 62%),var(--ui-panel);
+  border-color:rgba(255,138,43,.45)}
+.opt.tot-opt:hover{border-color:rgba(255,138,43,.85)}
+.opt.tot-opt .ic{animation:totBob 2.6s ease-in-out infinite}
+.tot-opt-glow{position:absolute;inset:-40%;pointer-events:none;z-index:-1;
+  background:radial-gradient(circle at 50% 0%,rgba(255,138,43,.35),transparent 60%);animation:totPulse 3.2s ease-in-out infinite}
+@keyframes totBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+@keyframes totPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.tot-live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff3b3b;margin-right:6px;
+  box-shadow:0 0 0 0 rgba(255,59,59,.7);animation:totBeat 1.6s ease-out infinite;vertical-align:middle}
+@keyframes totBeat{to{box-shadow:0 0 0 8px rgba(255,59,59,0)}}
+
+/* ---------- chat bar ---------- */
+.tot-bar{display:flex;align-items:center;gap:12px;width:calc(100% - 24px);margin:10px 12px 0;padding:10px 14px;
+  text-align:left;border-radius:14px;cursor:pointer;color:var(--text);
+  background:linear-gradient(100deg,rgba(255,138,43,.26),rgba(139,92,246,.18) 70%,rgba(255,138,43,.1));
+  border:1px solid rgba(255,138,43,.5);transition:transform .2s ease,box-shadow .2s ease}
+.tot-bar:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(255,138,43,.22)}
+.tot-bar-ic{font-size:22px;line-height:1;flex:none;animation:totBob 2.8s ease-in-out infinite}
+.tot-bar-tx{flex:1;min-width:0}
+.tot-bar-tx b{display:block;font-size:14px}
+.tot-bar-tx small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.tot-bar-go{flex:none;font-size:12px;font-weight:800;padding:5px 11px;border-radius:999px;
+  background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.14);white-space:nowrap}
+
+/* ---------- the panel ---------- */
+.tot-modal{max-width:620px}
+.tot-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-right:38px}   /* clear of the modal's own ✕ */
+.tot-title{display:flex;align-items:center;gap:12px}
+.tot-title h2{margin:0;font-size:22px}
+.tot-title small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.tot-pump{font-size:34px;line-height:1;animation:totBob 2.6s ease-in-out infinite}
+.tot-bucket{display:flex;align-items:baseline;gap:7px;padding:8px 14px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(255,138,43,.26),rgba(255,91,26,.14));border:1px solid rgba(255,138,43,.5)}
+.tot-bucket span{font-size:18px}
+.tot-bucket b{font-size:21px;font-weight:900;font-variant-numeric:tabular-nums}
+.tot-bucket small{font-size:11px;color:var(--muted)}
+
+.tot-tabs{display:flex;gap:6px;margin:16px 0 14px;flex-wrap:wrap}
+.tot-tab{flex:1;min-width:84px;padding:8px 6px;border-radius:12px;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);cursor:pointer;transition:.15s}
+.tot-tab:hover{color:var(--text)}
+.tot-tab.on{color:#fff;background:linear-gradient(135deg,var(--tot-o),var(--tot-o2));border-color:transparent}
+
+/* ---------- street ---------- */
+.tot-street{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tot-door{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px 12px;
+  border-radius:16px;cursor:pointer;color:var(--text);border:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.18));
+  transition:transform .18s cubic-bezier(.16,1,.3,1),border-color .18s ease,box-shadow .18s ease;
+  animation:totRise .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i) * .05s)}
+@keyframes totRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.tot-door:hover:not(:disabled){transform:translateY(-4px);border-color:rgba(255,138,43,.8);box-shadow:0 12px 26px rgba(255,138,43,.22)}
+.tot-door:disabled{opacity:.45;cursor:default}
+.tot-house{font-size:34px;line-height:1}
+.tot-knob{width:8px;height:8px;border-radius:50%;background:var(--tot-o);box-shadow:0 0 10px var(--tot-o)}
+.tot-knock-t{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tot-door.knock{animation:totKnock .45s ease}
+@keyframes totKnock{0%,100%{transform:none}25%{transform:translateY(3px) scale(.97)}60%{transform:translateY(-6px) scale(1.03)}}
+
+.tot-res{display:flex;align-items:center;gap:13px;margin-top:14px;padding:14px 16px;border-radius:16px;
+  border:1px solid var(--border);background:var(--ui-panel2);min-height:74px}
+.tot-res.good{border-color:rgba(76,214,160,.5);background:linear-gradient(100deg,rgba(76,214,160,.16),transparent 70%)}
+.tot-res.bad{border-color:rgba(255,93,115,.5);background:linear-gradient(100deg,rgba(255,93,115,.16),transparent 70%)}
+.tot-res.jack{border-color:rgba(255,138,43,.85);background:linear-gradient(100deg,rgba(255,138,43,.3),rgba(139,92,246,.18) 80%)}
+.tot-res-ic{font-size:30px;line-height:1;flex:none}
+.tot-res-tx{flex:1;min-width:0}
+.tot-res-tx b{display:block;font-size:15px}
+.tot-res-tx small{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.tot-res-n{flex:none;font-size:19px;font-weight:900;font-variant-numeric:tabular-nums}
+.tot-res.good .tot-res-n{color:var(--tot-g)}
+.tot-res.bad .tot-res-n{color:var(--danger)}
+.tot-res.pop{animation:totPop .4s cubic-bezier(.16,1.5,.3,1)}
+@keyframes totPop{from{transform:scale(.96)}to{transform:none}}
+
+.tot-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.tot-stats>div{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
+.tot-stats label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tot-stats b{display:block;margin-top:3px;font-size:15px;font-variant-numeric:tabular-nums}
+
+.tot-cd{position:relative;margin-top:12px;height:28px;border-radius:999px;overflow:hidden;
+  background:rgba(255,255,255,.06);border:1px solid var(--border)}
+.tot-cd i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--tot-o2),var(--tot-o));transition:width .25s linear}
+.tot-cd span{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:700}
+.tot-cd.ready i{background:linear-gradient(90deg,rgba(76,214,160,.5),rgba(76,214,160,.8))}
+
+/* ---------- leaderboard ---------- */
+.tot-final{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px;border-radius:14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:12px}
+.tot-final b{font-size:14px}
+.tot-final span{font-size:12.5px;color:var(--muted)}
+.tot-final.live b{color:#ff6b6b}
+.tot-board{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto}
+.tot-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.tot-row.win{background:linear-gradient(100deg,rgba(255,138,43,.18),transparent 75%);border-color:rgba(255,138,43,.45)}
+.tot-row.me{outline:2px solid rgba(124,108,255,.65);outline-offset:-2px}
+.tot-pos{flex:none;width:30px;font-size:16px;font-weight:900;text-align:center}
+.tot-nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tot-nm em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:600}
+.tot-sub{flex:none;font-size:11.5px;color:var(--muted)}
+.tot-candy{flex:none;font-weight:900;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}
+.tot-rw{flex:none}
+.tot-yours{margin-top:11px;font-size:13px;color:var(--muted)}
+.tot-yours b{color:var(--text)}
+.tot-ann{margin-top:12px;width:100%}
+.tot-empty{padding:26px 14px;text-align:center;color:var(--muted);font-size:13.5px}
+
+.tot-over{padding:26px 18px;text-align:center}
+.tot-over span{font-size:40px;display:block;margin-bottom:8px}
+.tot-over b{display:block;font-size:17px}
+.tot-over p{margin:6px auto 14px;max-width:340px;font-size:13px;line-height:1.55;color:var(--muted)}
+
+/* ---------- first-run popup ---------- */
+.tot-intro{max-width:480px;text-align:center;position:relative;overflow:hidden}
+.tot-intro-moon{position:absolute;right:-10px;top:-14px;font-size:70px;opacity:.14;pointer-events:none}
+.tot-intro-pump{font-size:52px;line-height:1;animation:totBob 2.6s ease-in-out infinite}
+.tot-intro h2{margin:8px 0 0;font-size:25px}
+.tot-intro-lead{margin:8px auto 0;max-width:380px;font-size:13.5px;line-height:1.6;color:var(--muted)}
+.tot-intro-lead b{color:var(--text)}
+.tot-intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px 0 14px;text-align:left}
+.tot-intro-grid>div{padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.tot-intro-grid span{font-size:20px;line-height:1}
+.tot-intro-grid b{display:block;margin-top:4px;font-size:13.5px}
+.tot-intro-grid small{display:block;margin-top:2px;font-size:11.5px;line-height:1.4;color:var(--muted)}
+.tot-intro-end{font-size:13px;margin-bottom:4px}
+.tot-intro-end b{color:var(--tot-o)}
+.tot-intro .actions{justify-content:center}
+
+@media(max-width:560px){
+  .tot-street{grid-template-columns:repeat(2,1fr)}
+  .tot-stats{grid-template-columns:repeat(2,1fr)}
+  .tot-intro-grid{grid-template-columns:1fr}
+  .tot-sub{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .tot-pump,.tot-bar-ic,.opt.tot-opt .ic,.tot-opt-glow,.tot-live-dot,.tot-intro-pump,.tot-door{animation:none!important}
+}
+
+/* Discord look: flatter, squarer, same colours */
+html.discord-look .tot-bar{border-radius:8px}
+html.discord-look .tot-door,html.discord-look .tot-res,
+html.discord-look .tot-row,html.discord-look .tot-stats>div{border-radius:8px;background:var(--dl-bg3);border-color:transparent}
+html.discord-look .tot-tab{border-radius:4px;background:var(--dl-bg3);border-color:transparent}
+html.discord-look .tot-bucket{border-radius:8px}
+
+/* ==========================================================================
+ * Minigames, shop, achievements, doorbell bonus
+ * ========================================================================== */
+
+/* ---------- doorbell bonus ---------- */
+.tot-bonus{width:100%;margin-top:10px;padding:11px;border-radius:14px;font-size:13.5px;font-weight:800;
+  color:var(--muted);background:rgba(255,255,255,.05);border:1px dashed var(--border);cursor:default}
+.tot-bonus.ready{color:#fff;cursor:pointer;border-style:solid;border-color:transparent;
+  background:linear-gradient(135deg,#4cd6a0,#2a9d78);animation:totGlow 1.8s ease-in-out infinite}
+@keyframes totGlow{0%,100%{box-shadow:0 0 0 0 rgba(76,214,160,.5)}50%{box-shadow:0 0 0 7px rgba(76,214,160,0)}}
+
+/* ---------- minigame list ---------- */
+.tot-games{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.tot-game{display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:16px;cursor:pointer;
+  text-align:left;color:var(--text);border:1px solid var(--border);background:var(--ui-panel2);transition:.16s}
+.tot-game:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(255,138,43,.7)}
+.tot-game:disabled{opacity:.5;cursor:default}
+.tot-game-ic{font-size:27px;line-height:1;flex:none}
+.tot-game-tx{flex:1;min-width:0}
+.tot-game-tx b{display:block;font-size:14.5px}
+.tot-game-tx small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.tot-game-hi{flex:none;font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.tot-gamecd{margin-top:10px;text-align:center;font-size:12.5px;font-weight:700;color:var(--muted)}
+.tot-gamecd.ready{color:var(--tot-g)}
+
+/* ---------- a running game ---------- */
+#totGameHost.playing{margin-top:12px}
+.totg{padding:14px;border-radius:18px;border:1px solid rgba(255,138,43,.45);
+  background:radial-gradient(120% 120% at 50% 0%,rgba(255,138,43,.14),transparent 60%),var(--ui-bg2)}
+.totg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.totg-head b{font-size:15px}
+.totg-head small{display:block;margin-top:1px;font-size:12px;color:var(--muted)}
+.totg-score{flex:none;font-size:12px;color:var(--muted)}
+.totg-score b{display:block;font-size:20px;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.totg-time{position:relative;height:8px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);margin-bottom:12px}
+.totg-time i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--tot-o2),var(--tot-o))}
+.totg-time span{position:absolute;right:6px;top:-18px;font-size:11px;font-weight:800;color:var(--muted)}
+
+/* smash */
+.totg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.totg-hole{position:relative;aspect-ratio:1/1;border-radius:16px;cursor:pointer;overflow:hidden;
+  border:1px solid var(--border);background:radial-gradient(70% 70% at 50% 110%,rgba(0,0,0,.5),rgba(255,255,255,.05))}
+.totg-pop{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;
+  transform:translateY(110%);transition:transform .13s ease-out}
+.totg-hole.up .totg-pop{transform:translateY(0)}
+.totg-hole.hit .totg-pop{transform:scale(1.4) rotate(14deg);opacity:0;transition:.14s}
+.totg-hole.ghost.up{border-color:rgba(160,170,255,.5)}
+.totg-hole.bad{animation:totShake .22s}
+@keyframes totShake{0%,100%{transform:none}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+
+/* catch */
+.totg-field{position:relative;height:230px;border-radius:16px;overflow:hidden;touch-action:none;cursor:crosshair;
+  background:linear-gradient(180deg,rgba(139,92,246,.14),rgba(0,0,0,.28));border:1px solid var(--border)}
+.totg-fall{position:absolute;top:0;font-size:24px;transform:translateX(-50%);will-change:top}
+.totg-fall.caught{transform:translateX(-50%) scale(1.6);opacity:0;transition:.18s}
+.totg-bucket{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:34px;
+  transition:transform .08s ease-out;pointer-events:none;z-index:2}
+.totg-bucket.got{transform:translateX(-50%) scale(1.22)}
+.totg-bucket.oof{transform:translateX(-50%) rotate(-16deg)}
+.totg-hint{margin-top:7px;text-align:center;font-size:11.5px;color:var(--muted)}
+
+/* memory */
+.totg-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.totg-card{position:relative;aspect-ratio:3/4;border-radius:13px;cursor:pointer;border:1px solid var(--border);
+  background:transparent;transform-style:preserve-3d;transition:transform .28s}
+.totg-card.on,.totg-card.done{transform:rotateY(180deg)}
+.totg-back,.totg-face{position:absolute;inset:0;display:grid;place-items:center;border-radius:13px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;font-size:26px}
+.totg-back{background:linear-gradient(160deg,rgba(255,138,43,.3),rgba(139,92,246,.2));border:1px solid rgba(255,138,43,.4)}
+.totg-face{transform:rotateY(180deg);background:rgba(255,255,255,.08);border:1px solid var(--border)}
+.totg-card.done .totg-face{background:rgba(76,214,160,.2);border-color:rgba(76,214,160,.5)}
+
+/* finished */
+.totg-done{padding:24px 14px;text-align:center}
+.totg-done span{font-size:40px;display:block}
+.totg-done b{display:block;margin-top:6px;font-size:22px;color:var(--tot-g)}
+.totg-done small{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.totg-done .btn{margin-top:14px}
+
+/* ---------- shop ---------- */
+.tot-shop{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.tot-item{display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:16px;
+  border:1px solid var(--border);background:var(--ui-panel2)}
+.tot-item.owned{border-color:rgba(76,214,160,.5);background:linear-gradient(100deg,rgba(76,214,160,.12),transparent 70%)}
+.tot-item-ic{font-size:26px;line-height:1;flex:none}
+.tot-item-tx{flex:1;min-width:0}
+.tot-item-tx b{display:block;font-size:14.5px}
+.tot-item-tx small{display:block;margin-top:2px;font-size:12px;line-height:1.45;color:var(--muted)}
+.tot-item .btn{flex:none;white-space:nowrap}
+
+/* ---------- achievements ---------- */
+.tot-ach-h{margin:18px 0 8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tot-ach-h span{float:right;letter-spacing:0;text-transform:none;font-weight:700}
+.tot-ach{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.tot-ach-i{padding:9px 7px;border-radius:12px;text-align:center;border:1px solid var(--border);
+  background:rgba(255,255,255,.04);opacity:.42;filter:grayscale(1)}
+.tot-ach-i.on{opacity:1;filter:none;border-color:rgba(255,138,43,.55);background:rgba(255,138,43,.12)}
+.tot-ach-i span{font-size:21px;line-height:1}
+.tot-ach-i b{display:block;margin-top:3px;font-size:11px}
+.tot-ach-i small{display:none}
+
+@media(max-width:560px){
+  .tot-ach{grid-template-columns:repeat(3,1fr)}
+  .totg-cards{grid-template-columns:repeat(3,1fr)}
+  .totg-field{height:200px}
+  .tot-game-hi{display:none}
+}
+@media(prefers-reduced-motion:reduce){.tot-bonus.ready{animation:none}}
+html.discord-look .totg,html.discord-look .tot-game,html.discord-look .tot-item,
+html.discord-look .totg-hole,html.discord-look .totg-field,html.discord-look .tot-ach-i{border-radius:8px}
+
+/* While a game is running it gets the whole panel — the list and the hint would just push it
+   off the bottom of the modal. */
+#totBody:has(#totGameHost.playing) .tot-games,
+#totBody:has(#totGameHost.playing) .tot-gamecd,
+#totBody:has(#totGameHost.playing)>.hint{display:none}
+#totGameHost.playing{margin-top:0}
+@media(max-width:560px){.tot-tab{min-width:0;flex:1 1 30%}}
+
+/* ---------- Spooky Typer ---------- */
+.totg-word{margin:6px 0 12px;padding:18px 12px;border-radius:14px;text-align:center;
+  font-size:30px;font-weight:900;letter-spacing:.04em;
+  background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.totg-word.hit{animation:totgHit .3s ease}
+.totg-word.miss{animation:totShake .25s ease;border-color:rgba(255,93,115,.7)}
+@keyframes totgHit{0%{transform:scale(1)}40%{transform:scale(1.08);color:var(--tot-g)}100%{transform:scale(1)}}
+.totg-input{width:100%;padding:13px 15px;border-radius:13px;font-size:18px;font-weight:700;text-align:center;
+  background:var(--ui-bg2);border:1px solid var(--border);color:var(--text)}
+.totg-input:focus{outline:none;border-color:var(--tot-o)}
+
+/* ---------- Steady Hand ---------- */
+.totg-steady{padding:6px 0 2px}
+.totg-track{position:relative;height:46px;border-radius:13px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(0,0,0,.3),rgba(255,255,255,.05));border:1px solid var(--border)}
+.totg-zone{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,rgba(76,214,160,.45),rgba(76,214,160,.2));
+  border-left:2px solid var(--tot-g);border-right:2px solid var(--tot-g);transition:background .2s}
+.totg-zone.ok{background:rgba(76,214,160,.75)}
+.totg-zone.no{background:rgba(255,93,115,.6);border-color:var(--danger)}
+.totg-marker{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:26px;z-index:2;will-change:left}
+.totg-rounds{display:flex;gap:6px;justify-content:center;margin-top:11px}
+.totg-rounds i{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.14)}
+.totg-rounds i.hit{background:var(--tot-g)}
+.totg-rounds i.miss{background:var(--danger)}
+
+/* Steady Hand's big stop button. Size only — the colour comes from the site's own primary
+   button so it matches every other one. */
+.btn.totg-stop{width:100%;margin-top:11px;padding:13px;font-size:15px}
+.btn.totg-stop:disabled{opacity:.5;cursor:default}
+
+/* ---------- Candy Rain banner ---------- */
+.tot-rain{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:11px 14px;border-radius:14px;
+  border:1px solid var(--border);background:var(--ui-panel2)}
+.tot-rain b{display:block;font-size:14px}
+.tot-rain small{display:block;margin-top:1px;font-size:12.5px;color:var(--muted)}
+.tot-rain-ic{font-size:26px;line-height:1}
+.tot-rain.on{border-color:rgba(109,180,255,.6);
+  background:linear-gradient(100deg,rgba(109,180,255,.22),rgba(139,92,246,.16) 60%,transparent);
+  animation:totRainPulse 1.9s ease-in-out infinite}
+.tot-rain.on b{color:#bfe0ff;letter-spacing:.3px}
+.tot-rain.on .tot-rain-ic{animation:totRainDrop 1.2s ease-in-out infinite}
+@keyframes totRainPulse{0%,100%{box-shadow:0 0 0 0 rgba(109,180,255,0)}50%{box-shadow:0 0 22px 0 rgba(109,180,255,.4)}}
+@keyframes totRainDrop{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.tot-live-dot.rain{background:#6db4ff;box-shadow:0 0 0 0 rgba(109,180,255,.7)}
+.tot-bar.raining{border-color:rgba(109,180,255,.55);
+  background:linear-gradient(100deg,rgba(109,180,255,.2),rgba(139,92,246,.14) 60%,transparent)}
+
+/* ---------- the haunted house pick ---------- */
+.tot-res.haunt{display:block;border-color:rgba(139,92,246,.5);
+  background:linear-gradient(140deg,rgba(139,92,246,.18),transparent 70%)}
+.tot-haunt b{display:block;font-size:15px}
+.tot-haunt small{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.tot-rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:11px}
+.tot-room{display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 8px;border-radius:14px;
+  cursor:pointer;color:var(--text);border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.15s}
+.tot-room:hover:not(:disabled){border-color:var(--tot-p);transform:translateY(-2px)}
+.tot-room span{font-size:28px;line-height:1}
+.tot-room em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.tot-room i{font-style:normal;font-size:13px;font-weight:800;color:var(--muted)}
+.tot-room.shown{opacity:.5}
+.tot-room.took{border-color:var(--tot-g);background:linear-gradient(160deg,rgba(76,214,160,.24),transparent)}
+.tot-room.took i{color:var(--tot-g)}
+.tot-room:disabled{cursor:default}
+
+/* ---------- challenges ---------- */
+.tot-tab{position:relative}
+.tot-dot{display:none}
+.tot-dot.on{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;
+  margin-left:5px;padding:0 4px;border-radius:9px;font-style:normal;font-size:11px;font-weight:800;
+  color:#1a0f00;background:var(--tot-g)}
+.tot-quests{display:flex;flex-direction:column;gap:8px}
+.tot-q{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:14px;
+  border:1px solid var(--border);background:var(--ui-panel2)}
+.tot-q-ic{font-size:24px;line-height:1}
+.tot-q-tx{flex:1;min-width:0}
+.tot-q-tx b{display:block;font-size:14px}
+.tot-q-tx small{display:block;font-size:12.5px;color:var(--muted)}
+.tot-q-bar{display:block;height:5px;margin-top:6px;border-radius:3px;overflow:hidden;
+  background:rgba(255,255,255,.08)}
+.tot-q-bar i{display:block;height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--tot-o2),var(--tot-o));transition:width .3s}
+.tot-q.ready{border-color:var(--tot-g);background:linear-gradient(100deg,rgba(76,214,160,.16),transparent 70%)}
+.tot-q.ready .tot-q-bar i{background:linear-gradient(90deg,var(--tot-g),#7ef0c4)}
+.tot-q.done{opacity:.62}
+.tot-q.done .tot-q-bar i{background:rgba(255,255,255,.25)}
+
+/* ---------- costumes ---------- */
+.tot-fits{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.tot-fit{display:flex;flex-direction:column;align-items:center;gap:3px;padding:13px 8px;border-radius:14px;
+  cursor:pointer;color:var(--text);border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.15s}
+.tot-fit:hover{border-color:rgba(255,138,43,.6);transform:translateY(-2px)}
+.tot-fit span{font-size:28px;line-height:1;filter:grayscale(1) opacity(.55)}
+.tot-fit b{font-size:12.5px;text-align:center;line-height:1.2}
+.tot-fit small{font-size:11.5px;color:var(--muted)}
+.tot-fit.have span{filter:none}
+.tot-fit.on{border-color:var(--tot-o);background:linear-gradient(160deg,rgba(255,138,43,.24),rgba(255,91,26,.1))}
+.tot-fit.on small{color:var(--tot-o);font-weight:700}
+.tot-fit-ic{font-size:15px}
+
+/* ---------- Street Dash ---------- */
+.totg-dash{position:relative;height:150px;margin-top:10px;border-radius:14px;overflow:hidden;cursor:pointer;
+  border:1px solid var(--border);touch-action:manipulation;user-select:none;
+  background:linear-gradient(180deg,rgba(139,92,246,.16),rgba(0,0,0,.25) 72%)}
+.totg-dash::after{content:'';position:absolute;left:0;right:0;bottom:22px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent)}
+.totg-runner{position:absolute;left:34px;bottom:24px;font-size:26px;line-height:1;z-index:2;
+  transition:none;will-change:transform}
+.totg-runner.air{filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
+.totg-obs{position:absolute;bottom:24px;font-size:20px;line-height:1;will-change:left}
+.totg-dash.crash{animation:totShake .4s}
+@keyframes totShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* ---------- Potion Brew ---------- */
+.totg-potion{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.totg-potion.bad{animation:totShake .4s}
+.totg-ing{padding:20px 8px;border-radius:16px;font-size:30px;line-height:1;cursor:pointer;
+  color:var(--text);border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.12s}
+.totg-ing:hover:not(:disabled){border-color:rgba(255,138,43,.6)}
+.totg-ing:disabled{cursor:default;opacity:.75}
+.totg-ing.lit{border-color:var(--tot-o);background:linear-gradient(160deg,rgba(255,138,43,.5),rgba(255,91,26,.25));
+  transform:scale(1.06);box-shadow:0 0 20px rgba(255,138,43,.5)}
+.totg-step{margin-top:11px;text-align:center;font-size:14px;font-weight:700;color:var(--muted)}
+
+/* ---------- Ghost Rush ---------- */
+.totg-boo{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  width:100%;height:150px;margin-top:12px;border-radius:16px;cursor:pointer;color:var(--text);
+  border:1px solid var(--border);transition:background .08s,border-color .08s;user-select:none}
+.totg-boo b{font-size:30px;line-height:1.1}
+.totg-boo small{font-size:13px;color:var(--muted)}
+.totg-boo.waiting{background:rgba(255,255,255,.04)}
+.totg-boo.go{border-color:var(--tot-g);background:linear-gradient(160deg,rgba(76,214,160,.4),rgba(76,214,160,.15))}
+.totg-boo.go b{color:#eafff6;letter-spacing:2px}
+.totg-boo.done{border-color:var(--tot-o);background:linear-gradient(160deg,rgba(255,138,43,.26),transparent)}
+
+/* ---------- Odd One Out ---------- */
+.totg-odd{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:6px;margin-top:12px}
+.totg-cell{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;cursor:pointer;
+  font-size:clamp(14px,5vw,26px);line-height:1;color:var(--text);
+  border:1px solid var(--border);background:rgba(255,255,255,.05);transition:.1s}
+.totg-cell:hover{border-color:rgba(255,138,43,.6)}
+.totg-cell.yes{border-color:var(--tot-g);background:rgba(76,214,160,.3);transform:scale(.9)}
+.totg-cell.no{border-color:rgba(255,93,115,.6);animation:totShake .3s}
+
+@media(max-width:560px){
+  .tot-fits{grid-template-columns:repeat(2,1fr)}
+  .totg-dash{height:128px}
+  .totg-boo{height:128px}
+  .totg-boo b{font-size:25px}
+}
+html.discord-look .tot-rain,html.discord-look .tot-q,html.discord-look .tot-room,
+html.discord-look .tot-fit,html.discord-look .totg-dash,html.discord-look .totg-boo,
+html.discord-look .totg-ing,html.discord-look .totg-cell{border-radius:8px}
+@media(prefers-reduced-motion:reduce){
+  .tot-rain.on,.tot-rain.on .tot-rain-ic,.totg-dash.crash,.totg-potion.bad,.totg-cell.no{animation:none}
+}

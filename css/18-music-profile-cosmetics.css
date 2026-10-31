@@ -1,0 +1,87 @@
+/* ==========================================================================
+ * css/18-music-profile-cosmetics.css
+ * Music tab, pronouns, tag visibility, profile description, cosmetics picker
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+
+/* ===== Music tab: search bar + live widget polish ===== */
+.music-search{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.ms-box{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+.ms-ic{position:absolute;left:14px;width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .2s}
+.ms-box:focus-within .ms-ic{stroke:var(--accent)}
+.music-search input{width:100%;min-width:0;height:44px;padding:0 40px 0 40px;font-size:14px;color:var(--text);outline:none;
+  background:rgba(255,255,255,.05);border:1px solid var(--glass-edge-soft,rgba(255,255,255,.18));border-radius:999px;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  transition:border-color .2s,box-shadow .2s,background .2s}
+.music-search input::placeholder{color:var(--muted);opacity:.7}
+.music-search input:hover{background:rgba(255,255,255,.07)}
+.music-search input:focus{border-color:var(--accent);background:rgba(255,255,255,.07);box-shadow:inset 0 2px 6px rgba(0,0,0,.3),0 0 0 3px rgba(124,108,255,.22)}
+.ms-clear{position:absolute;right:9px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);color:var(--muted);font-size:10px;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.7);pointer-events:none;transition:opacity .15s,transform .15s,background .15s,color .15s}
+.music-search.has-text .ms-clear{opacity:1;transform:none;pointer-events:auto}
+.ms-clear:hover{background:rgba(255,255,255,.2);color:var(--text)}
+.music-search .ms-go{height:44px;padding:0 20px;border-radius:999px;display:flex;align-items:center;gap:8px;flex:none;white-space:nowrap}
+.ms-spin,.mc-spin{display:none;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:msSpin .7s linear infinite}
+.ms-spin{width:14px;height:14px}
+.music-search.busy .ms-spin{display:block}
+.mc-spin{display:block;width:20px;height:20px;border-width:2.5px;margin:auto}
+@keyframes msSpin{to{transform:rotate(360deg)}}
+.music-chips{gap:7px}
+.music-chips button{padding:6px 13px}
+.music-list{position:relative}
+.music-seek span{min-width:38px}
+.music-seek #mLeft{text-align:right}
+.music-meta .mt-sub.err{color:var(--danger)}
+.music-meta .mt-sub.buf{color:var(--accent2)}
+
+/* ===== Pronouns ===== */
+.pron-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pron-chips button{padding:5px 11px;border-radius:999px;font-size:12px;background:var(--ui-panel2);border:1px solid var(--border);color:var(--muted);transition:.12s}
+.pron-chips button:hover{border-color:var(--accent);color:var(--text)}
+.pron-chips button.on{background:rgba(124,108,255,.22);border-color:var(--accent);color:var(--text);font-weight:600}
+/* TAG-VISIBILITY:START */
+.tagvis{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.tagvis-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:10px;background:var(--ui-panel2);border:1px solid var(--border)}
+.tagvis-row .tv-n{font-size:13px;font-weight:600}
+.tagvis-row .tv-s{font-size:11px;color:var(--muted)}
+.tagvis-row button{padding:5px 12px;font-size:12px}
+.tagvis-row.off .tv-n{opacity:.55;text-decoration:line-through}
+/* TAG-VISIBILITY:END */
+.pf-pron{margin-top:3px;color:var(--muted);font-size:13px;font-weight:500;overflow-wrap:anywhere}
+/* ===== Profile description + collapsible roles ===== */
+.pf-desc{margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--ui-panel2);border:1px solid var(--border);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left}
+.pf-role-more{cursor:pointer;font-weight:700;font-size:12px;padding:4px 11px;border-radius:999px;background:var(--ui-panel2);border:1px dashed var(--border);color:var(--muted);transition:.15s}
+.pf-role-more:hover{border-color:var(--accent);color:var(--text)}
+.pf-roles .pf-role.pf-extra{display:none}
+.pf-roles.expanded .pf-role.pf-extra{display:inline-flex}
+.pf-roles .pf-role-less{display:none}
+.pf-roles.expanded .pf-role-less{display:inline-block}
+.pf-roles.expanded .pf-role-more:not(.pf-role-less){display:none}
+#acDesc{width:100%;min-height:70px;resize:vertical;font:inherit}
+.desc-count{font-size:11px;color:var(--muted);text-align:right;margin:2px 0 8px}
+
+/* ===== Cosmetics picker (sections: Halloween 2026 ...) ===== */
+.cs-modal{max-width:560px;width:calc(100vw - 20px);max-height:min(90vh,820px);display:flex;flex-direction:column;padding:0;overflow:hidden;position:relative}
+.cs-top{flex:none;padding:18px 20px 12px}
+.cs-top h2{margin:0 0 10px;font-size:20px}
+.cs-prev{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.cs-prev .cs-pn{font-size:17px;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.cs-prev small{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:2px}
+.cs-secs{flex:none;display:flex;gap:6px;padding:0 20px 10px;overflow-x:auto}
+.cs-secs button{flex:none;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;background:var(--ui-panel2);border:1px solid var(--border);color:var(--muted);transition:.15s}
+.cs-secs button.on{background:rgba(255,140,40,.18);border-color:rgba(255,140,40,.6);color:var(--text)}
+.cs-body{flex:1;min-height:0;overflow-y:auto;padding:4px 20px 18px}
+.cs-h{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 8px;font-weight:700;font-size:14px}
+.cs-h span{font-weight:500;font-size:11.5px;color:var(--muted)}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cs-opt{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:13px;text-align:left;background:var(--ui-panel2);border:1px solid var(--border);transition:.15s;min-width:0}
+.cs-opt:hover{border-color:rgba(255,140,40,.6);transform:translateY(-1px)}
+.cs-opt.on{border-color:#ff9a3c;background:rgba(255,140,40,.16);box-shadow:0 0 0 2px rgba(255,140,40,.25)}
+.cs-opt .ci{font-size:20px;flex:none;width:26px;text-align:center}
+.cs-opt .ct{min-width:0;display:flex;flex-direction:column;font-size:13px;font-weight:600;overflow:hidden}
+.cs-opt .ct em{font-style:normal;font-size:10.5px;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-empty{color:var(--muted);font-size:12.5px;padding:2px 0 4px}
+.cs-foot{flex:none;display:flex;gap:8px;padding:12px 20px 16px;border-top:1px solid var(--border)}
+.cs-foot .btn{flex:1}
+.cs-x{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);z-index:2}

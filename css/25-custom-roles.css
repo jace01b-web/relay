@@ -1,0 +1,65 @@
+/* ==========================================================================
+ * css/25-custom-roles.css
+ * CUSTOM ROLES — decorative, backend-only roles from customroles/ (see js/moderation/roles.js
+ * and SETUP-CUSTOMROLES.md). They look like Mod/Admin and rank above VIP, and grant nothing.
+ *
+ * Every role carries its own colour, passed in as the --rc custom property on the element, so one
+ * set of rules styles any number of roles. --rc falls back to the site accent if a role has no colour.
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ---- the tag next to a name (normal look): same pill shape as Legend / Star, in the role's colour ---- */
+.nm-wrap.tier-custom{--rc:var(--accent);color:var(--rc);
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--rc) 22%,transparent),
+    color-mix(in srgb,var(--rc) 34%,transparent) 50%,
+    color-mix(in srgb,var(--rc) 22%,transparent));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rc) 62%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.26),
+    0 0 12px color-mix(in srgb,var(--rc) 30%,transparent)}
+.nm-wrap.tier-custom .nm-title{text-shadow:0 0 8px color-mix(in srgb,var(--rc) 60%,transparent)}
+.nm-wrap.tier-custom .nm-user:not(.flair-name){
+  color:color-mix(in srgb,var(--rc) 55%,#ffffff);
+  text-shadow:0 0 10px color-mix(in srgb,var(--rc) 45%,transparent)}
+/* Browsers without color-mix() still get a readable tag (the colour itself always applies). */
+@supports not (color:color-mix(in srgb,red 50%,blue)){
+  .nm-wrap.tier-custom{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px currentColor}
+  .nm-wrap.tier-custom .nm-user:not(.flair-name){color:var(--rc)}
+}
+
+/* ---- role pill on the profile card ---- */
+.pf-role.custom-role{--rc:var(--accent);color:var(--rc);
+  border-color:color-mix(in srgb,var(--rc) 60%,transparent);
+  background:color-mix(in srgb,var(--rc) 14%,transparent)}
+.pf-role.custom-role::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--rc);
+  box-shadow:0 0 7px var(--rc);flex:none}
+@supports not (color:color-mix(in srgb,red 50%,blue)){
+  .pf-role.custom-role{border-color:currentColor;background:rgba(255,255,255,.07)}
+}
+
+/* ---- member list: the name picks up the role colour (Discord does the same) ---- */
+.dl-mem .nm-user.cr-nm{font-weight:600}
+
+/* ==========================================================================
+ * Discord look
+ * The Discord look deliberately strips tier labels off names (v10) and shows role identity as a
+ * coloured username instead, exactly like Discord. So here the pill goes away and the colour stays.
+ * ========================================================================== */
+html.discord-look .nm-wrap.tier-custom{background:none!important;box-shadow:none!important}
+html.discord-look .nm-wrap.tier-custom .nm-user:not(.flair-name){
+  color:var(--rc)!important;text-shadow:none!important;
+  -webkit-text-fill-color:currentColor;background-image:none}
+/* (the member-list group header already shows the role's colour as a dot — see 22-discord-look.css) */
+
+/* ---- rail: our own Discord server, in Discord blurple ---- */
+html.discord-look .dl-rail-btn.dl-rail-discord{color:#fff;background:#5865f2!important}
+html.discord-look .dl-rail-btn.dl-rail-discord:hover{background:#4752c4!important;border-radius:16px}
+html.discord-look .dl-rail-btn.dl-rail-discord .dl-rail-ic{filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+/* ---- channel list: "Our Discord" row + the live member count in the server header ---- */
+html.discord-look .sb-item.dl-sb-discord>span:first-child{color:#949cf7}
+html.discord-look .sb-item.dl-sb-discord:hover{background:rgba(88,101,242,.16);color:#fff}
+html.discord-look .sb-item.dl-sb-discord::after{content:'↗';margin-left:auto;font-size:12px;opacity:.6}
+html.discord-look .dl-server-head .dl-server-on{display:inline-flex;align-items:center;gap:5px;margin-left:auto;margin-right:8px;
+  font-size:11px;font-weight:600;letter-spacing:.01em;color:var(--dl-muted);white-space:nowrap}
+html.discord-look .dl-server-head .dl-server-on i{width:7px;height:7px;border-radius:50%;background:#23a559;flex:none}
+.dl-server-head .dl-server-on{display:none}   /* only meaningful in the Discord look's server header */

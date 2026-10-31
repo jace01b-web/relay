@@ -1,0 +1,144 @@
+/* ==========================================================================
+ * css/03-form-controls.css
+ * Custom sliders, checkboxes, colour picker, dropdowns, context menu
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===== CUSTOM RANGE SLIDERS ===== */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;background:transparent;
+  height:22px;width:100%;padding:0;border:none!important;box-shadow:none!important;cursor:pointer;
+  --pct:50%;--fill:linear-gradient(90deg,var(--accent),var(--accent2))}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{
+  height:8px;border-radius:8px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2)) 0/var(--pct) 100% no-repeat,rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-track{height:8px;border-radius:8px;background:rgba(255,255,255,.10);box-shadow:inset 0 1px 3px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-progress{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;margin-top:-6px;
+  background:#fff;border:4px solid var(--accent);
+  box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 0 rgba(124,108,255,.35);
+  transition:transform .15s ease,box-shadow .15s ease}
+input[type=range]::-moz-range-thumb{
+  width:12px;height:12px;border-radius:50%;background:#fff;border:4px solid var(--accent);
+  box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform .15s ease,box-shadow .15s ease}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2);box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 8px rgba(124,108,255,.25)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 6px rgba(124,108,255,.35)}
+input[type=range]:hover::-moz-range-thumb{transform:scale(1.12)}
+input[type=range]:active::-moz-range-thumb{transform:scale(1.2);box-shadow:0 0 0 8px rgba(124,108,255,.25)}
+
+/* ===== CUSTOM CHECKBOXES ===== */
+input[type=checkbox]{
+  -webkit-appearance:none;appearance:none;flex:none;
+  width:20px;height:20px;border-radius:7px;cursor:pointer;position:relative;
+  background:var(--ui-bg2);border:1.5px solid rgba(255,255,255,.22);
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease,transform .1s ease}
+input[type=checkbox]:hover{border-color:var(--accent)}
+input[type=checkbox]:active{transform:scale(.9)}
+input[type=checkbox]:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(124,108,255,.35)}
+input[type=checkbox]:checked{background:linear-gradient(135deg,var(--accent),#5a4bff);border-color:transparent;box-shadow:0 3px 10px rgba(124,108,255,.4)}
+input[type=checkbox]::after{
+  content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);opacity:0;
+  transition:transform .18s cubic-bezier(.3,1.6,.5,1),opacity .12s ease}
+input[type=checkbox]:checked::after{transform:rotate(45deg) scale(1);opacity:1}
+.field label:has(>input[type=checkbox]){cursor:pointer;color:var(--text);font-size:13.5px;user-select:none}
+
+
+/* Undo the generic ".field input" box styling for sliders/checkboxes (higher specificity) */
+.field input[type=range]{padding:0;background:transparent;border:none;border-radius:0;box-shadow:none;height:22px}
+.field input[type=range]:focus{box-shadow:none;border:none}
+.field input[type=checkbox]{padding:0;border:1.5px solid rgba(255,255,255,.22);background:var(--ui-bg2);border-radius:7px;width:20px;height:20px}
+.field input[type=checkbox]:checked{border-color:transparent;background:linear-gradient(135deg,var(--accent),#5a4bff)}
+.field input[type=checkbox]:focus{box-shadow:0 0 0 3px rgba(124,108,255,.35);border-color:var(--accent)}
+/* The toggle switches keep their own look: hide the native box entirely */
+.switch input[type=checkbox]{-webkit-appearance:none;appearance:none;opacity:0;width:0;height:0;position:absolute;border:0;background:none;box-shadow:none}
+.switch input[type=checkbox]::after{display:none}
+
+
+/* ===== CUSTOM COLOR PICKER ===== */
+input[type=color]{display:none!important}
+.cpick{position:relative;width:100%}
+.cp-btn{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:8px 12px 8px 8px;border-radius:12px;
+  background:var(--ui-bg2);border:1px solid var(--border);transition:.15s;color:var(--text)}
+.cp-btn:hover{border-color:rgba(124,108,255,.5)}
+.cpick.open .cp-btn,.cp-btn:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.18)}
+.cp-sw{width:34px;height:34px;border-radius:9px;flex:none;position:relative;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 2px 8px rgba(0,0,0,.35)}
+.cp-sw::before{content:"";position:absolute;inset:0;z-index:0;
+  background:conic-gradient(#3a3d63 25%,#565a8c 0 50%,#3a3d63 0 75%,#565a8c 0) 0 0/10px 10px}
+.cp-sw i{position:absolute;inset:0;z-index:1;display:block}
+.cp-hex{font-weight:700;font-size:13.5px;letter-spacing:.04em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.cp-name{font-size:11px;color:var(--muted);margin-left:auto}
+.cp-pop{position:absolute;left:0;z-index:70;width:248px;padding:14px;border-radius:16px;
+  background:var(--panel);border:1px solid rgba(124,108,255,.35);box-shadow:0 20px 50px rgba(0,0,0,.6);
+  top:calc(100% + 8px);opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top left;pointer-events:none;
+  transition:opacity .15s ease,transform .15s ease}
+.cpick.open .cp-pop{opacity:1;transform:none;pointer-events:auto}
+.cpick.up .cp-pop{top:auto;bottom:calc(100% + 8px);transform-origin:bottom left}
+.cpick.right .cp-pop{left:auto;right:0;transform-origin:top right}
+.cp-sv{position:relative;height:140px;border-radius:11px;cursor:crosshair;touch-action:none;
+  background:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,var(--h,red));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.cp-knob{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;pointer-events:none;
+  border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4),0 3px 8px rgba(0,0,0,.5)}
+.cp-hue{position:relative;height:14px;margin-top:12px;border-radius:14px;cursor:pointer;touch-action:none;
+  background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.cp-hue .cp-knob{top:50%;width:20px;height:20px;margin:-10px 0 0 -10px}
+.cp-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.cp-row .cp-mini{width:32px;height:32px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.cpick .cp-in{flex:1;min-width:0;background:var(--ui-bg2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;
+  font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;outline:none;transition:.15s;font-variant-numeric:tabular-nums}
+.cpick .cp-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.18)}
+.cpick .cp-in.bad{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,93,115,.18)}
+.cp-eye{width:34px;height:34px;flex:none;border-radius:10px;background:var(--ui-panel2);border:1px solid var(--border);font-size:15px;transition:.15s}
+.cp-eye:hover{border-color:var(--accent)}
+.cp-presets{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:12px}
+.cp-preset{aspect-ratio:1;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);transition:transform .12s ease,border-color .12s ease}
+.cp-preset:hover{transform:scale(1.18)}
+.cp-preset.sel{border-color:#fff}
+
+/* ===== CUSTOM SELECT (enhanced <select>) ===== */
+.csel{position:relative;width:100%}
+.csel select{display:none!important}
+.csel-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;
+  background:var(--ui-bg2);border:1px solid var(--border);padding:11px 13px;border-radius:12px;font-size:14px;font-weight:600;
+  transition:.15s;color:var(--text)}
+.csel-btn:hover{border-color:rgba(124,108,255,.5)}
+.csel.open .csel-btn,.csel-btn:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.18)}
+.csel-btn .chev{width:8px;height:8px;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);transition:transform .2s ease;flex:none}
+.csel.open .csel-btn .chev{transform:rotate(225deg) translateY(-2px)}
+.csel-menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;
+  background:var(--panel);border:1px solid rgba(124,108,255,.35);border-radius:14px;padding:6px;
+  max-height:220px;overflow-y:auto;box-shadow:0 18px 44px rgba(0,0,0,.55);
+  opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top;pointer-events:none;
+  transition:opacity .15s ease,transform .15s ease}
+.csel.open .csel-menu{opacity:1;transform:none;pointer-events:auto}
+.csel.up .csel-menu{top:auto;bottom:calc(100% + 6px);transform-origin:bottom}
+.csel-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:9px;
+  cursor:pointer;font-size:13.5px;color:var(--muted);transition:.1s}
+.csel-opt:hover,.csel-opt.hl{background:var(--ui-panel2);color:var(--text)}
+.csel-opt.sel{background:rgba(124,108,255,.2);color:var(--text);font-weight:700}
+.csel-opt.sel::after{content:"✓";color:var(--accent);font-weight:800}
+
+/* ---- Custom right-click context menu ---- */
+.ctx-menu{position:fixed;z-index:3000;min-width:212px;
+  background:var(--panel);border:1px solid rgba(124,108,255,.35);border-radius:14px;padding:6px;
+  box-shadow:0 18px 44px rgba(0,0,0,.55);
+  opacity:0;transform:scale(.96);transform-origin:top left;pointer-events:none;
+  transition:opacity .14s ease,transform .14s ease}
+.ctx-menu.open{opacity:1;transform:none;pointer-events:auto}
+.ctx-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;
+  font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;transition:background .1s ease}
+.ctx-item:hover{background:var(--ui-panel2)}
+.ctx-item.danger:hover{background:rgba(255,93,115,.16);color:var(--danger)}
+.ctx-ic{width:18px;text-align:center;flex:none;font-size:14px}
+.ctx-sep{height:1px;background:var(--border);margin:5px 6px}
+
+/* seekable progress in the Music tab */
+.music-seek{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.music-seek input{flex:1}

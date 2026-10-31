@@ -1,0 +1,73 @@
+/* ==========================================================================
+ * css/05-auth-home-basics.css
+ * Auth card basics, home menu, menu entrance transition
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===== AUTH ===== */
+#authPage{align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.card{background:var(--ui-panel);backdrop-filter:blur(var(--ui-blur));-webkit-backdrop-filter:blur(var(--ui-blur));border:1px solid var(--border);border-radius:24px;padding:34px;width:100%;max-width:430px;margin:auto;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.logo{font-size:30px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px}
+.card .logo,.card>.hint{text-align:center}
+.tabs{display:flex;gap:6px;background:var(--ui-bg2);padding:5px;border-radius:14px;margin:20px 0}
+.tabs button{flex:1;padding:10px;border-radius:10px;background:transparent;color:var(--muted);font-weight:600;transition:.15s}
+.tabs button.active{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(124,108,255,.35)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:16px 0}
+.divider:before,.divider:after{content:"";flex:1;height:1px;background:var(--border)}
+
+/* ===== HOME (fully centered) ===== */
+#homePage{align-items:center;justify-content:center;padding:24px;overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable both-edges}   /* gutter reserved up front: entrance animations can no longer make a scrollbar pop in/out and shove everything sideways */
+.home-wrap{max-width:820px;width:100%;margin:auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+.home-head{position:absolute;top:20px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 24px}
+.userchip{display:flex;align-items:center;gap:10px;background:var(--ui-panel);backdrop-filter:blur(var(--ui-blur));-webkit-backdrop-filter:blur(var(--ui-blur));border:1px solid var(--border);padding:7px 16px 7px 7px;border-radius:40px;cursor:pointer;transition:border-color .15s ease,transform .15s ease;font-weight:600;font-size:14px;
+  transform:translateZ(0);will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+.userchip:hover{border-color:var(--accent);transform:translate3d(0,-1px,0)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none;color:#fff}
+.home-hero{margin-bottom:38px}
+.home-hero .logo{font-size:46px;margin-bottom:14px;white-space:nowrap}
+.home-title{font-size:26px;font-weight:700;margin-bottom:6px}
+.home-sub{color:var(--muted);font-size:15px}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;width:100%;max-width:640px}
+.home-foot{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:30px}
+/* ----- Main menu entrance transition -----
+   #homePage is toggled via display:none<->flex (see show()), which naturally
+   resets/restarts any CSS animation on its descendants each time it appears —
+   so this plays fresh every time someone lands back on the main menu. */
+@keyframes homeRise{0%{opacity:0;transform:translateY(26px) scale(.94)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes homeDrop{0%{opacity:0;transform:translateY(-14px)}100%{opacity:1;transform:none}}
+#homePage .home-hero{animation:homeDrop .6s var(--glass-spring,cubic-bezier(.16,1,.3,1)) both}
+#homePage .options .opt{animation:homeRise .55s var(--glass-spring,cubic-bezier(.16,1,.3,1)) both}
+#homePage .options .opt:nth-child(1){animation-delay:.08s}
+#homePage .options .opt:nth-child(2){animation-delay:.15s}
+#homePage .options .opt:nth-child(3){animation-delay:.22s}
+#homePage .options .opt:nth-child(4){animation-delay:.29s}
+#homePage .home-foot{opacity:0;animation:homeDrop .55s ease .38s both}
+.online-pill{display:flex;align-items:center;gap:8px;background:var(--ui-panel);backdrop-filter:blur(var(--ui-blur));-webkit-backdrop-filter:blur(var(--ui-blur));border:1px solid var(--border);padding:8px 16px;border-radius:40px;font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;transition:.15s;
+  transform:translateZ(0);will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+.online-pill:hover{background:var(--accent);color:#fff}
+.online-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.discord-link{display:flex;align-items:center;gap:8px;background:#5865F2;color:#fff;padding:8px 18px;border-radius:40px;font-size:13px;font-weight:700;text-decoration:none;transition:.15s;box-shadow:0 6px 18px rgba(88,101,242,.35)}
+.discord-link:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.opt{background:var(--ui-panel);backdrop-filter:blur(var(--ui-blur));-webkit-backdrop-filter:blur(var(--ui-blur));border:1px solid var(--border);border-radius:22px;padding:30px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:transform .3s var(--glass-spring,cubic-bezier(.16,1,.3,1)),border-color .3s ease,box-shadow .3s ease,background .3s ease;position:relative;overflow:hidden;
+  /* Pre-promote to its own GPU layer instead of only doing so once :hover adds a transform —
+     that late promotion is what made the blur "glitch": the backdrop has to be re-rasterized
+     the instant the layer appears, showing up as a flash or a hard seam at the rounded corners. */
+  transform:translateZ(0);will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+.opt:before{content:"";position:absolute;inset:0;background:radial-gradient(400px 160px at 50% -20%,rgba(124,108,255,.28),transparent 70%);opacity:0;transition:opacity .3s ease}
+/* Diagonal shine sweep that glides across the card on hover */
+.opt:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(115deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:skewX(-20deg);opacity:0;transition:opacity .2s ease;pointer-events:none}
+.opt:hover{transform:translate3d(0,-8px,0) scale(1.025);border-color:rgba(124,108,255,.7);box-shadow:0 20px 46px rgba(124,108,255,.32);background:var(--ui-panel2)}
+.opt:hover:before{opacity:1}
+.opt:hover:after{opacity:1;animation:optShine .9s ease forwards}
+.opt:active{transform:translate3d(0,-4px,0) scale(.99);transition-duration:.1s}
+@keyframes optShine{from{left:-60%}to{left:130%}}
+.opt .ic{font-size:38px;margin-bottom:12px;width:70px;height:70px;display:flex;align-items:center;justify-content:center;background:rgba(124,108,255,.14);border-radius:20px;position:relative;transition:transform .35s var(--glass-spring,cubic-bezier(.16,1,.3,1)),background .3s ease}
+.opt:hover .ic{transform:scale(1.14) rotate(-6deg);background:rgba(124,108,255,.26)}
+.opt h3{font-size:18px;margin-bottom:4px;position:relative;transition:transform .25s ease}
+.opt:hover h3{transform:translateY(-1px)}
+.opt p{color:var(--muted);font-size:13px;position:relative;transition:color .25s ease}
+.opt:hover p{color:var(--text)}
+.opt .badge{position:absolute;top:14px;right:14px}
+.badge{background:var(--accent2);color:#fff;border-radius:20px;font-size:11px;font-weight:700;padding:2px 8px}

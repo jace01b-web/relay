@@ -1,0 +1,69 @@
+/* ==========================================================================
+ * css/16-rules-modal.css
+ * Rules modal
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ---------- Rules modal (anime style) ---------- */
+#rulesBtn{margin-right:6px}
+@media (max-width:620px){#rulesBtn .rb-t{display:none}}
+.rules-modal{max-width:560px;padding:0;overflow-y:auto;background:linear-gradient(180deg,#1d1a3f 0%,var(--panel) 38%);border-color:rgba(255,160,220,.28)}
+.rules-hero{position:relative;overflow:hidden;padding:30px 24px 22px;text-align:center;
+  background:radial-gradient(circle at 20% 20%,rgba(255,150,210,.55),transparent 55%),radial-gradient(circle at 85% 30%,rgba(124,108,255,.65),transparent 55%),linear-gradient(135deg,#ff6cb4 0%,#9a6cff 55%,#5fb4ff 100%);
+  border-bottom:1px solid rgba(255,255,255,.25)}
+.rules-hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.07) 0 2px,transparent 2px 14px);pointer-events:none}
+.rules-hero>*{position:relative;z-index:1}
+.rules-mascot{width:84px;height:84px;display:block;margin:0 auto 6px;filter:drop-shadow(0 8px 14px rgba(60,20,90,.45));animation:rlBob 3s ease-in-out infinite}
+.rules-hero h2{margin:0;font-size:26px;letter-spacing:.3px;color:#fff;text-shadow:0 3px 14px rgba(70,20,110,.55)}
+.rules-jp{margin-top:4px;font-size:13px;font-weight:700;color:#fff;opacity:.92;letter-spacing:2px;text-shadow:0 2px 8px rgba(70,20,110,.5)}
+.rules-sub{margin-top:8px;font-size:13px;color:#fff;opacity:.9}
+.rl-petal{position:absolute;top:-24px;width:12px;height:10px;border-radius:12px 0 12px 0;background:linear-gradient(135deg,#fff,#ffc2e4);opacity:.85;
+  animation:rlFall linear infinite;z-index:0}
+.rl-petal:nth-child(1){left:6%;animation-duration:7s;animation-delay:0s}
+.rl-petal:nth-child(2){left:18%;animation-duration:9s;animation-delay:-3s;transform:scale(.8)}
+.rl-petal:nth-child(3){left:32%;animation-duration:8s;animation-delay:-5s}
+.rl-petal:nth-child(4){left:47%;animation-duration:10s;animation-delay:-1s;transform:scale(.7)}
+.rl-petal:nth-child(5){left:61%;animation-duration:7.5s;animation-delay:-4s}
+.rl-petal:nth-child(6){left:74%;animation-duration:9.5s;animation-delay:-6s;transform:scale(.85)}
+.rl-petal:nth-child(7){left:86%;animation-duration:8.5s;animation-delay:-2s}
+.rl-petal:nth-child(8){left:94%;animation-duration:11s;animation-delay:-7s;transform:scale(.7)}
+@keyframes rlFall{0%{transform:translateY(0) rotate(0deg) translateX(0)}50%{transform:translateY(90px) rotate(180deg) translateX(14px)}100%{transform:translateY(190px) rotate(360deg) translateX(-8px);opacity:0}}
+@keyframes rlBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.rules-body{padding:18px 20px 22px}
+.rule-card{display:flex;gap:13px;align-items:flex-start;margin:0 0 10px;padding:13px 14px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;animation:rlIn .5s cubic-bezier(.16,1.15,.3,1) both}
+.rule-card:hover{transform:translateY(-2px);border-color:rgba(255,160,220,.5);box-shadow:0 8px 22px rgba(255,108,180,.16)}
+.rule-card:nth-child(2){animation-delay:.04s}.rule-card:nth-child(3){animation-delay:.08s}.rule-card:nth-child(4){animation-delay:.12s}
+.rule-card:nth-child(5){animation-delay:.16s}.rule-card:nth-child(6){animation-delay:.20s}.rule-card:nth-child(7){animation-delay:.24s}.rule-card:nth-child(8){animation-delay:.28s}
+@keyframes rlIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.rule-ic{flex:0 0 42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 6px 14px rgba(124,108,255,.35)}
+.rule-t{font-weight:800;font-size:15px;color:var(--text);display:flex;gap:8px;align-items:center}
+.rule-n{font-size:11px;font-weight:800;color:#fff;background:rgba(255,255,255,.14);border-radius:8px;padding:1px 7px}
+.rule-d{margin-top:3px;font-size:13px;line-height:1.5;color:var(--muted)}
+.rule-d b{color:#ffd1ea}
+.rule-card.rule-hot{background:linear-gradient(135deg,rgba(255,70,110,.20),rgba(255,108,180,.08));border-color:rgba(255,90,130,.55);box-shadow:0 0 0 1px rgba(255,90,130,.18),0 10px 26px rgba(255,60,110,.18)}
+.rule-card.rule-hot .rule-ic{background:linear-gradient(135deg,#ff4a6e,#ff8a5c);box-shadow:0 6px 16px rgba(255,74,110,.45)}
+.rule-card.rule-hot .rule-d{color:#ffd9e0}
+.rules-foot{margin-top:14px;padding:12px 14px;border-radius:14px;text-align:center;font-size:12.5px;color:var(--muted);background:rgba(124,108,255,.10);border:1px dashed rgba(160,150,255,.35)}
+.rules-foot b{color:var(--text)}
+.rules-ok{width:100%;margin-top:14px;padding:13px;border-radius:14px;font-weight:800;font-size:15px;color:#fff;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 22px rgba(255,108,180,.35);transition:transform .16s ease,box-shadow .16s ease}
+.rules-ok:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(255,108,180,.5)}
+.rules-modal .modal-x{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.35);z-index:3}
+@media (prefers-reduced-motion:reduce){.rl-petal,.rules-mascot,.rule-card{animation:none!important}}
+
+.rules-agree{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:14px;cursor:pointer;
+  background:rgba(255,108,180,.10);border:1px solid rgba(255,140,200,.4);font-size:13.5px;font-weight:700;color:var(--text);user-select:none}
+.rules-agree input{flex:0 0 auto}
+.rules-ok:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none;filter:grayscale(.4)}
+.rules-status{margin-top:14px;padding:11px 14px;border-radius:14px;text-align:center;font-size:13px;font-weight:700;
+  color:#b8ffd8;background:rgba(60,200,130,.12);border:1px solid rgba(90,220,150,.4)}
+.about-rules-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* ---------- Terms of Service modal ---------- */
+.tos-decline{display:block;width:100%;margin-top:10px;padding:10px 14px;border-radius:14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted,#aab);background:transparent;border:1px solid rgba(255,255,255,.18)}
+.tos-decline:hover:not(:disabled){background:rgba(255,255,255,.06)}
+.tos-decline:disabled{opacity:.5;cursor:not-allowed}
+.tos-err{min-height:0;margin-top:8px;font-size:12.5px;font-weight:600;color:#ff9aa8;text-align:center}

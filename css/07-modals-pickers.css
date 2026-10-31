@@ -1,0 +1,98 @@
+/* ==========================================================================
+ * css/07-modals-pickers.css
+ * Modals and the chat picker tiles
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===== Modals ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(5,5,15,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:modalBgIn .32s ease forwards}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:28px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;animation:modalIn .46s cubic-bezier(.16,1.15,.3,1) forwards;box-shadow:0 30px 80px rgba(0,0,0,.55);transform-origin:center bottom}
+/* Pull-up-from-the-bottom feel: starts lower, slightly shrunk and blurred, then
+   springs up into place — used by Settings and every other dialog in the app. */
+@keyframes modalBgIn{from{opacity:0;backdrop-filter:blur(0px) saturate(100%);-webkit-backdrop-filter:blur(0px) saturate(100%)}to{opacity:1;backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%)}}
+@keyframes modalIn{0%{opacity:0;transform:translateY(26px) scale(.94);filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.modal-bg.closing{animation:fadeOut .18s ease forwards}
+.modal-bg.closing .modal{animation:modalOut .2s cubic-bezier(.4,0,1,1) forwards}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes modalOut{to{opacity:0;transform:translateY(14px) scale(.96);filter:blur(3px)}}
+.modal{position:relative}
+.modal-x{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:10px;background:var(--ui-panel2);color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.modal-x:hover{color:var(--text);background:var(--panel2)}
+.gc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:620px){.gc-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.gc-grid{grid-template-columns:1fr}}
+/* Glass tiles for the Global Chat / Rooms / Announcements picker — same panel/blur
+   variables as every other glass surface in the app (--ui-panel2, --ui-blur), so this
+   picks up the Interface tab's transparency slider exactly like the sidebar, topbar,
+   home tiles, etc. do. */
+.gc-card{position:relative;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;
+  background:var(--ui-panel2);
+  backdrop-filter:blur(var(--ui-blur)) saturate(150%);-webkit-backdrop-filter:blur(var(--ui-blur)) saturate(150%);
+  border:1px solid var(--border);border-radius:24px;padding:42px 18px;min-height:210px;
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.2),border-color .2s ease,background .2s ease,box-shadow .2s ease;
+  transform:translateZ(0);will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+.gc-card::before{content:'';position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .2s ease;
+  background:radial-gradient(120% 60% at 50% -12%,rgba(255,255,255,.14),transparent 65%)}
+.gc-card:hover{transform:translate3d(0,-4px,0) scale(1.015);border-color:rgba(124,108,255,.55);background:var(--ui-panel);
+  box-shadow:0 16px 38px rgba(0,0,0,.3)}
+.gc-card:hover::before{opacity:1}
+.gc-card:active{transform:translate3d(0,-1px,0) scale(.98)}
+/* No box, no border, no fill behind the icon — just the emoji itself, large. */
+.gc-ic{position:relative;width:100%;display:flex;align-items:center;justify-content:center;
+  font-size:84px;line-height:1;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.2)}
+.gc-card:hover .gc-ic{transform:scale(1.06)}
+.gc-card h3{position:relative;font-size:17px;font-weight:700;margin:0;color:rgba(255,255,255,.94)}
+
+/* ===== Itsukis Chat picker — liquid glass =====
+   The overlay behind the modal only dims the page a little (plus a very light blur so
+   the sliver of background around the modal's edges doesn't look razor-sharp) — it does
+   NOT do its own heavy blur/saturate pass. The actual "glass" look — blur amount, tint,
+   and how see-through it is — lives entirely on .gc-modal / .gc-card below, driven by
+   the same --ui-panel/--ui-blur variables (and so the same Settings ▸ Interface slider)
+   as every other glass surface in the app. Stacking a second heavy blur here on top of
+   that used to muddy the real background down to flat grey instead of proper liquid
+   glass — this way there's exactly one blur pass, so it reads as glass again. */
+.gc-overlay{background:rgba(5,5,15,.42);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  animation:gcOverlayIn .38s ease forwards}
+.gc-overlay.closing{animation:gcOverlayOut .26s cubic-bezier(.4,0,1,1) forwards}
+@keyframes gcOverlayIn{from{opacity:0}to{opacity:1}}
+@keyframes gcOverlayOut{from{opacity:1}to{opacity:0}}
+
+/* True glass panel, tied to the same Interface-tab variables as .sidebar/.topbar/.opt/
+   etc, so its transparency and blur amount move together with the rest of the app
+   instead of using its own hand-tuned (and, stacked with the overlay above, effectively
+   flat-grey) alpha. */
+.gc-modal{background:var(--ui-panel);
+  backdrop-filter:blur(var(--ui-blur)) saturate(150%);-webkit-backdrop-filter:blur(var(--ui-blur)) saturate(150%);
+  border:1px solid var(--border);border-radius:28px;
+  box-shadow:0 26px 70px rgba(0,0,0,.45),0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25),inset 0 0 40px rgba(255,255,255,.02);
+  animation:gcModalIn .5s cubic-bezier(.2,1.28,.32,1) forwards;transform-origin:center}
+.gc-modal::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:radial-gradient(120% 55% at 18% -12%,rgba(255,255,255,.12),transparent 58%)}
+.gc-modal>*{position:relative;z-index:1}
+.gc-overlay.closing .gc-modal{animation:gcModalOut .24s cubic-bezier(.4,0,1,1) forwards}
+@keyframes gcModalIn{
+  0%{opacity:0;transform:scale(.8) translateY(14px);filter:blur(8px)}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+}
+@keyframes gcModalOut{
+  from{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+  to{opacity:0;transform:scale(.88) translateY(8px);filter:blur(3px)}
+}
+.gc-modal .modal-x{background:rgba(255,255,255,.10);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-color:rgba(255,255,255,.22);transition:background .16s ease,transform .16s ease}
+.gc-modal .modal-x:hover{background:rgba(255,255,255,.2);color:#fff;transform:rotate(90deg)}
+.gc-modal h2{font-size:19px;font-weight:700;letter-spacing:.01em;color:rgba(255,255,255,.92)}
+.gc-modal .hint{color:var(--muted);font-size:13px}
+.gc-modal .gc-grid{grid-template-columns:repeat(3,1fr);gap:10px;margin-top:0}
+@media (max-width:620px){.gc-modal .gc-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.gc-modal .gc-grid{grid-template-columns:1fr}}
+.gc-modal{padding:22px}
+
+/* ---------- Shitpost tile: slim full-width row under the Global / Rooms / Announcements cards ---------- */
+.gc-modal .gc-card.gc-shitpost{grid-column:1/-1;flex-direction:row;justify-content:flex-start;text-align:left;gap:16px;min-height:0;padding:16px 22px}
+.gc-modal .gc-card.gc-shitpost .gc-ic{width:auto;font-size:44px}
+.gc-shitpost .gc-sp-copy{position:relative;display:flex;flex-direction:column;gap:3px;min-width:0}
+.gc-shitpost .gc-sp-sub{font-size:12.5px;color:var(--muted);font-weight:600}
+.gc-modal .gc-card.gc-shitpost:hover{border-color:rgba(190,130,60,.6)}

@@ -1,0 +1,294 @@
+/* ==========================================================================
+ * css/11-glass-theme.css
+ * Liquid-glass look applied across the app
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===================================================================
+   LIQUID GLASS — iOS-style global glass pass
+   Layers real specular highlights, saturation and depth onto the
+   existing frosted-panel system. Respects the user's own UI-opacity /
+   UI-blur settings (still driven by --ui-alpha / --ui-blur) — this only
+   adds edge light, inner glow and saturation on top of them.
+   =================================================================== */
+:root{
+  --border:rgba(255,255,255,.14);
+  --glass-sheen:rgba(255,255,255,.28);
+  --glass-edge:rgba(255,255,255,.4);
+  --glass-edge-soft:rgba(255,255,255,.18);
+  --glass-shadow:0 24px 60px rgba(0,0,0,.42),0 2px 10px rgba(0,0,0,.24);
+  --glass-inset:inset 0 1.5px 0 rgba(255,255,255,.38),inset 0 0 34px rgba(255,255,255,.05),inset 0 -18px 30px rgba(0,0,0,.16);
+  /* shared "liquid" spring easing for glass motion (panels, sheets, hovers) */
+  --glass-spring:cubic-bezier(.16,1,.3,1);
+}
+
+/* ---- big frosted surfaces: real blur, saturation, glass bevel ---- */
+.sidebar,.topbar,.composer,.card,.userchip,.online-pill,.opt,.np.show{
+  backdrop-filter:blur(var(--ui-blur)) saturate(165%) brightness(1.04)!important;
+  -webkit-backdrop-filter:blur(var(--ui-blur)) saturate(165%) brightness(1.04)!important;
+  border-color:var(--glass-edge-soft)!important;
+  transition:box-shadow .35s var(--glass-spring),border-color .35s var(--glass-spring);
+}
+@media(max-width:760px){
+  .sidebar{background:var(--ui-panel)!important}
+}
+.topbar,.composer,.card,.modal{position:relative;isolation:isolate}
+.sidebar{isolation:isolate}
+.sidebar{box-shadow:var(--glass-inset),4px 0 26px rgba(0,0,0,.28)}
+.topbar{box-shadow:var(--glass-inset),0 4px 20px rgba(0,0,0,.2)}
+.composer{box-shadow:var(--glass-inset),0 -4px 20px rgba(0,0,0,.2)}
+.card{box-shadow:var(--glass-shadow),var(--glass-inset)}
+.opt{box-shadow:0 16px 40px rgba(0,0,0,.24),var(--glass-inset);isolation:isolate}
+.userchip,.online-pill{box-shadow:var(--glass-inset),0 6px 18px rgba(0,0,0,.22)}
+
+/* soft light washing in from the top-left, like light hitting glass —
+   pinned to z-index:-1 inside an isolated stacking context so it never
+   sits on top of real content or on top of absolutely-positioned
+   children like .modal-x. NOT .opt — its ::after is already its own
+   hover-only diagonal shine sweep (see .opt:after below); reusing it here
+   used to clobber that sweep's background/position, leaving a stray
+   always-on glow blob on the home-menu cards instead of a clean hover-only
+   streak. */
+.sidebar::before,.topbar::before,.composer::before,.card::before,.modal::before{
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(140% 60% at 15% -10%,var(--glass-sheen),transparent 60%);opacity:.55
+}
+
+/* ---- buttons: frosted glass pills ---- */
+.btn.sec,.icon-btn,.menu-btn,.modal-x,.sb-head .back,.music-controls button,.cp-eye,.lb-btn,.tab-mini button{
+  background:rgba(255,255,255,.07)!important;
+  backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);
+  border:1px solid var(--glass-edge-soft)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 4px 12px rgba(0,0,0,.22);
+  transition:background .28s var(--glass-spring),border-color .28s var(--glass-spring),transform .28s var(--glass-spring),box-shadow .28s var(--glass-spring)
+}
+/* .modal-x is already position:absolute (positioned) for its own placement;
+   the rest need position:relative so the shimmer sweep below is contained.
+   .lb-btn is the one exception: it must stay position:fixed (set above, in
+   the lightbox rules) so it's pinned to the true viewport corners instead of
+   its in-flow flex position — so it's deliberately left out of this list. */
+.btn.sec,.icon-btn,.menu-btn,.sb-head .back,.music-controls button,.cp-eye,.tab-mini button{position:relative;overflow:hidden}
+.lb-btn{overflow:hidden}
+.modal-x{overflow:hidden}
+.btn.sec::after,.icon-btn::after,.menu-btn::after,.modal-x::after,.sb-head .back::after,.music-controls button::after,.cp-eye::after,.lb-btn::after,.tab-mini button::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.24) 48%,rgba(255,255,255,.24) 52%,transparent 70%);
+  background-size:220% 220%;background-position:130% 0;opacity:0;
+  transition:opacity .3s ease,background-position .65s var(--glass-spring)
+}
+.btn.sec:hover,.icon-btn:hover,.menu-btn:hover,.modal-x:hover,.sb-head .back:hover,.music-controls button:hover,.cp-eye:hover,.lb-btn:hover,.tab-mini button:hover{
+  background:rgba(255,255,255,.15)!important;border-color:var(--glass-edge)!important;transform:translateY(-1px)
+}
+.btn.sec:hover::after,.icon-btn:hover::after,.menu-btn:hover::after,.modal-x:hover::after,.sb-head .back:hover::after,.music-controls button:hover::after,.cp-eye:hover::after,.lb-btn:hover::after,.tab-mini button:hover::after{
+  opacity:1;background-position:-30% 0
+}
+.btn.sec:active,.icon-btn:active{transform:scale(.95)}
+.btn,.send,.music-controls button.mc-play,.modal-tabs button.active,.tabs button.active{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -10px 16px rgba(0,0,0,.14),0 6px 18px rgba(124,108,255,.32)!important;
+  border:1px solid rgba(255,255,255,.2)
+}
+
+/* ---- inputs: recessed frosted wells ---- */
+.field input,.field select,.field textarea,.row textarea,.cp-btn,.csel-btn,.emoji-pop-search input{
+  background:rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+  border-color:var(--glass-edge-soft)!important;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05)
+}
+input[type=checkbox]{background:rgba(255,255,255,.06)}
+.switch .slider{background:rgba(255,255,255,.09)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.switch input:checked+.slider{background:linear-gradient(135deg,var(--accent),#5a4bff)!important}
+
+/* ---- popovers, menus, toasts, pills: true glass ----
+   Neutral --ui-panel now carries almost no hue of its own, so this is mostly
+   background-color-from-behind, blurred and saturated back up — a red backdrop
+   reads red, a photo reads as that photo, a picked gradient reads as itself. */
+.mention-pop,.emoji-pop,.cp-pop,.csel-menu,.list-row,.modal,.empty,.toast,.msg-hover-bar,.sys,.date-sep,.reaction-pill{
+  background:linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)),var(--ui-panel)!important;
+  backdrop-filter:blur(26px) saturate(210%)!important;-webkit-backdrop-filter:blur(26px) saturate(210%)!important;
+  border:1px solid var(--glass-edge-soft)!important;
+  box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.18)
+}
+.modal{overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-bg{backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%)}
+
+/* ---- message bubbles: frosted for others, glossy tinted glass for you ----
+   Both variants now get their color from a translucent rgba() (see hexToRgba,
+   set per-sender inline for others and via --b-me for your own), layered under
+   a faint sheen, so the backdrop-filter blur actually shows through instead of
+   being hidden behind a flat opaque fill. No !important here on purpose — it's
+   what let a solid inline/var color fully mask the glass before. */
+.bubble{
+  background:linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),var(--b-other,var(--ui-panel2));
+  backdrop-filter:blur(18px) saturate(200%);-webkit-backdrop-filter:blur(18px) saturate(200%);
+  border:1px solid var(--glass-edge-soft);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 14px rgba(0,0,0,.22)
+}
+.bubble.img-only{background:none!important;backdrop-filter:none!important;border:none;box-shadow:none}
+.reaction-pill.mine{background:linear-gradient(rgba(124,108,255,.35),rgba(124,108,255,.35)),var(--ui-panel2)!important;border-color:var(--accent)!important}
+.msg.me .bubble{
+  background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.02)),var(--b-me,rgba(124,108,255,.6));
+  border:1px solid rgba(255,255,255,.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -12px 18px rgba(0,0,0,.16),0 6px 18px rgba(124,108,255,.28)
+}
+.mtrack{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* ---- icon badges: glassy bevel like an iOS app icon ---- */
+.avatar,.music-note,.np-ic{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -6px 10px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.25)
+}
+
+/* ---- sidebar rows & tab strips: subtle glass on hover/active ---- */
+.sb-item:hover{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.sb-item.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -8px 14px rgba(0,0,0,.14),0 4px 14px rgba(124,108,255,.32)!important}
+.tabs,.modal-tabs{background:rgba(255,255,255,.045)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+@media(max-width:700px){.sidebar::before,.topbar::before,.composer::before{opacity:.4}}
+
+/* ===================================================================
+   LIQUID GLASS v2 — pointer-reactive light + floating "Void Launcher /
+   iOS 26" panels. On wider screens the sidebar/topbar/composer detach
+   from the screen edge into rounded, free-floating glass cards (like a
+   launcher's floating widgets, or iOS's floating toolbars with content
+   scrolling underneath). Every big glass surface also catches a soft
+   highlight that follows the pointer or finger — real specular
+   reaction, layered under the existing static top-left sheen, instead
+   of one fixed painted highlight.
+   =================================================================== */
+:root{--px:50%;--py:0%}
+
+/* soften the base rounding everywhere, even before the floating-desktop
+   treatment below kicks in — no more hard 90° panel corners */
+.sidebar{border-radius:0 22px 22px 0}
+.topbar{border-radius:0 0 22px 22px}
+.composer{border-radius:22px 22px 0 0}
+
+/* pointer-reactive specular highlight — a true circular glint (not an
+   oval smear), plain white at low opacity so it reads consistently on
+   any background hue instead of shifting color via a blend mode. Same
+   z-index:-1 / isolation trick as the static sheen, so it stays behind
+   real content. */
+.sidebar::after,.topbar::after,.composer::after,.card::after,.modal::after,.gc-card::after{
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(circle 220px at var(--px) var(--py),rgba(255,255,255,.16),transparent 72%);
+  /* --glow-op is driven by JS from the pointer's distance to this panel (see the
+     "Liquid Glass: pointer-reactive specular highlight" script) — 0 once the
+     pointer is further away than the glow's own 220px radius, ramping up to 1
+     as it gets close, so the light reads as glass reacting to a nearby hand
+     rather than snapping on only once you're directly over it. */
+  opacity:var(--glow-op,0);transition:opacity .2s ease;
+}
+
+/* a very slow, subtle "breathing" of the static sheen — glass that reads
+   as alive rather than a flat painted highlight. Off for anyone who's
+   asked their system to reduce motion. */
+@media (prefers-reduced-motion: no-preference){
+  .sidebar::before,.topbar::before,.composer::before,.card::before,.modal::before{
+    animation:glassBreathe 7s ease-in-out infinite
+  }
+}
+@keyframes glassBreathe{0%,100%{opacity:.45}50%{opacity:.72}}
+
+/* tactile, elastic press feedback on the main pill buttons */
+.btn:active{transform:scale(.96)}
+.send:active{transform:scale(.9)}
+
+/* ---- Desktop: panels detach into floating glass cards, dock-style ----
+   content still scrolls in the gap between them, edge to edge */
+@media(min-width:761px){
+  .chat-layout{gap:14px;padding:14px}
+  .main{gap:12px}
+  .sidebar{border-radius:26px;border:1px solid var(--glass-edge-soft);
+    box-shadow:var(--glass-inset),0 22px 54px rgba(0,0,0,.4)}
+  .topbar{border-radius:22px;border:1px solid var(--glass-edge-soft);
+    box-shadow:var(--glass-inset),0 14px 34px rgba(0,0,0,.3)}
+  .composer{border-radius:22px;border:1px solid var(--glass-edge-soft);
+    box-shadow:var(--glass-inset),0 14px 34px rgba(0,0,0,.3)}
+}
+
+/* ===================================================================
+   LIQUID GLASS v3 — see-through, refractive glass (iOS 26 look)
+   Appended LAST on purpose: it only overrides how much the glass blurs,
+   tints and bends what's behind it. Layout, sizes, shadows, edge light,
+   hover shimmer and pointer glints from above are untouched.
+   - blur is capped (user's --ui-blur still applies, just never above the cap)
+   - fill is a faint smoky tint instead of an opaque panel colour
+   =================================================================== */
+:root{
+  --lg-blur:min(var(--ui-blur,12px),5px);      /* big panels */
+  --lg-blur-sm:min(var(--ui-blur,12px),2px);   /* small things: bubbles, buttons, inputs */
+  --lg-tint:rgba(16,14,30,calc(min(var(--ui-alpha,.5),1)*.32));
+}
+
+/* ---- big surfaces ---- */
+.sidebar,.topbar,.composer,.card,.userchip,.online-pill,.opt,.np.show{
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.015) 45%,rgba(255,255,255,.04)),var(--lg-tint)!important;
+  backdrop-filter:blur(var(--lg-blur)) saturate(190%) brightness(1.08) contrast(1.04)!important;
+  -webkit-backdrop-filter:blur(var(--lg-blur)) saturate(190%) brightness(1.08) contrast(1.04)!important;
+  border-color:rgba(255,255,255,.34)!important;
+}
+@media(max-width:760px){
+  .sidebar{background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),var(--lg-tint)!important}
+}
+
+/* ---- popovers, menus, toasts, modals, pills ---- */
+.mention-pop,.emoji-pop,.cp-pop,.csel-menu,.list-row,.modal,.empty,.toast,.msg-hover-bar,.sys,.date-sep,.reaction-pill{
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),var(--lg-tint)!important;
+  backdrop-filter:blur(var(--lg-blur)) saturate(200%) brightness(1.06)!important;
+  -webkit-backdrop-filter:blur(var(--lg-blur)) saturate(200%) brightness(1.06)!important;
+  border-color:rgba(255,255,255,.3)!important;
+}
+.modal-bg{backdrop-filter:blur(2px) saturate(130%);-webkit-backdrop-filter:blur(2px) saturate(130%)}
+
+/* ---- small things stay readable-through: tiny blur, high saturation ---- */
+.btn.sec,.icon-btn,.menu-btn,.modal-x,.sb-head .back,.music-controls button,.cp-eye,.lb-btn,.tab-mini button{
+  background:rgba(255,255,255,.05)!important;
+  backdrop-filter:blur(var(--lg-blur-sm)) saturate(190%) brightness(1.08);
+  -webkit-backdrop-filter:blur(var(--lg-blur-sm)) saturate(190%) brightness(1.08);
+}
+.field input,.field select,.field textarea,.row textarea,.cp-btn,.csel-btn,.emoji-pop-search input{
+  background:rgba(0,0,0,.14)!important;
+  backdrop-filter:blur(var(--lg-blur-sm)) saturate(160%);
+  -webkit-backdrop-filter:blur(var(--lg-blur-sm)) saturate(160%);
+}
+.switch .slider{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.tabs,.modal-tabs{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.mtrack{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.sb-item:hover{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+
+/* ---- message bubbles: clear glass, backdrop visible through them ---- */
+.bubble{
+  background:linear-gradient(rgba(255,255,255,.06),rgba(255,255,255,.02)),var(--b-other,rgba(16,14,30,.16));
+  backdrop-filter:blur(var(--lg-blur-sm)) saturate(220%) brightness(1.08);
+  -webkit-backdrop-filter:blur(var(--lg-blur-sm)) saturate(220%) brightness(1.08);
+  border-color:rgba(255,255,255,.28)
+}
+.msg.me .bubble{
+  background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.02)),var(--b-me,rgba(124,108,255,.45))
+}
+
+/* keep text crisp on a see-through surface */
+.sidebar,.topbar,.composer,.card,.bubble,.opt,.modal{text-shadow:0 1px 2px rgba(0,0,0,.35)}
+
+/* ---- faux refraction, CSS only (stable: no SVG filters, nothing re-samples on scroll) ----
+   A bright rim plus a soft inner light band along the edges gives the
+   "thick glass lens" look without distorting the backdrop. */
+.topbar,.composer,.card,.opt,.modal,.sidebar,.np.show{
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,.55),
+    inset 0 0 0 1px rgba(255,255,255,.10),
+    inset 0 0 22px rgba(255,255,255,.10),
+    inset 0 -14px 24px rgba(0,0,0,.14),
+    0 14px 34px rgba(0,0,0,.28);
+}
+.bubble{box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 0 10px rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.2)}
+
+/* stop the hover/spring transitions on glass panels from re-compositing the blur mid-move */
+.sidebar,.topbar,.composer,.card,.modal{will-change:auto;transform:translateZ(0)}
+
+/* ---- scrolling glass (modals etc.): keep the glow/sheen layers pinned to the VISIBLE area ----
+   They are position:absolute inside a scroll container, so by default they scroll away
+   with the content. --st / --ch (scrollTop / clientHeight) come from the glow script in index.html. */
+.modal::before,.modal::after,.sidebar::before,.sidebar::after,.card::before,.card::after{
+  top:var(--st,0px);bottom:auto;height:var(--ch,100%)
+}

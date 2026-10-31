@@ -1,0 +1,50 @@
+/* ==========================================================================
+ * css/04-layout-background.css
+ * Scrollbars, loading screen, full-screen background
+ * Order matters (later files override earlier ones) - see js/manifest.js
+ * ========================================================================== */
+
+/* ===== Pretty scrollbars ===== */
+*{scrollbar-width:thin;scrollbar-color:rgba(124,108,255,.45) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(124,108,255,.35);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(124,108,255,.65);border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+
+.page{position:absolute;inset:0;display:flex;flex-direction:column;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ===== LOADING SCREEN =====
+   Its markup AND its styles live inline in index.html (<style id="boot-critical">), because every
+   stylesheet here is fetched from the raw repo — styling the loading screen from this file would
+   mean it only appears once the thing it is supposed to cover for has already finished loading.
+   Nothing about #loadingPage belongs in this file. */
+@keyframes pulseGlow{0%,100%{opacity:.45;transform:scale(.88)}50%{opacity:1;transform:scale(1.1)}}
+
+/* ===== FULL-SCREEN BACKGROUND (fixed, always fills the entire viewport, blur clipped inside) =====
+   A soft "aurora" mesh gradient — several overlapping color pools over a deep
+   diagonal base — so the app looks good out of the box, before anyone even
+   opens Settings > Background. */
+.bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:
+  radial-gradient(1100px 680px at 12% -8%,rgba(124,108,255,.38),transparent 58%),
+  radial-gradient(950px 640px at 96% 6%,rgba(255,108,180,.30),transparent 58%),
+  radial-gradient(1000px 720px at 50% 118%,rgba(94,170,255,.20),transparent 62%),
+  linear-gradient(160deg,#0b0c1a 0%,#14152b 45%,#1a1030 100%)}
+.bgfx .layer{position:absolute;inset:-60px;background-size:cover;background-position:center;background-repeat:no-repeat;transform:translateZ(0)}
+.bgfx .dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+
+.btn{background:linear-gradient(135deg,var(--accent),#5a4bff);padding:11px 20px;border-radius:12px;font-weight:600;transition:.15s;box-shadow:0 6px 18px rgba(124,108,255,.28);font-size:14px}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.btn:active{transform:none}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn.sec{background:var(--ui-panel2);border:1px solid var(--border);box-shadow:none}
+.btn.danger{background:var(--danger);box-shadow:none}
+.btn.small{padding:7px 13px;font-size:13px;border-radius:10px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.field label .val{color:var(--text);font-weight:700;background:rgba(124,108,255,.18);padding:1px 8px;border-radius:20px;font-size:12px}
+.field input,.field select,.field textarea{background:var(--ui-bg2);border:1px solid var(--border);padding:11px 13px;border-radius:12px;outline:none;font-size:14px;transition:.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,255,.18)}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin-bottom:8px}
+.hint{color:var(--muted);font-size:12px;line-height:1.5}
