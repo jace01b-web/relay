@@ -12,8 +12,16 @@ No account, no key, nothing to log into. Everything is editable in Settings.
 
 ## Setting it up
 
-**Nothing to set up.** Upload the folder, or let your launcher pull `dist/relay.html` from GitHub and
-write it into `about:blank`. It works as-is, with no server, no backend, no commands.
+**Nothing to set up.** Upload the folder; `loader.html` launches it.
+
+- `dist/relay.html` — the whole app as one file, every stylesheet and script inlined. This is what
+  gets written into the blank window. Rebuild it with `node build.js` after changing the source.
+- `loader.html` — host this on your own site. It pulls `dist/relay.html` off a CDN and writes it into
+  `about:blank`. No GitHub API, no token, no rate limit — jsDelivr first, then Fastly, Statically,
+  githack and raw.githubusercontent as fallbacks, in that order, first one that answers wins.
+
+Change the four lines at the top of `loader.html` (`USER`, `REPO`, `BRANCH`, `FILE`) if you move the
+repo. `TAB_TITLE` and `TAB_ICON` there set what the launched tab calls itself.
 
 ```bash
 node build.js        # only when you change the source: rebuilds dist/relay.html
