@@ -44,6 +44,7 @@
     /* ---------- relays ---------- */
 
     supports: function (relay, mode) {
+      if (mode === "proxy") return false;   /* proxy mode does not use relays at all */
       if (!relay) return false;
       if (mode === "frame") return relay.kind === "frame" || relay.kind === "direct";
       if (mode === "reader") return relay.kind !== "frame";
@@ -204,19 +205,107 @@
 
     /* ---------- rewriting ---------- */
 
-    /* Build a document that can live in a sandboxed frame: every
-       resource points back at the relay, nothing is relative. */
+
+    /* Runs first inside the frame, before any of the page's own code.
+       With <base> pointing at the real site, the browser already loads
+       images, CSS, fonts and scripts straight from there. What it
+       cannot do is the page's own fetch/XHR — those are cross-origin
+       and would be refused — so those get routed through the relay.
+       This is what lets a page keep working instead of being a
+       flattened snapshot. */
+    prelude: function (pageUrl, relay) {
+      return [
+        "(function(){",
+        "  var BASE = " + JSON.stringify(pageUrl) + ";",
+        "  var TPL  = " + JSON.stringify(relay.template) + ";",
+        "  var ENC  = " + (relay.encode ? "true" : "false") + ";",
+        "  function abs(u){ try { return new URL(u, BASE).href; } catch(e){ return null; } }",
+        "  function via(u){",
+        "    var a = abs(u); if(!a) return u;",
+        "    if(/^(data|blob):/i.test(a)) return a;",
+        "    var t = ENC ? encodeURIComponent(a) : a;",
+        "    return TPL.indexOf('%URL%') >= 0 ? TPL.replace('%URL%', t) : TPL + t;",
+        "  }",
+        "  window.__relay = { base: BASE, via: via, abs: abs };",
+        "",
+        "  /* storage in a sandboxed frame throws; a page that touches it",
+        "     should not die on the spot */",
+        "  function memStore(){",
+        "    var m = {};",
+        "    return { getItem:function(k){ return k in m ? m[k] : null; },",
+        "             setItem:function(k,v){ m[k]=String(v); },",
+        "             removeItem:function(k){ delete m[k]; },",
+        "             clear:function(){ m={}; },",
+        "             key:function(i){ return Object.keys(m)[i] || null; },",
+        "             get length(){ return Object.keys(m).length; } };",
+        "  }",
+        "  ['localStorage','sessionStorage'].forEach(function(name){",
+        "    var ok = false;",
+        "    try { var s = window[name]; s.setItem('__r','1'); s.removeItem('__r'); ok = true; } catch(e){}",
+        "    if(!ok){ try { Object.defineProperty(window, name, { value: memStore(), configurable: true }); } catch(e){} }",
+        "  });",
+        "  try { document.cookie; } catch(e){",
+        "    var jar = '';",
+        "    try { Object.defineProperty(document, 'cookie', {",
+        "      get:function(){ return jar; },",
+        "      set:function(v){ jar = jar ? jar + '; ' + v : v; }, configurable: true }); } catch(e2){}",
+        "  }",
+        "",
+        "  /* the page's own calls, routed through the relay */",
+        "  var realFetch = window.fetch && window.fetch.bind(window);",
+        "  if(realFetch){",
+        "    window.fetch = function(input, init){",
+        "      try {",
+        "        var url = typeof input === 'string' ? input : (input && input.url);",
+        "        if(url && !/^(data|blob):/i.test(url)) {",
+        "          var proxied = via(url);",
+        "          if(typeof input === 'string') input = proxied;",
+        "          else input = new Request(proxied, input);",
+        "          init = Object.assign({}, init, { credentials: 'omit' });",
+        "        }",
+        "      } catch(e){}",
+        "      return realFetch(input, init);",
+        "    };",
+        "  }",
+        "  var open = XMLHttpRequest.prototype.open;",
+        "  XMLHttpRequest.prototype.open = function(method, url){",
+        "    try { if(url && !/^(data|blob):/i.test(url)) url = via(url); } catch(e){}",
+        "    return open.apply(this, [method, url].concat([].slice.call(arguments, 2)));",
+        "  };",
+        "",
+        "  /* sockets cannot be relayed; say so instead of hanging */",
+        "  try {",
+        "    var RealWS = window.WebSocket;",
+        "    window.WebSocket = function(){",
+        "      parent.postMessage({ rl:'notice', text:'This site wants a live connection (WebSocket), which a relay cannot carry.' }, '*');",
+        "      throw new Error('WebSocket is not available through a relay');",
+        "    };",
+        "    window.WebSocket.prototype = RealWS.prototype;",
+        "  } catch(e){}",
+        "",
+        "  /* keep the shell's address bar honest without letting the",
+        "     page navigate the frame out from under us */",
+        "  try {",
+        "    var ps = history.pushState, rs = history.replaceState;",
+        "    history.pushState = function(a,b,u){ if(u) parent.postMessage({rl:'url', url: abs(u)}, '*'); return ps.apply(history, arguments); };",
+        "    history.replaceState = function(a,b,u){ if(u) parent.postMessage({rl:'url', url: abs(u)}, '*'); return rs.apply(history, arguments); };",
+        "  } catch(e){}",
+        "})();"
+      ].join("\n");
+    },
+
+    /* Build a document the page can keep running inside. */
     rewrite: function (html, pageUrl, relay, opts) {
       opts = opts || {};
       var doc;
-      try {
-        doc = new DOMParser().parseFromString(html, "text/html");
-      } catch (e) {
-        return engine.textDocument(html, pageUrl);
-      }
+      try { doc = new DOMParser().parseFromString(html, "text/html"); }
+      catch (e) { return engine.textDocument(html, pageUrl); }
       if (!doc || !doc.documentElement) return engine.textDocument(html, pageUrl);
 
-      /* the page's own <base> wins for resolving its links */
+      /* The page's own <base>, if it has one, decides what its relative
+         URLs mean. Ours then points at the real site, so the browser
+         fetches images, CSS, fonts and scripts straight from there —
+         no relay in the middle, and nothing to rewrite. */
       var base = pageUrl;
       var baseEl = doc.querySelector("base[href]");
       if (baseEl) {
@@ -224,118 +313,19 @@
         baseEl.parentNode.removeChild(baseEl);
       }
 
-      /* The document is the only thing that needs a relay: a browser
-         loads images, stylesheets, fonts and media cross-origin without
-         asking CORS. Sending them through the relay as well turned one
-         page into sixty relay requests, which is what was rate-limiting
-         the relay and leaving every picture broken. */
-      var direct = opts.assets !== "relay";
-
-      var asset = function (href) {
-        var abs = engine.resolve(href, base);
-        if (!abs) return "";
-        return direct ? abs : engine.build(relay, abs);
-      };
-
-      /* links still go through the shell, and the shell relays them */
-      var via = function (href) {
-        var abs = engine.resolve(href, base);
-        return abs ? engine.build(relay, abs) : "";
-      };
-
-      /* scripts: off by default — through a text relay they mostly
-         break anyway, and they are the main way a page escapes. */
-      if (opts.stripScripts !== false) {
-        Array.prototype.forEach.call(doc.querySelectorAll("script"), function (el) {
-          el.parentNode.removeChild(el);
-        });
-      } else {
-        Array.prototype.forEach.call(doc.querySelectorAll("script[src]"), function (el) {
-          var u = asset(el.getAttribute("src"));
-          if (u) el.setAttribute("src", u); else el.parentNode.removeChild(el);
-        });
-      }
-
-      /* stylesheets, icons, preloads */
-      Array.prototype.forEach.call(doc.querySelectorAll("link[href]"), function (el) {
-        var rel = (el.getAttribute("rel") || "").toLowerCase();
-        if (rel.indexOf("stylesheet") >= 0 || rel.indexOf("icon") >= 0) {
-          var u = asset(el.getAttribute("href"));
-          if (u) el.setAttribute("href", u); else el.parentNode.removeChild(el);
-        } else {
-          el.parentNode.removeChild(el);
-        }
+      /* things that would break the frame or escape it */
+      Array.prototype.forEach.call(doc.querySelectorAll("meta[http-equiv]"), function (el) {
+        var what = (el.getAttribute("http-equiv") || "").toLowerCase();
+        if (what === "content-security-policy" || what === "refresh") el.parentNode.removeChild(el);
       });
-
-      /* media */
-      Array.prototype.forEach.call(doc.querySelectorAll("img, source, video, audio, embed, track"), function (el) {
-        if (opts.blockImages && (el.tagName === "IMG" || el.tagName === "SOURCE")) {
-          el.removeAttribute("src");
-          el.removeAttribute("srcset");
-          el.setAttribute("data-blocked", "1");
-          return;
-        }
-        ["src", "poster", "data-src"].forEach(function (attr) {
-          if (!el.hasAttribute(attr)) return;
-          var u = asset(el.getAttribute(attr));
-          if (u) el.setAttribute(attr === "data-src" ? "src" : attr, u);
-        });
-        if (el.hasAttribute("srcset")) {
-          var parts = el.getAttribute("srcset").split(",").map(function (chunk) {
-            var bits = chunk.trim().split(/\s+/);
-            var u = asset(bits[0]);
-            return u ? [u].concat(bits.slice(1)).join(" ") : "";
-          }).filter(Boolean);
-          if (parts.length) el.setAttribute("srcset", parts.join(", "));
-          else el.removeAttribute("srcset");
-        }
-      });
-
-      /* nested frames: drop them, they rarely survive the trip */
-      Array.prototype.forEach.call(doc.querySelectorAll("iframe, frame, object"), function (el) {
+      Array.prototype.forEach.call(doc.querySelectorAll("iframe, frame"), function (el) {
         el.parentNode.removeChild(el);
       });
 
-      /* links become messages to the shell */
-      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"), function (el) {
-        var abs = engine.resolve(el.getAttribute("href"), base);
-        el.removeAttribute("target");
-        if (abs) {
-          el.setAttribute("data-rl", abs);
-          el.setAttribute("href", abs);
-        } else {
-          el.removeAttribute("href");
-        }
-      });
-
-      /* forms: GET is re-sent through the relay, POST is not supported */
-      Array.prototype.forEach.call(doc.querySelectorAll("form"), function (el) {
-        var abs = engine.resolve(el.getAttribute("action") || base, base);
-        el.setAttribute("data-rl-action", abs || base);
-        el.setAttribute("data-rl-method", (el.getAttribute("method") || "get").toLowerCase());
-        el.removeAttribute("action");
-      });
-
-      /* url() inside <style> blocks and style attributes */
-      var fixCss = function (css) {
-        return String(css).replace(/url\((['"]?)([^'")]+)\1\)/gi, function (m, q, href) {
-          if (/^(data|blob):/i.test(href)) return m;
-          var u = asset(href);
-          return u ? 'url("' + u + '")' : m;
-        }).replace(/@import\s+(['"])([^'"]+)\1/gi, function (m, q, href) {
-          var u = asset(href);
-          return u ? '@import "' + u + '"' : "";
+      if (opts.stripScripts) {
+        Array.prototype.forEach.call(doc.querySelectorAll("script"), function (el) {
+          el.parentNode.removeChild(el);
         });
-      };
-      Array.prototype.forEach.call(doc.querySelectorAll("style"), function (el) {
-        el.textContent = fixCss(el.textContent);
-      });
-      Array.prototype.forEach.call(doc.querySelectorAll("[style]"), function (el) {
-        el.setAttribute("style", fixCss(el.getAttribute("style")));
-      });
-
-      /* inline handlers go away with scripts */
-      if (opts.stripScripts !== false) {
         Array.prototype.forEach.call(doc.querySelectorAll("*"), function (el) {
           Array.prototype.slice.call(el.attributes || []).forEach(function (a) {
             if (/^on/i.test(a.name)) el.removeAttribute(a.name);
@@ -343,20 +333,49 @@
         });
       }
 
+      if (opts.blockImages) {
+        Array.prototype.forEach.call(doc.querySelectorAll("img, picture source"), function (el) {
+          el.removeAttribute("src"); el.removeAttribute("srcset");
+          el.setAttribute("data-blocked", "1");
+        });
+      }
+
+      /* links stay readable but go through the shell */
+      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"), function (el) {
+        var abs = engine.resolve(el.getAttribute("href"), base);
+        el.removeAttribute("target");
+        if (abs) { el.setAttribute("data-rl", abs); el.setAttribute("href", abs); }
+      });
+
+      Array.prototype.forEach.call(doc.querySelectorAll("form"), function (el) {
+        var abs = engine.resolve(el.getAttribute("action") || base, base);
+        el.setAttribute("data-rl-action", abs || base);
+        el.setAttribute("data-rl-method", (el.getAttribute("method") || "get").toLowerCase());
+        el.removeAttribute("action");
+      });
+
       var head = doc.head || doc.documentElement;
+
       var charset = doc.createElement("meta");
       charset.setAttribute("charset", "utf-8");
       head.insertBefore(charset, head.firstChild);
 
+      var baseTag = doc.createElement("base");
+      baseTag.setAttribute("href", base);
+      head.insertBefore(baseTag, charset.nextSibling);
+
+      /* the prelude has to run before any of the page's own scripts */
+      var boot = doc.createElement("script");
+      boot.textContent = engine.prelude(base, relay);
+      head.insertBefore(boot, baseTag.nextSibling);
+
       var patch = doc.createElement("style");
-      patch.textContent = "html{-webkit-text-size-adjust:100%}" +
-        "[data-blocked]{outline:1px dashed #9993;min-height:12px}" +
-        "a[data-rl]{cursor:pointer}";
+      patch.textContent = "[data-blocked]{outline:1px dashed #9993;min-height:12px}a[data-rl]{cursor:pointer}";
       head.appendChild(patch);
 
-      var boot = doc.createElement("script");
-      boot.textContent = engine.BOOTSTRAP;
-      (doc.body || head).appendChild(boot);
+      var shell = doc.createElement("script");
+      shell.textContent = engine.BOOTSTRAP;
+      (doc.body || head).appendChild(shell);
 
       return "<!doctype html>" + doc.documentElement.outerHTML;
     },

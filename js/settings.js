@@ -19,8 +19,8 @@
   /* ---------- simple bound controls ---------- */
 
   var toggles = ["failover", "stripScripts", "blockImages", "keepHistory"];
-  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor", "assets"];
-  var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline"];
+  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor", "assets", "transport"];
+  var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline", "wisp", "bare"];
 
   function bind() {
     toggles.forEach(function (key) {
@@ -39,6 +39,7 @@
       sel.value = key === "timeout" ? String(val) : (val == null ? "" : val);
       sel.addEventListener("change", function () {
         store.set(key, key === "timeout" ? parseInt(sel.value, 10) : sel.value);
+        if (key === "transport" && FP.uv) FP.uv.retransport();
         shell.paint();
         drawRelayPicker();
         shell.toast(label(key) + " saved", "good");
@@ -51,6 +52,7 @@
       input.addEventListener("change", function () {
         store.set(key, input.value.trim());
         shell.paint();
+        if ((key === "wisp" || key === "bare") && FP.uv) FP.uv.retransport();
         shell.toast(label(key) + " saved", "good");
       });
     });
@@ -63,7 +65,7 @@
       searchEngine: "Search engine", openIn: "Open location", density: "Density",
       panicKey: "Escape key", tabTitle: "Tab title", tabIcon: "Tab icon",
       panicUrl: "Escape address", decor: "Backdrop", wordmark: "Wordmark",
-      tagline: "Tagline", assets: "Image loading"
+      tagline: "Tagline", assets: "Image loading", wisp: "Wisp server", bare: "Bare server", transport: "Transport"
     })[key] || key;
   }
 

@@ -1,11 +1,67 @@
 # Relay
 
-A web proxy that runs entirely in the browser and only ever talks to **free, public, no-account relays**.
-No login, no key, no backend of its own. Every relay in the list is editable in Settings.
+A web proxy with two halves:
 
-## Run it
+- **Proxy mode** — a real proxy. A service worker sits between the site and the network, so the site
+  *runs*: its scripts execute, its fetch and XHR calls are proxied, images and fonts come through,
+  links work, logins hold. Needs a backend, which is one file pasted into a free Cloudflare Worker.
+- **Relay modes** — no server at all. Fetch a page through a free public CORS relay and rewrite it.
+  Good for reading; it can't run an app. This is what the whole thing used to be.
 
-Three ways, all of them supported:
+No account, no key, nothing to log into. Everything is editable in Settings.
+
+## Setting it up
+
+**Nothing to set up.** Upload the folder, or let your launcher pull `dist/relay.html` from GitHub and
+write it into `about:blank`. It works as-is, with no server, no backend, no commands.
+
+```bash
+node build.js        # only when you change the source: rebuilds dist/relay.html
+```
+
+### Live page — the default, and what makes sites work without a backend
+
+The page is fetched through a free relay, then handed to the browser with a `<base>` pointing at the
+real site and a small prelude injected ahead of the site's own code. That means:
+
+| | How |
+|---|---|
+| the site's own JavaScript runs | scripts are kept, not stripped |
+| its `fetch()` and `XMLHttpRequest` work | both are patched to go through the relay |
+| images, CSS, fonts, video load | `<base>` sends them straight to the real site — no relay, full speed |
+| `localStorage` / cookies don't crash the page | shimmed in memory, since a sandboxed frame has none |
+| links and GET forms follow | handed back to the shell, which loads them through the relay |
+| `history.pushState` keeps the address bar honest | reported back to the shell |
+
+Verified inside a real `about:blank` document written in by a loader: the proxied page's own script
+ran, `fetch` and XHR came back through the relay, images and stylesheets loaded, storage didn't throw,
+and a link click navigated. Three relay requests for a whole page.
+
+### What live page cannot do
+
+- **WebSockets.** A relay can't carry one. Sites that stream — now.gg, cloud gaming, live chat — won't
+  run. The page says so instead of hanging.
+- **Logins.** No cookies travel with the request, so anything behind a sign-in stays signed out.
+- **The heaviest single-page apps.** Code that reads `location.href` expecting the real address, or
+  that needs its own origin, will misbehave.
+
+Those need a service worker, and **a service worker cannot be registered from an `about:blank`
+document** — that's a browser rule, not something code can get around. Which is what proxy mode is:
+
+### Proxy mode (optional, needs the hosted site)
+
+If you ever open Relay at its real address instead of in a blank window, switch the mode to **proxy**
+and it becomes a true proxy — Ultraviolet rewriting everything through a service worker, with links,
+logins and sockets. It needs a backend, which is one file pasted into a free Cloudflare Worker
+(`worker/bare-worker.js`; the four steps show on screen when it isn't set up yet). Verified end to end
+from a plain static host: scripts, fetch, XHR, images, CSS and link navigation all working.
+
+Note that proxy mode wants the site at a **domain root** — the service worker's scope is the site's
+folder, so on `you.github.io/relay/` a proxied link to `/login` escapes it.
+
+## Relay modes (no server)
+
+Three ways to run the static half:
 
 **1. Straight off the disk** — open `index.html`. A few relays refuse requests from `file://` pages, so
 serving it is steadier:
@@ -60,13 +116,19 @@ is just the same files inlined.
 
 ```
 index.html        the whole app: all four views in one document
+sw.js             the service worker (site root, so its scope is the whole site)
+uv/               Ultraviolet: the rewriter
+baremux/ epoxy/ baremod/   browser-side transports
+server/           Wisp + Bare endpoints, and deploy configs
 build.js          inlines everything -> dist/relay.html
 css/core.css      tokens and shared components
 css/skins.css     the skins + their backdrops  <- add yours here
 css/home.css      launcher layout
 css/views.css     viewport / settings / about layouts
 js/relays.js      the relay list, with what works and what doesn't
-worker/relay-worker.js   your own relay, for Cloudflare's free plan
+worker/bare-worker.js    the proxy backend — paste into a Cloudflare Worker
+worker/run-local.mjs     runs that same file on your machine
+worker/relay-worker.js   a simple relay for the relay modes, also a Worker
 js/shortcuts.js   the default tiles
 js/store.js       settings, tiles + history in localStorage
 js/engine.js      fetch, failover, HTML/CSS rewriting, reader extraction
@@ -97,6 +159,7 @@ CSS variables in `css/skins.css` — copy one, rename the `data-theme`, and add 
 
 | Mode | What it does | Use when |
 |---|---|---|
+| **Proxy** | A service worker proxies everything the site does. The site really runs. | Default. Anything interactive |
 | Full page | Fetches the page and rewrites every link, image and stylesheet to travel through the relay too. Scripts are stripped by default. | Normal browsing |
 | Reader | Pulls out the main text and pictures only. | Articles, slow relays, sites that fight back |
 | Proxy instance | Loads a full web-proxy server (one you add yourself) directly in a frame. | You run your own proxy, or have an instance address |
@@ -153,15 +216,13 @@ Measured on a 20-image test page: **22 relay requests before, 1 after.**
 Settings → Browsing → *Images and styles* switches it back to **through the relay**, for when the
 pictures themselves are blocked on your network. Expect it to be slow and to break on free relays.
 
-### Sites that can never work this way
+### Sites the relay modes can never serve
 
 now.gg, GeForce Now, Discord, Roblox, Netflix — anything that is a JavaScript app rather than a
-document. The relay fetches HTML; these ship an empty shell and build themselves at runtime, behind a
-login. There is no page to hand back. Relay says so up front now instead of grinding through six
-relays first.
+document. A relay fetches HTML; these ship an empty shell and build themselves at runtime. There is
+nothing to hand back, and Relay says so up front instead of grinding through six relays first.
 
-Those need a real proxy backend — Ultraviolet, Wisp, a Rammerhead instance, something that rewrites
-traffic server-side. Add it as a relay of type **proxy instance** and switch the mode to match.
+**Use proxy mode for those.** That is exactly what it is for.
 
 ### Opening from `file://`
 

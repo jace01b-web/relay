@@ -14,11 +14,14 @@
     activeRelay: "auto",          /* relay id, or "auto" for fastest-first */
     failover: true,
     timeout: 12000,
-    mode: "page",                 /* page | reader | frame */
+    mode: "page",                 /* page (no setup) | proxy (needs a backend) | reader | frame */
+    wisp: "",                     /* wss://your-host/wisp/  (blank = this host) */
+    bare: "",                     /* https://your-host/bare/ (blank = this host) */
+    transport: "bare",            /* bare (verified: pages + links) | epoxy (adds WebSockets) */
 
     /* browsing */
     searchEngine: "https://duckduckgo.com/?q=%s",
-    stripScripts: true,
+    stripScripts: false,
     blockImages: false,
     assets: "direct",             /* direct | relay — where images and CSS come from */
     openIn: "same",               /* same | tab | blank  (blank = about:blank window) */

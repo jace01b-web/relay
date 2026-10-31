@@ -36,7 +36,7 @@
 }
 .stage-msg[data-show="1"] { display: grid; }
 .stage-msg h2 { font-size: 1.1rem; }
-.stage-msg p { color: var(--muted); font-size: 0.92rem; }
+.stage-msg p { color: var(--muted); font-size: 0.92rem; white-space: pre-line; text-align: left; max-width: 60ch; }
 .stage-msg .trace {
   font-family: var(--mono); font-size: 0.76rem; color: var(--muted);
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md);

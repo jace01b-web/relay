@@ -9,7 +9,7 @@
   var wired = false;
   var $ = function (id) { return document.getElementById(id); };
 
-  var MODE_LABELS = { page: "full page", reader: "reader", frame: "instance" };
+  var MODE_LABELS = { page: "live page", proxy: "proxy", reader: "reader", frame: "instance" };
 
   /* ---------- hero ---------- */
 
@@ -247,7 +247,7 @@
     e.preventDefault();
     var url = engine.normalize($("home-addr").value);
     if (!url) { shell.toast("Type an address or a search.", "bad"); $("home-addr").focus(); return; }
-    if (!store.chain(store.get("mode")).length) {
+    if (store.get("mode") !== "proxy" && !store.chain(store.get("mode")).length) {
       shell.toast("No relay is enabled for this mode.", "bad");
       drawRack(); openSheet("sheet-relays");
       return;
@@ -295,6 +295,26 @@
     });
   });
 
+  /* Proxy mode is the default, but a blank window cannot run it.
+     Show that honestly on the chip rather than letting it fail later. */
+  function markProxyAvailability() {
+    var chip = document.querySelector('.chip[data-mode="proxy"]');
+    if (!chip || !FP.uv) return;
+    if (FP.uv.available()) {
+      chip.removeAttribute("title");
+      chip.style.opacity = "";
+    } else {
+      chip.title = FP.uv.why();
+      chip.style.opacity = "0.5";
+      if (store.get("mode") === "proxy") {
+        store.set("mode", "page");
+        Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+          c.setAttribute("aria-pressed", c.dataset.mode === "page" ? "true" : "false");
+        });
+      }
+    }
+  }
+
   /* ---------- view ---------- */
 
   FP.home = {
@@ -303,6 +323,7 @@
       paintDecor();
       drawHero();
       drawTiles();
+      markProxyAvailability();
       drawReadout();
       var mode = store.get("mode");
       Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {

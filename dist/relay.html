@@ -842,7 +842,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
 }
 .stage-msg[data-show="1"] { display: grid; }
 .stage-msg h2 { font-size: 1.1rem; }
-.stage-msg p { color: var(--muted); font-size: 0.92rem; }
+.stage-msg p { color: var(--muted); font-size: 0.92rem; white-space: pre-line; text-align: left; max-width: 60ch; }
 .stage-msg .trace {
   font-family: var(--mono); font-size: 0.76rem; color: var(--muted);
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md);
@@ -1053,7 +1053,8 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     </form>
 
     <div class="chips" role="group" aria-label="How pages are rendered">
-      <button type="button" class="chip" data-mode="page" aria-pressed="true">full page</button>
+      <button type="button" class="chip" data-mode="page" aria-pressed="true">live page</button>
+      <button type="button" class="chip" data-mode="proxy" aria-pressed="false">proxy</button>
       <button type="button" class="chip" data-mode="reader" aria-pressed="false">reader</button>
       <button type="button" class="chip" data-mode="frame" aria-pressed="false">instance</button>
     </div>
@@ -1273,8 +1274,23 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       <section class="panel sheet" id="connection">
         <div class="panel-head"><h2>Connection</h2></div>
         <div class="panel-body">
+          <div class="control stacked">
+            <div class="text"><strong>Wisp server</strong><span>Proxy mode's transport — the one piece that runs on a host. Leave blank to use the server this site is served from. Anything else: <code>wss://your-app.onrender.com/wisp/</code>. Setting it up takes one deploy; see server/README.md.</span></div>
+            <div class="input"><input class="field field-mono" id="wisp" placeholder="wss://your-app.onrender.com/wisp/"></div>
+          </div>
           <div class="control">
-            <div class="text"><strong>Relay</strong><span>Which server fetches your pages.</span></div>
+            <div class="text"><strong>Transport</strong><span>How proxy mode carries traffic. Bare is a Cloudflare Worker you deploy by pasting a file in — no commands, works with a static site, and it is the one tested end to end. Epoxy adds WebSockets but needs a Node host.</span></div>
+            <div class="input"><select class="field" id="transport">
+              <option value="bare">bare (recommended)</option>
+              <option value="epoxy">epoxy over wisp</option>
+            </select></div>
+          </div>
+          <div class="control stacked">
+            <div class="text"><strong>Bare server</strong><span>Only used by the bare transport. Blank means this site's own host.</span></div>
+            <div class="input"><input class="field field-mono" id="bare" placeholder="https://your-app.onrender.com/bare/"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Relay</strong><span>Used by the relay modes only. Proxy mode ignores it.</span></div>
             <div class="input"><select class="field" id="activeRelay"></select></div>
           </div>
           <div class="control">
@@ -1293,7 +1309,8 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
           <div class="control">
             <div class="text"><strong>Default mode</strong><span>How pages render when you connect from the console.</span></div>
             <div class="input"><select class="field" id="mode">
-              <option value="page">full page</option>
+              <option value="page">live page</option>
+              <option value="proxy">proxy</option>
               <option value="reader">reader</option>
               <option value="frame">proxy instance</option>
             </select></div>
@@ -1317,7 +1334,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
             </select></div>
           </div>
           <div class="control">
-            <div class="text"><strong>Remove scripts from pages</strong><span>On is faster and steadier. Off breaks more often than it fixes.</span></div>
+            <div class="text"><strong>Remove scripts from pages</strong><span>Off by default now: the page's own code runs, and its fetch and XHR calls are routed through the relay. Turn it on for a plain, fast, read-only copy.</span></div>
             <div class="input"><label class="switch"><input type="checkbox" id="stripScripts"><span class="track"></span></label></div>
           </div>
           <div class="control">
@@ -1782,11 +1799,14 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     activeRelay: "auto",          /* relay id, or "auto" for fastest-first */
     failover: true,
     timeout: 12000,
-    mode: "page",                 /* page | reader | frame */
+    mode: "page",                 /* page (no setup) | proxy (needs a backend) | reader | frame */
+    wisp: "",                     /* wss://your-host/wisp/  (blank = this host) */
+    bare: "",                     /* https://your-host/bare/ (blank = this host) */
+    transport: "bare",            /* bare (verified: pages + links) | epoxy (adds WebSockets) */
 
     /* browsing */
     searchEngine: "https://duckduckgo.com/?q=%s",
-    stripScripts: true,
+    stripScripts: false,
     blockImages: false,
     assets: "direct",             /* direct | relay — where images and CSS come from */
     openIn: "same",               /* same | tab | blank  (blank = about:blank window) */
@@ -2117,6 +2137,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     /* ---------- relays ---------- */
 
     supports: function (relay, mode) {
+      if (mode === "proxy") return false;   /* proxy mode does not use relays at all */
       if (!relay) return false;
       if (mode === "frame") return relay.kind === "frame" || relay.kind === "direct";
       if (mode === "reader") return relay.kind !== "frame";
@@ -2277,19 +2298,107 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
 
     /* ---------- rewriting ---------- */
 
-    /* Build a document that can live in a sandboxed frame: every
-       resource points back at the relay, nothing is relative. */
+
+    /* Runs first inside the frame, before any of the page's own code.
+       With <base> pointing at the real site, the browser already loads
+       images, CSS, fonts and scripts straight from there. What it
+       cannot do is the page's own fetch/XHR — those are cross-origin
+       and would be refused — so those get routed through the relay.
+       This is what lets a page keep working instead of being a
+       flattened snapshot. */
+    prelude: function (pageUrl, relay) {
+      return [
+        "(function(){",
+        "  var BASE = " + JSON.stringify(pageUrl) + ";",
+        "  var TPL  = " + JSON.stringify(relay.template) + ";",
+        "  var ENC  = " + (relay.encode ? "true" : "false") + ";",
+        "  function abs(u){ try { return new URL(u, BASE).href; } catch(e){ return null; } }",
+        "  function via(u){",
+        "    var a = abs(u); if(!a) return u;",
+        "    if(/^(data|blob):/i.test(a)) return a;",
+        "    var t = ENC ? encodeURIComponent(a) : a;",
+        "    return TPL.indexOf('%URL%') >= 0 ? TPL.replace('%URL%', t) : TPL + t;",
+        "  }",
+        "  window.__relay = { base: BASE, via: via, abs: abs };",
+        "",
+        "  /* storage in a sandboxed frame throws; a page that touches it",
+        "     should not die on the spot */",
+        "  function memStore(){",
+        "    var m = {};",
+        "    return { getItem:function(k){ return k in m ? m[k] : null; },",
+        "             setItem:function(k,v){ m[k]=String(v); },",
+        "             removeItem:function(k){ delete m[k]; },",
+        "             clear:function(){ m={}; },",
+        "             key:function(i){ return Object.keys(m)[i] || null; },",
+        "             get length(){ return Object.keys(m).length; } };",
+        "  }",
+        "  ['localStorage','sessionStorage'].forEach(function(name){",
+        "    var ok = false;",
+        "    try { var s = window[name]; s.setItem('__r','1'); s.removeItem('__r'); ok = true; } catch(e){}",
+        "    if(!ok){ try { Object.defineProperty(window, name, { value: memStore(), configurable: true }); } catch(e){} }",
+        "  });",
+        "  try { document.cookie; } catch(e){",
+        "    var jar = '';",
+        "    try { Object.defineProperty(document, 'cookie', {",
+        "      get:function(){ return jar; },",
+        "      set:function(v){ jar = jar ? jar + '; ' + v : v; }, configurable: true }); } catch(e2){}",
+        "  }",
+        "",
+        "  /* the page's own calls, routed through the relay */",
+        "  var realFetch = window.fetch && window.fetch.bind(window);",
+        "  if(realFetch){",
+        "    window.fetch = function(input, init){",
+        "      try {",
+        "        var url = typeof input === 'string' ? input : (input && input.url);",
+        "        if(url && !/^(data|blob):/i.test(url)) {",
+        "          var proxied = via(url);",
+        "          if(typeof input === 'string') input = proxied;",
+        "          else input = new Request(proxied, input);",
+        "          init = Object.assign({}, init, { credentials: 'omit' });",
+        "        }",
+        "      } catch(e){}",
+        "      return realFetch(input, init);",
+        "    };",
+        "  }",
+        "  var open = XMLHttpRequest.prototype.open;",
+        "  XMLHttpRequest.prototype.open = function(method, url){",
+        "    try { if(url && !/^(data|blob):/i.test(url)) url = via(url); } catch(e){}",
+        "    return open.apply(this, [method, url].concat([].slice.call(arguments, 2)));",
+        "  };",
+        "",
+        "  /* sockets cannot be relayed; say so instead of hanging */",
+        "  try {",
+        "    var RealWS = window.WebSocket;",
+        "    window.WebSocket = function(){",
+        "      parent.postMessage({ rl:'notice', text:'This site wants a live connection (WebSocket), which a relay cannot carry.' }, '*');",
+        "      throw new Error('WebSocket is not available through a relay');",
+        "    };",
+        "    window.WebSocket.prototype = RealWS.prototype;",
+        "  } catch(e){}",
+        "",
+        "  /* keep the shell's address bar honest without letting the",
+        "     page navigate the frame out from under us */",
+        "  try {",
+        "    var ps = history.pushState, rs = history.replaceState;",
+        "    history.pushState = function(a,b,u){ if(u) parent.postMessage({rl:'url', url: abs(u)}, '*'); return ps.apply(history, arguments); };",
+        "    history.replaceState = function(a,b,u){ if(u) parent.postMessage({rl:'url', url: abs(u)}, '*'); return rs.apply(history, arguments); };",
+        "  } catch(e){}",
+        "})();"
+      ].join("\n");
+    },
+
+    /* Build a document the page can keep running inside. */
     rewrite: function (html, pageUrl, relay, opts) {
       opts = opts || {};
       var doc;
-      try {
-        doc = new DOMParser().parseFromString(html, "text/html");
-      } catch (e) {
-        return engine.textDocument(html, pageUrl);
-      }
+      try { doc = new DOMParser().parseFromString(html, "text/html"); }
+      catch (e) { return engine.textDocument(html, pageUrl); }
       if (!doc || !doc.documentElement) return engine.textDocument(html, pageUrl);
 
-      /* the page's own <base> wins for resolving its links */
+      /* The page's own <base>, if it has one, decides what its relative
+         URLs mean. Ours then points at the real site, so the browser
+         fetches images, CSS, fonts and scripts straight from there —
+         no relay in the middle, and nothing to rewrite. */
       var base = pageUrl;
       var baseEl = doc.querySelector("base[href]");
       if (baseEl) {
@@ -2297,118 +2406,19 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
         baseEl.parentNode.removeChild(baseEl);
       }
 
-      /* The document is the only thing that needs a relay: a browser
-         loads images, stylesheets, fonts and media cross-origin without
-         asking CORS. Sending them through the relay as well turned one
-         page into sixty relay requests, which is what was rate-limiting
-         the relay and leaving every picture broken. */
-      var direct = opts.assets !== "relay";
-
-      var asset = function (href) {
-        var abs = engine.resolve(href, base);
-        if (!abs) return "";
-        return direct ? abs : engine.build(relay, abs);
-      };
-
-      /* links still go through the shell, and the shell relays them */
-      var via = function (href) {
-        var abs = engine.resolve(href, base);
-        return abs ? engine.build(relay, abs) : "";
-      };
-
-      /* scripts: off by default — through a text relay they mostly
-         break anyway, and they are the main way a page escapes. */
-      if (opts.stripScripts !== false) {
-        Array.prototype.forEach.call(doc.querySelectorAll("script"), function (el) {
-          el.parentNode.removeChild(el);
-        });
-      } else {
-        Array.prototype.forEach.call(doc.querySelectorAll("script[src]"), function (el) {
-          var u = asset(el.getAttribute("src"));
-          if (u) el.setAttribute("src", u); else el.parentNode.removeChild(el);
-        });
-      }
-
-      /* stylesheets, icons, preloads */
-      Array.prototype.forEach.call(doc.querySelectorAll("link[href]"), function (el) {
-        var rel = (el.getAttribute("rel") || "").toLowerCase();
-        if (rel.indexOf("stylesheet") >= 0 || rel.indexOf("icon") >= 0) {
-          var u = asset(el.getAttribute("href"));
-          if (u) el.setAttribute("href", u); else el.parentNode.removeChild(el);
-        } else {
-          el.parentNode.removeChild(el);
-        }
+      /* things that would break the frame or escape it */
+      Array.prototype.forEach.call(doc.querySelectorAll("meta[http-equiv]"), function (el) {
+        var what = (el.getAttribute("http-equiv") || "").toLowerCase();
+        if (what === "content-security-policy" || what === "refresh") el.parentNode.removeChild(el);
       });
-
-      /* media */
-      Array.prototype.forEach.call(doc.querySelectorAll("img, source, video, audio, embed, track"), function (el) {
-        if (opts.blockImages && (el.tagName === "IMG" || el.tagName === "SOURCE")) {
-          el.removeAttribute("src");
-          el.removeAttribute("srcset");
-          el.setAttribute("data-blocked", "1");
-          return;
-        }
-        ["src", "poster", "data-src"].forEach(function (attr) {
-          if (!el.hasAttribute(attr)) return;
-          var u = asset(el.getAttribute(attr));
-          if (u) el.setAttribute(attr === "data-src" ? "src" : attr, u);
-        });
-        if (el.hasAttribute("srcset")) {
-          var parts = el.getAttribute("srcset").split(",").map(function (chunk) {
-            var bits = chunk.trim().split(/\s+/);
-            var u = asset(bits[0]);
-            return u ? [u].concat(bits.slice(1)).join(" ") : "";
-          }).filter(Boolean);
-          if (parts.length) el.setAttribute("srcset", parts.join(", "));
-          else el.removeAttribute("srcset");
-        }
-      });
-
-      /* nested frames: drop them, they rarely survive the trip */
-      Array.prototype.forEach.call(doc.querySelectorAll("iframe, frame, object"), function (el) {
+      Array.prototype.forEach.call(doc.querySelectorAll("iframe, frame"), function (el) {
         el.parentNode.removeChild(el);
       });
 
-      /* links become messages to the shell */
-      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"), function (el) {
-        var abs = engine.resolve(el.getAttribute("href"), base);
-        el.removeAttribute("target");
-        if (abs) {
-          el.setAttribute("data-rl", abs);
-          el.setAttribute("href", abs);
-        } else {
-          el.removeAttribute("href");
-        }
-      });
-
-      /* forms: GET is re-sent through the relay, POST is not supported */
-      Array.prototype.forEach.call(doc.querySelectorAll("form"), function (el) {
-        var abs = engine.resolve(el.getAttribute("action") || base, base);
-        el.setAttribute("data-rl-action", abs || base);
-        el.setAttribute("data-rl-method", (el.getAttribute("method") || "get").toLowerCase());
-        el.removeAttribute("action");
-      });
-
-      /* url() inside <style> blocks and style attributes */
-      var fixCss = function (css) {
-        return String(css).replace(/url\((['"]?)([^'")]+)\1\)/gi, function (m, q, href) {
-          if (/^(data|blob):/i.test(href)) return m;
-          var u = asset(href);
-          return u ? 'url("' + u + '")' : m;
-        }).replace(/@import\s+(['"])([^'"]+)\1/gi, function (m, q, href) {
-          var u = asset(href);
-          return u ? '@import "' + u + '"' : "";
+      if (opts.stripScripts) {
+        Array.prototype.forEach.call(doc.querySelectorAll("script"), function (el) {
+          el.parentNode.removeChild(el);
         });
-      };
-      Array.prototype.forEach.call(doc.querySelectorAll("style"), function (el) {
-        el.textContent = fixCss(el.textContent);
-      });
-      Array.prototype.forEach.call(doc.querySelectorAll("[style]"), function (el) {
-        el.setAttribute("style", fixCss(el.getAttribute("style")));
-      });
-
-      /* inline handlers go away with scripts */
-      if (opts.stripScripts !== false) {
         Array.prototype.forEach.call(doc.querySelectorAll("*"), function (el) {
           Array.prototype.slice.call(el.attributes || []).forEach(function (a) {
             if (/^on/i.test(a.name)) el.removeAttribute(a.name);
@@ -2416,20 +2426,49 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
         });
       }
 
+      if (opts.blockImages) {
+        Array.prototype.forEach.call(doc.querySelectorAll("img, picture source"), function (el) {
+          el.removeAttribute("src"); el.removeAttribute("srcset");
+          el.setAttribute("data-blocked", "1");
+        });
+      }
+
+      /* links stay readable but go through the shell */
+      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"), function (el) {
+        var abs = engine.resolve(el.getAttribute("href"), base);
+        el.removeAttribute("target");
+        if (abs) { el.setAttribute("data-rl", abs); el.setAttribute("href", abs); }
+      });
+
+      Array.prototype.forEach.call(doc.querySelectorAll("form"), function (el) {
+        var abs = engine.resolve(el.getAttribute("action") || base, base);
+        el.setAttribute("data-rl-action", abs || base);
+        el.setAttribute("data-rl-method", (el.getAttribute("method") || "get").toLowerCase());
+        el.removeAttribute("action");
+      });
+
       var head = doc.head || doc.documentElement;
+
       var charset = doc.createElement("meta");
       charset.setAttribute("charset", "utf-8");
       head.insertBefore(charset, head.firstChild);
 
+      var baseTag = doc.createElement("base");
+      baseTag.setAttribute("href", base);
+      head.insertBefore(baseTag, charset.nextSibling);
+
+      /* the prelude has to run before any of the page's own scripts */
+      var boot = doc.createElement("script");
+      boot.textContent = engine.prelude(base, relay);
+      head.insertBefore(boot, baseTag.nextSibling);
+
       var patch = doc.createElement("style");
-      patch.textContent = "html{-webkit-text-size-adjust:100%}" +
-        "[data-blocked]{outline:1px dashed #9993;min-height:12px}" +
-        "a[data-rl]{cursor:pointer}";
+      patch.textContent = "[data-blocked]{outline:1px dashed #9993;min-height:12px}a[data-rl]{cursor:pointer}";
       head.appendChild(patch);
 
-      var boot = doc.createElement("script");
-      boot.textContent = engine.BOOTSTRAP;
-      (doc.body || head).appendChild(boot);
+      var shell = doc.createElement("script");
+      shell.textContent = engine.BOOTSTRAP;
+      (doc.body || head).appendChild(shell);
 
       return "<!doctype html>" + doc.documentElement.outerHTML;
     },
@@ -2583,6 +2622,193 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
   };
 
   FP.engine = engine;
+})(window.FP = window.FP || {});
+</script>
+<script>
+/* js/uv.js */
+/* ===========================================================
+   Relay — proxy mode (Ultraviolet)
+   -----------------------------------------------------------
+   The other modes fetch a page's HTML and rewrite it once. This
+   one puts a service worker between the proxied site and the
+   network, so the site keeps running: its scripts execute, its
+   XHR and fetch calls go through the proxy, its images and fonts
+   and video come through, logins hold, WebSockets work.
+
+   It needs two things the others don't:
+     - a real origin (https, or localhost). A document written
+       into about:blank cannot register a service worker.
+     - a Wisp server to carry the traffic. server/ has one, and
+       it is the only part that has to run on a host.
+   =========================================================== */
+
+(function (FP) {
+  "use strict";
+
+  var ready = null;      /* promise: service worker + transport are up */
+  var connection = null;
+
+  var uv = {
+
+    /* Can this window run proxy mode at all? */
+    available: function () {
+      if (!("serviceWorker" in navigator)) return false;
+      if (!window.isSecureContext) return false;
+      if (!/^https?:$/.test(location.protocol)) return false;
+      /* A document written into a blank window inherits its opener's
+         origin, so the checks above all pass — but it has no document
+         of its own to attach a worker to, and registering throws.
+         document.URL still says about:blank, which is the giveaway. */
+      if (/^about:/i.test(document.URL || "")) return false;
+      return true;
+    },
+
+    why: function () {
+      if (!("serviceWorker" in navigator)) return "This browser has no service workers.";
+      if (!window.isSecureContext) return "Proxy mode needs https (or localhost).";
+      if (!/^https?:$/.test(location.protocol) || /^about:/i.test(document.URL || "")) {
+        return "Proxy mode needs the site open at its real address. Inside a blank window there is " +
+               "nowhere to register the service worker — point your launcher's frame at the hosted " +
+               "site and proxy mode works there.";
+      }
+      return "Proxy mode is not available here.";
+    },
+
+    wispUrl: function () {
+      var set = (FP.store.get("wisp") || "").trim();
+      if (set) return set;
+      /* same host by default: handy when the site is served by server/ itself */
+      return (location.protocol === "https:" ? "wss://" : "ws://") + location.host +
+             (location.pathname.replace(/[^/]*$/, "")) + "wisp/";
+    },
+
+    /* where our own files live, whatever subpath the site is on */
+    assetBase: function () {
+      return location.pathname.replace(/[^/]*$/, "");
+    },
+
+    /* Load uv.bundle + uv.config into this page, register the worker,
+       then point bare-mux at the Wisp server. Runs once. */
+    start: function () {
+      if (ready) return ready;
+
+      ready = (function () {
+        var base = uv.assetBase();
+
+        function script(src) {
+          return new Promise(function (resolve, reject) {
+            var existing = document.querySelector('script[src="' + src + '"]');
+            if (existing) { resolve(); return; }
+            var el = document.createElement("script");
+            el.src = src;
+            el.onload = function () { resolve(); };
+            el.onerror = function () { reject(new Error("could not load " + src)); };
+            document.head.appendChild(el);
+          });
+        }
+
+        return script(base + "uv/uv.bundle.js")
+          .then(function () { return script(base + "uv/uv.config.js"); })
+          .then(function () { return script(base + "baremux/index.js"); })
+          .then(function () {
+            /* scope is the whole site, not just the proxy prefix: an
+               absolute link inside a proxied page has to land back in
+               the worker rather than on this site's own 404 */
+            return navigator.serviceWorker.register(base + "sw.js", { scope: base });
+          })
+          .then(function (reg) {
+            /* wait until it is actually controlling, or the first
+               frame load races the worker and comes back blank */
+            if (reg.active && navigator.serviceWorker.controller) return reg;
+            return new Promise(function (resolve) {
+              var done = function () { resolve(reg); };
+              if (reg.installing || reg.waiting) {
+                var w = reg.installing || reg.waiting;
+                w.addEventListener("statechange", function () {
+                  if (w.state === "activated") done();
+                });
+              }
+              navigator.serviceWorker.addEventListener("controllerchange", done);
+              setTimeout(done, 4000);
+            });
+          })
+          .then(function () { return uv.checkBackend(); })
+          .then(function () {
+            connection = new window.BareMux.BareMuxConnection(base + "baremux/worker.js");
+            return uv.applyTransport();
+          })
+          .then(function () { return true; });
+      })().catch(function (err) {
+        ready = null;              /* let the next attempt try again */
+        throw err;
+      });
+
+      return ready;
+    },
+
+    /* The address to put in the frame. */
+    frameUrl: function (url) {
+      return window.__uv$config.prefix + window.__uv$config.encodeUrl(url);
+    },
+
+    /* Read the real address back out of a proxied frame URL. */
+    realUrl: function (frameUrl) {
+      try {
+        var path = new URL(frameUrl, location.href).pathname;
+        var prefix = window.__uv$config.prefix;
+        if (path.indexOf(prefix) !== 0) return "";
+        return window.__uv$config.decodeUrl(path.slice(prefix.length));
+      } catch (e) { return ""; }
+    },
+
+    /* Two transports, because they break in different places.
+       Epoxy speaks raw TCP over Wisp and handles WebSockets, which
+       sites with live content need. Bare lets the server's own HTTP
+       client do the work, which is steadier on ordinary page loads.
+       Both come from the same server. */
+    applyTransport: function () {
+      if (!connection) return Promise.resolve();
+      var base = uv.assetBase();
+      if (FP.store.get("transport") === "bare") {
+        return connection.setTransport(base + "baremod/index.mjs", [uv.bareUrl()]);
+      }
+      return connection.setTransport(base + "epoxy/index.mjs", [{ wisp: uv.wispUrl() }]);
+    },
+
+    /* A proxy needs something to do the fetching. Ask it who it is
+       before handing it traffic, so a missing backend reads as
+       "set this up" rather than a page that never loads. */
+    checkBackend: function () {
+      if (FP.store.get("transport") !== "bare") return Promise.resolve();
+      var url = uv.bareUrl();
+      var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+
+      return fetch(url, { signal: ctrl ? ctrl.signal : undefined })
+        .then(function (res) { return res.json(); })
+        .then(function (info) {
+          clearTimeout(timer);
+          if (!info || !info.versions || info.versions.indexOf("v3") < 0) {
+            throw new Error("NO_BACKEND");
+          }
+        })
+        .catch(function () {
+          clearTimeout(timer);
+          throw new Error("NO_BACKEND");
+        });
+    },
+
+    bareUrl: function () {
+      var set = (FP.store.get("bare") || "").trim();
+      if (set) return set;
+      return location.origin + uv.assetBase() + "bare/";
+    },
+
+    /* Switch transport or server without reloading. */
+    retransport: function () { return uv.applyTransport(); }
+  };
+
+  FP.uv = uv;
 })(window.FP = window.FP || {});
 </script>
 <script>
@@ -2810,7 +3036,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
   var wired = false;
   var $ = function (id) { return document.getElementById(id); };
 
-  var MODE_LABELS = { page: "full page", reader: "reader", frame: "instance" };
+  var MODE_LABELS = { page: "live page", proxy: "proxy", reader: "reader", frame: "instance" };
 
   /* ---------- hero ---------- */
 
@@ -3048,7 +3274,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     e.preventDefault();
     var url = engine.normalize($("home-addr").value);
     if (!url) { shell.toast("Type an address or a search.", "bad"); $("home-addr").focus(); return; }
-    if (!store.chain(store.get("mode")).length) {
+    if (store.get("mode") !== "proxy" && !store.chain(store.get("mode")).length) {
       shell.toast("No relay is enabled for this mode.", "bad");
       drawRack(); openSheet("sheet-relays");
       return;
@@ -3096,6 +3322,26 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     });
   });
 
+  /* Proxy mode is the default, but a blank window cannot run it.
+     Show that honestly on the chip rather than letting it fail later. */
+  function markProxyAvailability() {
+    var chip = document.querySelector('.chip[data-mode="proxy"]');
+    if (!chip || !FP.uv) return;
+    if (FP.uv.available()) {
+      chip.removeAttribute("title");
+      chip.style.opacity = "";
+    } else {
+      chip.title = FP.uv.why();
+      chip.style.opacity = "0.5";
+      if (store.get("mode") === "proxy") {
+        store.set("mode", "page");
+        Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
+          c.setAttribute("aria-pressed", c.dataset.mode === "page" ? "true" : "false");
+        });
+      }
+    }
+  }
+
   /* ---------- view ---------- */
 
   FP.home = {
@@ -3104,6 +3350,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       paintDecor();
       drawHero();
       drawTiles();
+      markProxyAvailability();
       drawReadout();
       var mode = store.get("mode");
       Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) {
@@ -3213,6 +3460,68 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       el.busySub.textContent = "relay " + n + " of " + total + " · " + engine.host(url);
     };
 
+    /* proxy mode: the service worker does the work and the page
+       stays live, so we hand the frame a URL and get out of the way */
+    if (mode === "proxy" && !FP.uv.available()) {
+      /* a blank window has nowhere to register a service worker, so
+         carry on with the rewriting mode rather than dead-ending */
+      mode = "page";
+      el.mode.value = "page";
+      shell.toast("Proxy mode needs the hosted site; using full page here.", "info");
+    }
+
+    if (mode === "proxy") {
+      el.busyHead.textContent = "Starting the proxy";
+      el.busySub.textContent = "service worker and transport";
+      el.via.textContent = "proxy";
+
+      FP.uv.start().then(function () {
+        if (ticket !== inFlight) return;
+        el.frame.removeAttribute("srcdoc");
+        el.frame.removeAttribute("sandbox");     /* the page has to really run */
+        el.frame.src = FP.uv.frameUrl(url);
+        el.bars.setAttribute("data-level", "4");
+        el.via.textContent = "proxy · " + (store.get("wisp") ? "your wisp" : "this host");
+        watchFrame(ticket);
+        store.pushHistory(url, engine.host(url));
+      }).catch(function (err) {
+        if (ticket !== inFlight) return;
+        var why = (err && err.message) || "";
+
+        /* A window that cannot hold a service worker — a blank window
+           written in by a launcher, most often — can still browse with
+           the rewriting mode, so fall back rather than dead-end. */
+        if (/NO_BACKEND/.test(why)) {
+          fail({
+            message: "Proxy mode needs a backend — about two minutes, no commands.",
+            hint: "1. dash.cloudflare.com → Workers & Pages → Create → Worker\n" +
+                  "2. Deploy it, then Edit code\n" +
+                  "3. Paste in worker/bare-worker.js from this repo, Deploy again\n" +
+                  "4. Settings → Connection → Bare server: https://<your-worker>.workers.dev/bare/\n\n" +
+                  "Until then, full page and reader modes work with no setup at all.",
+            attempts: []
+          });
+          return;
+        }
+
+        if (/ServiceWorker|invalid state|secure context|not supported/i.test(why)) {
+          mode = "page";
+          el.mode.value = "page";
+          shell.toast("Proxy mode needs the hosted site; using full page here.", "info");
+          go(url, false);
+          return;
+        }
+
+        fail({
+          message: "The proxy could not start.",
+          hint: (why ? why + ". " : "") +
+                "Check the transport in Settings — the Wisp or Bare server has to be reachable from here.",
+          attempts: []
+        });
+      });
+      return;
+    }
+
     /* proxy-instance mode hands the whole job to a full proxy server */
     if (mode === "frame") {
       var frameRelay = store.enabledRelays().filter(function (r) { return r.kind === "frame"; })[0];
@@ -3250,6 +3559,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       }
 
       el.frame.removeAttribute("src");
+      el.frame.setAttribute("sandbox", "allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox");
       el.frame.srcdoc = html;
 
       el.via.textContent = out.relay.name + " · " + out.ms + " ms";
@@ -3283,6 +3593,33 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
     el.failTrace.style.display = lines.length ? "" : "none";
   }
 
+  /* In proxy mode the frame navigates on its own, so the address bar
+     follows it instead of the shell driving every hop. */
+  function watchFrame(ticket) {
+    var seen = 0;
+    var tick = setInterval(function () {
+      if (ticket !== inFlight) { clearInterval(tick); return; }
+      var here = "";
+      try { here = el.frame.contentWindow.location.href; } catch (e) { return; }
+      if (!here || here === "about:blank") return;
+      var real = FP.uv.realUrl(here);
+      if (real && real !== current) {
+        current = real;
+        el.addr.value = real;
+        document.title = (store.get("tabTitle") || engine.host(real) + " — Relay");
+        store.pushHistory(real, engine.host(real));
+      }
+      if (++seen > 600) clearInterval(tick);   /* ten minutes is plenty */
+    }, 500);
+
+    el.frame.addEventListener("load", function once() {
+      el.frame.removeEventListener("load", once);
+      if (ticket === inFlight) show("none");
+    });
+    /* don't leave the spinner up if load never fires */
+    setTimeout(function () { if (ticket === inFlight) show("none"); }, 6000);
+  }
+
   /* ---------- messages from the sandboxed page ---------- */
 
   window.addEventListener("message", function (e) {
@@ -3293,6 +3630,10 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       if (!next) return;
       if (msg.newTab) shell.spawn(next, mode, "tab");
       else go(next);
+    } else if (msg.rl === "url" && msg.url) {
+      /* the page moved itself with history.pushState */
+      current = msg.url;
+      el.addr.value = msg.url;
     } else if (msg.rl === "notice") {
       shell.toast(msg.text, "bad");
     } else if (msg.rl === "key") {
@@ -3310,18 +3651,29 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
   });
 
   el.back.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.history.back(); return; } catch (e) {}
+    }
     if (at <= 0) return;
     at--;
     go(stack[at], false);
   });
 
   el.forward.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.history.forward(); return; } catch (e) {}
+    }
     if (at >= stack.length - 1) return;
     at++;
     go(stack[at], false);
   });
 
-  el.reload.addEventListener("click", function () { if (current) go(current, false); });
+  el.reload.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.location.reload(); return; } catch (e) {}
+    }
+    if (current) go(current, false);
+  });
 
   el.retry.addEventListener("click", function () { if (current) go(current, false); });
 
@@ -3388,8 +3740,8 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
   /* ---------- simple bound controls ---------- */
 
   var toggles = ["failover", "stripScripts", "blockImages", "keepHistory"];
-  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor", "assets"];
-  var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline"];
+  var selects = ["timeout", "mode", "searchEngine", "openIn", "density", "panicKey", "decor", "assets", "transport"];
+  var texts = ["tabTitle", "tabIcon", "panicUrl", "wordmark", "tagline", "wisp", "bare"];
 
   function bind() {
     toggles.forEach(function (key) {
@@ -3408,6 +3760,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       sel.value = key === "timeout" ? String(val) : (val == null ? "" : val);
       sel.addEventListener("change", function () {
         store.set(key, key === "timeout" ? parseInt(sel.value, 10) : sel.value);
+        if (key === "transport" && FP.uv) FP.uv.retransport();
         shell.paint();
         drawRelayPicker();
         shell.toast(label(key) + " saved", "good");
@@ -3420,6 +3773,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       input.addEventListener("change", function () {
         store.set(key, input.value.trim());
         shell.paint();
+        if ((key === "wisp" || key === "bare") && FP.uv) FP.uv.retransport();
         shell.toast(label(key) + " saved", "good");
       });
     });
@@ -3432,7 +3786,7 @@ html[data-theme="opium"] .tagline { color: #e8c9a3; opacity: 0.85; font-size: 0.
       searchEngine: "Search engine", openIn: "Open location", density: "Density",
       panicKey: "Escape key", tabTitle: "Tab title", tabIcon: "Tab icon",
       panicUrl: "Escape address", decor: "Backdrop", wordmark: "Wordmark",
-      tagline: "Tagline", assets: "Image loading"
+      tagline: "Tagline", assets: "Image loading", wisp: "Wisp server", bare: "Bare server", transport: "Transport"
     })[key] || key;
   }
 

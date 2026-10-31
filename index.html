@@ -104,7 +104,8 @@
     </form>
 
     <div class="chips" role="group" aria-label="How pages are rendered">
-      <button type="button" class="chip" data-mode="page" aria-pressed="true">full page</button>
+      <button type="button" class="chip" data-mode="page" aria-pressed="true">live page</button>
+      <button type="button" class="chip" data-mode="proxy" aria-pressed="false">proxy</button>
       <button type="button" class="chip" data-mode="reader" aria-pressed="false">reader</button>
       <button type="button" class="chip" data-mode="frame" aria-pressed="false">instance</button>
     </div>
@@ -324,8 +325,23 @@
       <section class="panel sheet" id="connection">
         <div class="panel-head"><h2>Connection</h2></div>
         <div class="panel-body">
+          <div class="control stacked">
+            <div class="text"><strong>Wisp server</strong><span>Proxy mode's transport — the one piece that runs on a host. Leave blank to use the server this site is served from. Anything else: <code>wss://your-app.onrender.com/wisp/</code>. Setting it up takes one deploy; see server/README.md.</span></div>
+            <div class="input"><input class="field field-mono" id="wisp" placeholder="wss://your-app.onrender.com/wisp/"></div>
+          </div>
           <div class="control">
-            <div class="text"><strong>Relay</strong><span>Which server fetches your pages.</span></div>
+            <div class="text"><strong>Transport</strong><span>How proxy mode carries traffic. Bare is a Cloudflare Worker you deploy by pasting a file in — no commands, works with a static site, and it is the one tested end to end. Epoxy adds WebSockets but needs a Node host.</span></div>
+            <div class="input"><select class="field" id="transport">
+              <option value="bare">bare (recommended)</option>
+              <option value="epoxy">epoxy over wisp</option>
+            </select></div>
+          </div>
+          <div class="control stacked">
+            <div class="text"><strong>Bare server</strong><span>Only used by the bare transport. Blank means this site's own host.</span></div>
+            <div class="input"><input class="field field-mono" id="bare" placeholder="https://your-app.onrender.com/bare/"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Relay</strong><span>Used by the relay modes only. Proxy mode ignores it.</span></div>
             <div class="input"><select class="field" id="activeRelay"></select></div>
           </div>
           <div class="control">
@@ -344,7 +360,8 @@
           <div class="control">
             <div class="text"><strong>Default mode</strong><span>How pages render when you connect from the console.</span></div>
             <div class="input"><select class="field" id="mode">
-              <option value="page">full page</option>
+              <option value="page">live page</option>
+              <option value="proxy">proxy</option>
               <option value="reader">reader</option>
               <option value="frame">proxy instance</option>
             </select></div>
@@ -368,7 +385,7 @@
             </select></div>
           </div>
           <div class="control">
-            <div class="text"><strong>Remove scripts from pages</strong><span>On is faster and steadier. Off breaks more often than it fixes.</span></div>
+            <div class="text"><strong>Remove scripts from pages</strong><span>Off by default now: the page's own code runs, and its fetch and XHR calls are routed through the relay. Turn it on for a plain, fast, read-only copy.</span></div>
             <div class="input"><label class="switch"><input type="checkbox" id="stripScripts"><span class="track"></span></label></div>
           </div>
           <div class="control">
@@ -603,6 +620,7 @@
 <script src="js/shortcuts.js"></script>
 <script src="js/store.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/uv.js"></script>
 <script src="js/router.js"></script>
 <script src="js/shell.js"></script>
 <script src="js/home.js"></script>

@@ -78,6 +78,68 @@
       el.busySub.textContent = "relay " + n + " of " + total + " · " + engine.host(url);
     };
 
+    /* proxy mode: the service worker does the work and the page
+       stays live, so we hand the frame a URL and get out of the way */
+    if (mode === "proxy" && !FP.uv.available()) {
+      /* a blank window has nowhere to register a service worker, so
+         carry on with the rewriting mode rather than dead-ending */
+      mode = "page";
+      el.mode.value = "page";
+      shell.toast("Proxy mode needs the hosted site; using full page here.", "info");
+    }
+
+    if (mode === "proxy") {
+      el.busyHead.textContent = "Starting the proxy";
+      el.busySub.textContent = "service worker and transport";
+      el.via.textContent = "proxy";
+
+      FP.uv.start().then(function () {
+        if (ticket !== inFlight) return;
+        el.frame.removeAttribute("srcdoc");
+        el.frame.removeAttribute("sandbox");     /* the page has to really run */
+        el.frame.src = FP.uv.frameUrl(url);
+        el.bars.setAttribute("data-level", "4");
+        el.via.textContent = "proxy · " + (store.get("wisp") ? "your wisp" : "this host");
+        watchFrame(ticket);
+        store.pushHistory(url, engine.host(url));
+      }).catch(function (err) {
+        if (ticket !== inFlight) return;
+        var why = (err && err.message) || "";
+
+        /* A window that cannot hold a service worker — a blank window
+           written in by a launcher, most often — can still browse with
+           the rewriting mode, so fall back rather than dead-end. */
+        if (/NO_BACKEND/.test(why)) {
+          fail({
+            message: "Proxy mode needs a backend — about two minutes, no commands.",
+            hint: "1. dash.cloudflare.com → Workers & Pages → Create → Worker\n" +
+                  "2. Deploy it, then Edit code\n" +
+                  "3. Paste in worker/bare-worker.js from this repo, Deploy again\n" +
+                  "4. Settings → Connection → Bare server: https://<your-worker>.workers.dev/bare/\n\n" +
+                  "Until then, full page and reader modes work with no setup at all.",
+            attempts: []
+          });
+          return;
+        }
+
+        if (/ServiceWorker|invalid state|secure context|not supported/i.test(why)) {
+          mode = "page";
+          el.mode.value = "page";
+          shell.toast("Proxy mode needs the hosted site; using full page here.", "info");
+          go(url, false);
+          return;
+        }
+
+        fail({
+          message: "The proxy could not start.",
+          hint: (why ? why + ". " : "") +
+                "Check the transport in Settings — the Wisp or Bare server has to be reachable from here.",
+          attempts: []
+        });
+      });
+      return;
+    }
+
     /* proxy-instance mode hands the whole job to a full proxy server */
     if (mode === "frame") {
       var frameRelay = store.enabledRelays().filter(function (r) { return r.kind === "frame"; })[0];
@@ -115,6 +177,7 @@
       }
 
       el.frame.removeAttribute("src");
+      el.frame.setAttribute("sandbox", "allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox");
       el.frame.srcdoc = html;
 
       el.via.textContent = out.relay.name + " · " + out.ms + " ms";
@@ -148,6 +211,33 @@
     el.failTrace.style.display = lines.length ? "" : "none";
   }
 
+  /* In proxy mode the frame navigates on its own, so the address bar
+     follows it instead of the shell driving every hop. */
+  function watchFrame(ticket) {
+    var seen = 0;
+    var tick = setInterval(function () {
+      if (ticket !== inFlight) { clearInterval(tick); return; }
+      var here = "";
+      try { here = el.frame.contentWindow.location.href; } catch (e) { return; }
+      if (!here || here === "about:blank") return;
+      var real = FP.uv.realUrl(here);
+      if (real && real !== current) {
+        current = real;
+        el.addr.value = real;
+        document.title = (store.get("tabTitle") || engine.host(real) + " — Relay");
+        store.pushHistory(real, engine.host(real));
+      }
+      if (++seen > 600) clearInterval(tick);   /* ten minutes is plenty */
+    }, 500);
+
+    el.frame.addEventListener("load", function once() {
+      el.frame.removeEventListener("load", once);
+      if (ticket === inFlight) show("none");
+    });
+    /* don't leave the spinner up if load never fires */
+    setTimeout(function () { if (ticket === inFlight) show("none"); }, 6000);
+  }
+
   /* ---------- messages from the sandboxed page ---------- */
 
   window.addEventListener("message", function (e) {
@@ -158,6 +248,10 @@
       if (!next) return;
       if (msg.newTab) shell.spawn(next, mode, "tab");
       else go(next);
+    } else if (msg.rl === "url" && msg.url) {
+      /* the page moved itself with history.pushState */
+      current = msg.url;
+      el.addr.value = msg.url;
     } else if (msg.rl === "notice") {
       shell.toast(msg.text, "bad");
     } else if (msg.rl === "key") {
@@ -175,18 +269,29 @@
   });
 
   el.back.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.history.back(); return; } catch (e) {}
+    }
     if (at <= 0) return;
     at--;
     go(stack[at], false);
   });
 
   el.forward.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.history.forward(); return; } catch (e) {}
+    }
     if (at >= stack.length - 1) return;
     at++;
     go(stack[at], false);
   });
 
-  el.reload.addEventListener("click", function () { if (current) go(current, false); });
+  el.reload.addEventListener("click", function () {
+    if (mode === "proxy") {
+      try { el.frame.contentWindow.location.reload(); return; } catch (e) {}
+    }
+    if (current) go(current, false);
+  });
 
   el.retry.addEventListener("click", function () { if (current) go(current, false); });
 
