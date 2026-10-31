@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en" data-theme="opium">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relay</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,500;1,600&family=Poppins:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="css/core.css">
+<link rel="stylesheet" href="css/skins.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/views.css">
+</head>
+<body data-view="home">
+<!-- backdrop -->
+<div class="decor" id="decor-layer" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="moon spooky"></div>
+  <div class="shoot spooky"></div>
+
+  <svg class="web web-l spooky" viewBox="0 0 100 100" fill="none" stroke="#ffffff" stroke-width="0.7" opacity=".45">
+    <path d="M0 0 L100 60 M0 0 L85 85 M0 0 L60 100 M0 0 L30 100 M0 0 L100 25"/>
+    <path d="M22 8 Q30 22 10 30 M44 16 Q58 40 20 58 M66 25 Q86 58 30 86"/>
+  </svg>
+  <svg class="web web-r spooky" viewBox="0 0 100 100" fill="none" stroke="#c9a7ff" stroke-width="0.7" opacity=".4">
+    <path d="M0 0 L100 60 M0 0 L85 85 M0 0 L60 100 M0 0 L30 100 M0 0 L100 25"/>
+    <path d="M22 8 Q30 22 10 30 M44 16 Q58 40 20 58 M66 25 Q86 58 30 86"/>
+  </svg>
+
+  <svg class="bat bat-1 spooky" viewBox="0 0 64 36" fill="#3a2359">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+  <svg class="bat bat-2 spooky" viewBox="0 0 64 36" fill="#2e1b47">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+  <svg class="bat bat-3 spooky" viewBox="0 0 64 36" fill="#43296a">
+    <path d="M32 10c3-6 8-8 12-4 3-5 10-6 14-2-5 1-7 5-6 9 3 5 1 10-4 12-4 1-8-2-10-6-2 4-6 7-10 6-5-2-7-7-4-12 1-4-1-8-6-9 4-4 11-3 14 2 4-4 9-2 12 4z"/>
+  </svg>
+
+  <div class="spider spooky">
+    <svg viewBox="0 0 36 30" fill="none" stroke="#b9b2c8" stroke-width="1.6" stroke-linecap="round">
+      <path d="M4 6 L13 14 M4 22 L13 17 M32 6 L23 14 M32 22 L23 17 M8 2 L14 11 M8 26 L14 20 M28 2 L22 11 M28 26 L22 20"/>
+      <ellipse cx="18" cy="16" rx="6" ry="7" fill="#8f87a3" stroke="none"/>
+      <circle cx="18" cy="9" r="3.4" fill="#a79fb8" stroke="none"/>
+    </svg>
+  </div>
+
+  <svg class="pumpkins spooky" viewBox="0 0 160 110" aria-hidden="true">
+    <g>
+      <path d="M38 48c-16 0-28 12-28 28s12 28 28 28 28-12 28-28-12-28-28-28z" fill="#f08a1e"/>
+      <path d="M38 48c-7 0-11 12-11 28s4 28 11 28 11-12 11-28-4-28-11-28z" fill="#ffa63d"/>
+      <path d="M35 44h6v-8c0-3 4-5 7-4-4 3-3 6-3 9h-10z" fill="#4f7a2a"/>
+      <path d="M24 66l8-5 2 7zM52 66l-8-5-2 7zM26 82c6 6 22 6 28 0-4 2-8-3-11 0-3-3-7 2-11 0z" fill="#3a1b06"/>
+    </g>
+    <g transform="translate(62 30) scale(.68)">
+      <path d="M38 48c-16 0-28 12-28 28s12 28 28 28 28-12 28-28-12-28-28-28z" fill="#e0791a"/>
+      <path d="M35 44h6v-8c0-3 4-5 7-4-4 3-3 6-3 9h-10z" fill="#466e26"/>
+      <path d="M24 66l8-5 2 7zM52 66l-8-5-2 7zM26 82c6 6 22 6 28 0-4 2-8-3-11 0-3-3-7 2-11 0z" fill="#3a1b06"/>
+    </g>
+  </svg>
+
+  <!-- strawberri set -->
+  <div class="blob blob-1 berry"></div>
+  <div class="blob blob-2 berry"></div>
+
+  <div class="horizon">
+    <div class="glow"></div>
+    <svg viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 200V150c40-8 70 4 110 2 36-2 58-16 96-14 30 2 44 14 76 12 28-2 40-14 70-12 26 2 38 12 64 12 10-40 18-66 30-66s20 26 30 66c30 0 46-14 76-12 30 2 44 16 76 14 34-2 54-14 88-12 36 2 58 14 94 12 40-2 66-12 100-4 30 7 56 4 90-2v44z"
+            fill="color-mix(in srgb, var(--sky-low) 72%, #000)"/>
+      <g fill="#0c0612" opacity=".96">
+        <rect x="880" y="104" width="86" height="96"/>
+        <path d="M876 108l47-34 47 34z"/>
+        <rect x="966" y="130" width="52" height="70"/>
+        <path d="M962 134l30-22 30 22z"/>
+        <rect x="1030" y="150" width="34" height="50"/>
+      </g>
+      <g fill="var(--horizon)" opacity=".85">
+        <rect x="900" y="126" width="9" height="13"/>
+        <rect x="934" y="126" width="9" height="13"/>
+        <rect x="916" y="158" width="12" height="24"/>
+        <rect x="984" y="152" width="8" height="12"/>
+        <rect x="1040" y="170" width="7" height="12"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+
+<!-- ============ home ============ -->
+<section class="view" id="view-home">
+<div class="launch">
+  <div class="launch-in">
+    <h1 class="wordmark" id="hero-mark">relay</h1>
+    <p class="tagline" id="hero-tag">free relays, no account</p>
+
+    <form class="pill" id="dial" autocomplete="off" role="search">
+      <label class="sr" for="home-addr">Search or enter address</label>
+      <svg class="glass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+      </svg>
+      <input id="home-addr" type="text" inputmode="url" placeholder="Search or enter address">
+      <span class="enter">enter</span>
+    </form>
+
+    <div class="chips" role="group" aria-label="How pages are rendered">
+      <button type="button" class="chip" data-mode="page" aria-pressed="true">live page</button>
+      <button type="button" class="chip" data-mode="proxy" aria-pressed="false">proxy</button>
+      <button type="button" class="chip" data-mode="reader" aria-pressed="false">reader</button>
+      <button type="button" class="chip" data-mode="frame" aria-pressed="false">instance</button>
+    </div>
+
+    <div class="tiles" id="home-tiles"></div>
+  </div>
+
+  <div class="dock">
+    <div class="readout" id="readout">
+      <div>relay: <b id="r-relay">auto</b></div>
+      <div>ping: <b id="r-ping">untested</b></div>
+      <div>mode: <b id="r-mode">full page</b></div>
+    </div>
+    <nav class="dock-nav" aria-label="Sections">
+      <button type="button" id="open-relays">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="17" r="3"/><path d="M12 14V4"/><path d="M6 8a8 8 0 0 1 12 0"/>
+        </svg>
+        relays
+      </button>
+      <button type="button" id="open-library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M4 5h6v14H4zM12 5h4v14h-4zM18 6l3 13"/>
+        </svg>
+        library
+      </button>
+      <a href="#" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/>
+        </svg>
+        settings
+      </a>
+      <a href="#" data-view="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/>
+        </svg>
+        about
+      </a>
+    </nav>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<section class="tray" id="sheet-relays" aria-labelledby="sheet-relays-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-relays-title">Relays</h2>
+    <span class="meta" id="relay-count"></span>
+    <button class="btn btn-sm" id="tray-test-all" type="button">Test all</button>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body"><ul class="rack-list" id="rack"></ul></div>
+</section>
+
+<section class="tray" id="sheet-library" aria-labelledby="sheet-library-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-library-title">Library</h2>
+    <button class="btn btn-sm btn-ghost" id="clear-library" type="button">Clear</button>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body"><ul class="lib" id="library"></ul></div>
+</section>
+
+<section class="tray" id="sheet-tile" aria-labelledby="sheet-tile-title" role="dialog" aria-modal="true">
+  <div class="tray-head">
+    <h2 id="sheet-tile-title">Add a tile</h2>
+    <button class="btn btn-sm btn-ghost" data-close type="button" aria-label="Close">×</button>
+  </div>
+  <div class="tray-body">
+    <form class="tile-form" id="tile-form">
+      <div>
+        <label class="label" for="t-label">Name</label>
+        <input class="field" id="t-label" placeholder="Wikipedia">
+      </div>
+      <div>
+        <label class="label" for="t-url">Address</label>
+        <input class="field field-mono" id="t-url" placeholder="wikipedia.org">
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-sm" type="submit">Add tile</button>
+        <span class="hint" style="margin:0">Remove a tile by right-clicking it, or in Settings.</span>
+      </div>
+    </form>
+  </div>
+</section>
+</section>
+
+<!-- ============ viewport ============ -->
+<section class="view" id="view-browse" hidden>
+<div class="viewbar">
+  <button class="btn btn-sm btn-icon nudge" data-view="home" title="Home" aria-label="Home">⌂</button>
+  <button class="btn btn-sm btn-icon nudge" id="back" title="Back" aria-label="Back">‹</button>
+  <button class="btn btn-sm btn-icon nudge" id="forward" title="Forward" aria-label="Forward">›</button>
+  <button class="btn btn-sm btn-icon nudge" id="reload" title="Reload" aria-label="Reload">⟳</button>
+
+  <form class="addr" id="addr-form" autocomplete="off">
+    <label class="sr" for="view-addr">Address</label>
+    <input class="field" id="view-addr" type="text" spellcheck="false">
+  </form>
+
+  <select class="field field-mono btn-sm" id="view-mode" style="width:auto;padding:7px 10px" aria-label="Render mode">
+    <option value="page">full page</option>
+    <option value="reader">reader</option>
+    <option value="frame">proxy instance</option>
+  </select>
+
+  <div class="viewbar-meta">
+    <span id="via">—</span>
+    <span class="bars" id="bars" data-level="0" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </div>
+
+  <button class="btn btn-sm btn-ghost" id="open-blank" title="Open in a blank window">Blank window</button>
+</div>
+
+<div class="stage" id="stage">
+  <iframe id="frame" title="Proxied page"
+          sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+          referrerpolicy="no-referrer"></iframe>
+
+  <div class="stage-msg" id="busy" data-show="1">
+    <div class="spin"></div>
+    <h2 id="busy-head">Reaching the relay</h2>
+    <p id="busy-sub">asking the first relay in the chain</p>
+  </div>
+
+  <div class="stage-msg" id="failed">
+    <h2 id="fail-head">The page did not come through</h2>
+    <p id="fail-sub">Every enabled relay refused it.</p>
+    <div class="trace" id="fail-trace"></div>
+    <div class="row">
+      <button class="btn" id="retry">Try again</button>
+      <button class="btn" id="try-reader">Open in reader</button>
+      <button class="btn btn-ghost" data-view="settings">Relay settings</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ settings ============ -->
+<section class="view" id="view-settings" hidden>
+<header class="topbar">
+  <div class="shell topbar-in">
+    <a class="brand" href="#" data-view="home"><span class="dot"></span> Relay <small>free relays only</small></a>
+    <nav class="nav">
+      <a href="#" data-view="home">Home</a>
+      <a href="#" data-view="settings" aria-current="page">Settings</a>
+      <a href="#" data-view="about">How it works</a>
+    </nav>
+  </div>
+</header>
+<main class="shell settings">
+  <h1 style="margin-bottom:22px">Settings</h1>
+
+  <div class="settings-grid">
+    <nav class="toc" aria-label="Settings sections">
+      <a href="#relays">Relays</a>
+      <a href="#connection">Connection</a>
+      <a href="#browsing">Browsing</a>
+      <a href="#look">Look</a>
+      <a href="#tiles">Tiles</a>
+      <a href="#tab">Tab and escape</a>
+      <a href="#data">Your data</a>
+    </nav>
+
+    <div class="sheets">
+
+      <!-- ===== relays ===== -->
+      <section class="panel sheet" id="relays">
+        <div class="panel-head">
+          <h2>Relays</h2>
+          <button class="btn btn-sm" id="test-all" type="button">Test all</button>
+          <button class="btn btn-sm" id="restore" type="button">Restore built-ins</button>
+        </div>
+        <div class="panel-body">
+          <p>These are the servers that fetch pages for you. Drag order is top-down: with the relay set to
+             <em>fastest available</em>, the quickest one answers first and the rest stand in if it fails.</p>
+          <ul class="relay-rows" id="relay-rows"></ul>
+
+          <div class="editor" id="editor">
+            <h3 id="editor-title">Add a relay</h3>
+            <div class="editor-grid">
+              <div>
+                <label class="label" for="r-name">Name</label>
+                <input class="field" id="r-name" placeholder="My proxy">
+              </div>
+              <div>
+                <label class="label" for="r-kind">Type</label>
+                <select class="field" id="r-kind">
+                  <option value="raw">raw bytes — returns the page as-is</option>
+                  <option value="json">json wrapped — page inside a JSON field</option>
+                  <option value="reader">text only — returns readable text</option>
+                  <option value="frame">proxy instance — a full web proxy, loaded in a frame</option>
+                  <option value="direct">no relay — straight from your browser</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="label" for="r-template">Endpoint</label>
+              <input class="field field-mono" id="r-template" placeholder="https://example.com/fetch?url=%URL%">
+              <p class="hint"><code>%URL%</code> is where the address you want goes. Leave it out and the address is appended to the end.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="r-encode" checked>
+              <span class="track"></span>
+              <span>Percent-encode the address (needed when it sits in a query string)</span>
+            </label>
+            <div class="row">
+              <button class="btn btn-primary btn-sm" id="r-save" type="button">Save relay</button>
+              <button class="btn btn-sm btn-ghost" id="r-cancel" type="button">Cancel</button>
+              <button class="btn btn-sm btn-ghost" id="r-test" type="button">Test this endpoint</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== connection ===== -->
+      <section class="panel sheet" id="connection">
+        <div class="panel-head"><h2>Connection</h2></div>
+        <div class="panel-body">
+          <div class="control stacked">
+            <div class="text"><strong>Wisp server</strong><span>Proxy mode's transport — the one piece that runs on a host. Leave blank to use the server this site is served from. Anything else: <code>wss://your-app.onrender.com/wisp/</code>. Setting it up takes one deploy; see server/README.md.</span></div>
+            <div class="input"><input class="field field-mono" id="wisp" placeholder="wss://your-app.onrender.com/wisp/"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Transport</strong><span>How proxy mode carries traffic. Bare is a Cloudflare Worker you deploy by pasting a file in — no commands, works with a static site, and it is the one tested end to end. Epoxy adds WebSockets but needs a Node host.</span></div>
+            <div class="input"><select class="field" id="transport">
+              <option value="bare">bare (recommended)</option>
+              <option value="epoxy">epoxy over wisp</option>
+            </select></div>
+          </div>
+          <div class="control stacked">
+            <div class="text"><strong>Bare server</strong><span>Only used by the bare transport. Blank means this site's own host.</span></div>
+            <div class="input"><input class="field field-mono" id="bare" placeholder="https://your-app.onrender.com/bare/"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Relay</strong><span>Used by the relay modes only. Proxy mode ignores it.</span></div>
+            <div class="input"><select class="field" id="activeRelay"></select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Fall back to other relays</strong><span>If the chosen relay fails, try the rest in order.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="failover"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Give up after</strong><span>How long one relay gets before the next is tried.</span></div>
+            <div class="input"><select class="field" id="timeout">
+              <option value="6000">6 seconds</option>
+              <option value="12000">12 seconds</option>
+              <option value="20000">20 seconds</option>
+              <option value="35000">35 seconds</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Default mode</strong><span>How pages render when you connect from the console.</span></div>
+            <div class="input"><select class="field" id="mode">
+              <option value="page">live page</option>
+              <option value="proxy">proxy</option>
+              <option value="reader">reader</option>
+              <option value="frame">proxy instance</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== browsing ===== -->
+      <section class="panel sheet" id="browsing">
+        <div class="panel-head"><h2>Browsing</h2></div>
+        <div class="panel-body">
+          <div class="control">
+            <div class="text"><strong>Search with</strong><span>Used when what you type isn't an address.</span></div>
+            <div class="input"><select class="field" id="searchEngine">
+              <option value="https://duckduckgo.com/?q=%s">DuckDuckGo</option>
+              <option value="https://www.google.com/search?q=%s">Google</option>
+              <option value="https://www.bing.com/search?q=%s">Bing</option>
+              <option value="https://search.brave.com/search?q=%s">Brave</option>
+              <option value="https://lite.duckduckgo.com/lite/?q=%s">DuckDuckGo Lite</option>
+              <option value="https://en.wikipedia.org/w/index.php?search=%s">Wikipedia</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Remove scripts from pages</strong><span>Off by default now: the page's own code runs, and its fetch and XHR calls are routed through the relay. Turn it on for a plain, fast, read-only copy.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="stripScripts"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Images and styles</strong><span>Straight from the site is far faster and spares the relay — one relay request per page instead of sixty. Switch to through the relay only if the pictures are blocked on your network.</span></div>
+            <div class="input"><select class="field" id="assets">
+              <option value="direct">straight from the site</option>
+              <option value="relay">through the relay</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Skip images</strong><span>Loads text only. Useful on a slow or rate-limited relay.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="blockImages"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Open pages in</strong><span>Where the viewport appears when you hit Connect.</span></div>
+            <div class="input"><select class="field" id="openIn">
+              <option value="same">this tab</option>
+              <option value="tab">a new tab</option>
+              <option value="blank">a blank window</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== look ===== -->
+      <section class="panel sheet" id="look">
+        <div class="panel-head"><h2>Look</h2></div>
+        <div class="panel-body">
+          <div class="control stacked">
+            <div class="text"><strong>Skin</strong><span>Palette, wordmark face and backdrop. Applies to every page.</span></div>
+            <div class="input swatches" id="swatches"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Wordmark</strong><span>The big name on the home page.</span></div>
+            <div class="input"><input class="field" id="wordmark" placeholder="relay"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Tagline</strong><span>The line under it. Leave blank to drop it.</span></div>
+            <div class="input"><input class="field" id="tagline" placeholder="free relays, no account"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Backdrop</strong><span>Stars and scenery behind the launcher. Seasonal adds the Halloween set through October on the Opium skin.</span></div>
+            <div class="input"><select class="field" id="decor">
+              <option value="auto">seasonal</option>
+              <option value="on">always on</option>
+              <option value="off">off</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Density</strong><span>Compact shrinks type and spacing a little.</span></div>
+            <div class="input"><select class="field" id="density">
+              <option value="comfortable">comfortable</option>
+              <option value="compact">compact</option>
+            </select></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== tiles ===== -->
+      <section class="panel sheet" id="tiles">
+        <div class="panel-head">
+          <h2>Tiles</h2>
+          <button class="btn btn-sm" id="restore-tiles" type="button">Restore defaults</button>
+        </div>
+        <div class="panel-body">
+          <p>The shortcuts under the search bar. They open through the relay like anything else.</p>
+          <ul class="relay-rows" id="tile-rows"></ul>
+
+          <div class="editor">
+            <h3>Add a tile</h3>
+            <div class="editor-grid">
+              <div>
+                <label class="label" for="nt-label">Name</label>
+                <input class="field" id="nt-label" placeholder="Wikipedia">
+              </div>
+              <div>
+                <label class="label" for="nt-url">Address</label>
+                <input class="field field-mono" id="nt-url" placeholder="wikipedia.org">
+              </div>
+            </div>
+            <div class="row"><button class="btn btn-primary btn-sm" id="nt-save" type="button">Add tile</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== tab and escape ===== -->
+      <section class="panel sheet" id="tab">
+        <div class="panel-head"><h2>Tab and escape</h2></div>
+        <div class="panel-body">
+          <div class="control">
+            <div class="text"><strong>Tab title</strong><span>Replaces the title on every page here. Blank keeps "Relay".</span></div>
+            <div class="input"><input class="field" id="tabTitle" placeholder="Relay"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Tab icon</strong><span>Address of an image to use as the favicon.</span></div>
+            <div class="input"><input class="field field-mono" id="tabIcon" placeholder="https://…/icon.png"></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Escape key</strong><span>Pressing it leaves for the address below.</span></div>
+            <div class="input"><select class="field" id="panicKey">
+              <option value="">off</option>
+              <option value="Escape">Escape</option>
+              <option value="`">backtick</option>
+              <option value="]">right bracket</option>
+            </select></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Escape address</strong><span>Where the escape key sends you.</span></div>
+            <div class="input"><input class="field field-mono" id="panicUrl" placeholder="https://www.google.com"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== data ===== -->
+      <section class="panel sheet" id="data">
+        <div class="panel-head"><h2>Your data</h2></div>
+        <div class="panel-body">
+          <p>Everything lives in this browser's local storage. Nothing is sent anywhere except the page requests you make.</p>
+          <div class="control">
+            <div class="text"><strong>Keep a recent list</strong><span>Off stops new entries and leaves nothing behind.</span></div>
+            <div class="input"><label class="switch"><input type="checkbox" id="keepHistory"><span class="track"></span></label></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Recent pages</strong><span id="hist-count">—</span></div>
+            <div class="input"><button class="btn btn-sm btn-danger" id="clear-history" type="button">Clear list</button></div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Settings file</strong><span>Carry your relays and preferences to another browser.</span></div>
+            <div class="input row" style="justify-content:flex-end">
+              <button class="btn btn-sm" id="export" type="button">Export</button>
+              <button class="btn btn-sm" id="import-btn" type="button">Import</button>
+              <input type="file" id="import-file" accept=".json,application/json" hidden>
+            </div>
+          </div>
+          <div class="control">
+            <div class="text"><strong>Start over</strong><span>Returns every setting and the relay list to defaults.</span></div>
+            <div class="input"><button class="btn btn-sm btn-danger" id="reset" type="button">Reset everything</button></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+</section>
+
+<!-- ============ how it works ============ -->
+<section class="view" id="view-about" hidden>
+<header class="topbar">
+  <div class="shell topbar-in">
+    <a class="brand" href="#" data-view="home"><span class="dot"></span> Relay <small>free relays only</small></a>
+    <nav class="nav">
+      <a href="#" data-view="home">Home</a>
+      <a href="#" data-view="settings">Settings</a>
+      <a href="#" data-view="about" aria-current="page">How it works</a>
+    </nav>
+  </div>
+</header>
+<main class="shell doc">
+  <h1>How it works</h1>
+
+  <p>You type an address. This page asks one of the free public relays to fetch it. The relay sends the
+     page back with permission headers that let a browser read it, and Relay then rewrites every link,
+     image and stylesheet inside so they travel the same path. The result is shown in a sandboxed frame
+     that cannot touch your settings or your recent list.</p>
+
+  <h2>The three modes</h2>
+  <ul>
+    <li><strong>Full page</strong> — the real page, rewritten. Closest to normal browsing. Scripts are
+        removed by default, so heavily interactive sites will look plain.</li>
+    <li><strong>Reader</strong> — just the article text and its pictures. The most reliable mode, and the
+        lightest on rate-limited relays.</li>
+    <li><strong>Proxy instance</strong> — hands the whole job to a full web-proxy server you add yourself
+        in settings. This is the only mode that can run a site's own scripts, because the server does the
+        rewriting rather than this page.</li>
+  </ul>
+
+  <h2>Adding your own relay</h2>
+  <p>Settings → Relays → Add a relay. The endpoint is the address of a service that fetches pages,
+     with <code>%URL%</code> standing in for the target. Two shapes cover almost everything:</p>
+  <ul>
+    <li><code>https://service.example/fetch?url=%URL%</code> — keep percent-encoding on.</li>
+    <li><code>https://service.example/%URL%</code> — turn percent-encoding off.</li>
+  </ul>
+  <p>Pick <strong>raw bytes</strong> if the service returns the page itself, <strong>json wrapped</strong>
+     if it returns JSON with the page in a <code>contents</code> field, and <strong>text only</strong> if it
+     returns readable text rather than HTML. If you run your own proxy server, add it as a
+     <strong>proxy instance</strong> and use the proxy-instance mode.</p>
+
+  <h2>What this is not</h2>
+  <div class="callout">
+    <p><strong>This is not a VPN.</strong> A VPN encrypts everything leaving your device and hides your
+       address from the sites you visit. This moves one page request through a public relay, and that is all.</p>
+    <p>Whoever runs a free relay can see which pages you ask for and everything in them. So: don't sign in to
+       anything through it, don't send anything private, and treat every page you get back as something a
+       stranger handed you. For accounts, banking or anything that matters, use the real connection.</p>
+  </div>
+
+  <h2>Why a page sometimes won't load</h2>
+  <ul>
+    <li>The relay hit its rate limit — wait a moment or pick another from the list.</li>
+    <li>The site blocks requests that don't come from a real browser. Reader mode gets through more often.</li>
+    <li>The page needs a login or a POST form. Free relays forward neither.</li>
+    <li>The site is built entirely in JavaScript, so there is no HTML to rewrite. Use a proxy instance.</li>
+  </ul>
+  <p>The failure screen lists every relay that was tried and what each one said, so you can tell
+     a rate limit apart from a block.</p>
+
+  <h2>Where your data sits</h2>
+  <p>Settings, relays, measured speeds and the recent list are stored in this browser's local storage and
+     nowhere else. Nothing here talks to a server of its own — there is no account and no backend. Clear
+     your browser data, or hit <em>Reset everything</em> in settings, and it is all gone.</p>
+
+  <h2>Files</h2>
+  <ul>
+    <li><code>index.html</code> — the launcher: wordmark, search bar, tiles, dock</li>
+    <li><code>browse.html</code> — the viewport that shows proxied pages</li>
+    <li><code>settings.html</code> — everything you can change</li>
+    <li><code>js/relays.js</code> — the built-in relay list, plain and editable</li>
+    <li><code>js/engine.js</code> — fetching, failover and page rewriting</li>
+    <li><code>js/shortcuts.js</code> — the default tiles</li>
+    <li><code>js/store.js</code> — settings, tiles and history in local storage</li>
+    <li><code>css/skins.css</code> — the Opium, Strawberri and Console skins</li>
+  </ul>
+
+  <p style="margin-top:28px"><a href="#" data-view="home">Back to the launcher</a></p>
+</main>
+</section>
+<div id="toasts"></div>
+
+<script src="js/relays.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/store.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/uv.js"></script>
+<script src="js/router.js"></script>
+<script src="js/shell.js"></script>
+<script src="js/home.js"></script>
+<script src="js/browse.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>
