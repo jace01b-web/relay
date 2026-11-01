@@ -52,12 +52,12 @@ new Image()  new Audio()        all through the relay
 direct hits to the blocked domain: 0
 ```
 
-That's the whole point of *through the relay* being the default for assets: on a network that blocks
-the site, a picture fetched straight from the blocked domain never arrives, however well the HTML
-came through. Settings → Browsing → *Images and styles* → **straight from the site** is much faster
-and spares the relay, for when only some sites are blocked.
+The default for images and styles is **straight from the site**: it is much faster and uses one relay
+request per page instead of dozens. Switch to Settings → Browsing → *Images and styles* → **through
+the relay** when assets are blocked on your network. Those assets may not load when the page itself
+uses direct loading and the site is blocked.
 
-**One relay does all of it**, so a busy page is dozens of requests to the same free service, and
+**One relay does all of it**, so a busy page can mean dozens of requests to the same free service, and
 AllOrigins will rate-limit. If you use this regularly, put up your own relay: `worker/relay-worker.js`
 pasted into a free Cloudflare Worker (clicks, no commands), then Settings → Relays → **My Worker** →
 Edit, paste the address, turn it on, drag it to the top. 100,000 requests a day and no limit worth
@@ -203,8 +203,6 @@ Settings → Relays → Add a relay. `%URL%` marks where the target address goes
 Hit **Test** on any row to measure it. With the relay set to *fastest available*, the quickest one
 answers first and the others stand in if it fails.
 
-
-
 ## Relays: read this before you file a bug
 
 Tested from a real browser on 30 Oct 2026, against a normal web page:
@@ -232,10 +230,11 @@ frame, which the public relays don't do. Pages look noticeably better through it
 
 ### One relay request per page, not sixty
 
-Only the HTML document goes through a relay. Images, stylesheets, fonts and media load straight from the
-site, because a browser fetches those cross-origin without asking CORS. Routing them through the relay
-as well — which is what the first version did — turned one page into sixty relay requests, which
-rate-limited the relay instantly and left every picture broken and every stylesheet unapplied.
+Only the HTML document goes through a relay by default. Images, stylesheets, fonts and media load
+straight from the site, because a browser fetches those cross-origin without asking CORS. Routing
+them through the relay as well — which is what the first version did — turned one page into sixty relay
+requests, which rate-limited the relay instantly and left every picture broken and every stylesheet
+unapplied.
 
 Measured on a 20-image test page: **22 relay requests before, 1 after.**
 
@@ -255,6 +254,52 @@ nothing to hand back, and Relay says so up front instead of grinding through six
 A page opened straight off disk sends `Origin: null`, and several relays reject it outright — that's
 the "Failed to fetch" you'll see. Serve the folder, host it, or run it through your launcher, and they
 come back. Relay warns about this on startup when it detects `file://`.
+
+## The Relay server
+
+Proxy mode can use the server in `server/`, which provides two transports:
+
+- **`/wisp/`** — a raw TCP tunnel. Epoxy in the browser carries HTTP and TLS over it; this transport
+  supports WebSockets for live sites.
+- **`/bare/`** — the server makes HTTP requests and returns the responses. It is steadier for ordinary
+  page loads but does not support WebSockets.
+
+Both transports ship together. Choose between them in Settings → Connection → Transport. The server
+can also serve the Relay site, so one deployment can host both.
+
+### Run the server locally
+
+```bash
+cd server
+npm install
+npm start           # http://localhost:8080
+```
+
+Open the local address, select **proxy** mode, and leave the Wisp and Bare fields blank to use the host
+that served the page. To test against a site on the same machine, start the server with
+`ALLOW_PRIVATE=1`. Private and loopback targets are blocked by default to prevent a public deployment
+from reaching the host's network; use this setting only for local testing, never on a public host.
+
+### Deploy the server
+
+For Render, push the repository to GitHub, create a **Blueprint** from it, and deploy the existing
+`render.yaml`. The free instances sleep after roughly 15 minutes idle and can take about 30 seconds to
+wake. Koyeb, Railway, and Fly can build from the `Dockerfile` at the repository root.
+
+For another Node host, use Node 18 or newer, run `cd server && npm install` and `node server.js`, and
+set `PORT` if required by the host. The server also supports `DNS_SERVERS`, a comma-separated list of
+resolvers such as `1.1.1.1,8.8.8.8`, for hosts with unreliable DNS.
+
+If Relay is hosted elsewhere, set Settings → Connection → **Wisp server** to
+`wss://<your-app>.onrender.com/wisp/`, or **Bare server** to
+`https://<your-app>.onrender.com/bare/`. Proxy mode works best when Relay is served from a domain
+root: a proxied absolute path such as `/login` can escape the service worker's scope on
+`you.github.io/relay/`.
+
+### A word on running a server
+
+Anyone who can reach a proxy server can browse through it, and its host sees that traffic as coming
+from its account. Keep the URL private and do not run it where the traffic could cause a problem.
 
 ## What this is not
 
